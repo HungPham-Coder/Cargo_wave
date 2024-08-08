@@ -1,6 +1,5 @@
 import { Button, Result } from "antd";
 import { useNavigate } from "react-router-dom";
-import routes from "../../router/routes";
 
 const PageNotFound = () => {
 	const navigate = useNavigate();
@@ -11,7 +10,7 @@ const PageNotFound = () => {
 			title="Lỗi mất rồi!"
 			subTitle="Có lỗi đã xảy ra"
 			extra={
-				<Button type="primary" onClick={() => navigate(routes.root)}>
+				<Button type="primary" onClick={() => navigate("/")}>
 					Về trang chủ
 				</Button>
 			}
