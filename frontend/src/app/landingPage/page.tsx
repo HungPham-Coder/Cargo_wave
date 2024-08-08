@@ -2,9 +2,9 @@ import { Carousel } from "antd";
 
 export const LandingPage: React.FC = () => {
   const images = [
-    { src: "public/assets/1.jpg", alt: "Image 1" },
-    { src: "public/assets/1.jpg", alt: "Image 2" },
-    { src: "public/assets/1.jpg", alt: "Image 3" },
+    { src: "/assets/1.jpg", alt: "Image 1" },
+    { src: "/assets/1.jpg", alt: "Image 2" },
+    { src: "/assets/1.jpg", alt: "Image 3" },
   ];
 
   // const contentStyle: React.CSSProperties = {
