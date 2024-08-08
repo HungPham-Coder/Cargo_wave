@@ -61,7 +61,7 @@ const AppHeader: React.FC = () => {
     >
       <div>
         <img
-          src="src/assets/CARGO WAVE.png"
+          src="public/assets/CARGO WAVE.png"
           style={{
             marginLeft: 50,
             marginTop: 20,
