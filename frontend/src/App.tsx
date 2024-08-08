@@ -1,15 +1,21 @@
-import { AppProps, Layout } from "antd";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
-import AppHeader from "./layouts/header/header";
-import RoutesList from "./pages/routes/page";
+import AppHeader from "./layouts/header";
+import routes from "./router/route";
+import AppFooter from "./layouts/footer";
 
-function App({ Component, pageProps }: AppProps) {
+
+const App: React.FC = () => {
   return (
-    <Layout>
+    <BrowserRouter>
       <AppHeader></AppHeader>
-      {/* <LoginPage></LoginPage> */}
-      <RoutesList></RoutesList>
-    </Layout>
+      <Routes>
+        {routes.map((route) => (
+          <Route key={route.path} path={route.path} element={route.element} />
+        ))}
+      </Routes>
+      <AppFooter></AppFooter>
+    </BrowserRouter>
   );
 }
 
