@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Menu, MenuProps } from "antd";
+import { Layout, Menu, MenuProps } from "antd";
 import { Header } from "antd/es/layout/layout";
 import ProfileBar from "./profile";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -48,46 +48,48 @@ const AppHeader: React.FC = () => {
   }, [location.pathname]);
 
   return (
-    <Header
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        borderBottom: "1px solid #eee",
-        backgroundColor: "white",
-        padding: "0 20px",
-        marginBottom: 20,
-      }}
-    >
-      <div>
-        <img
-          src="/assets/CARGO WAVE.png"
-          style={{
-            marginLeft: 50,
-            marginTop: 20,
-            cursor: "pointer",
-            height: 40,
-          }}
-          alt="Logo"
-          onClick={handleLogoClick}
-        />
-      </div>
-      <Menu
-        onClick={onClick}
-        selectedKeys={[current]}
-        mode="horizontal"
-        items={items}
+    <Layout style={{marginBottom: 20}}>
+      <Header
         style={{
-          flex: 4,
-          justifyContent: "center",
           display: "flex",
-          fontSize: 20,
+          alignItems: "center",
+          justifyContent: "space-between",
+          borderBottom: "1px solid #eee",
+          backgroundColor: "#F5F5F5",
+          padding: "0 20px",
         }}
-      />
-      <div style={{ flex: 1, display: "flex", justifyContent: "flex-end" }}>
-        <ProfileBar />
-      </div>
-    </Header>
+      >
+        <div>
+          <img
+            src="/assets/CARGO WAVE.png"
+            style={{
+              marginLeft: 50,
+              marginTop: 25,
+              cursor: "pointer",
+              height: 40,
+            }}
+            alt="Logo"
+            onClick={handleLogoClick}
+          />
+        </div>
+        <Menu
+          onClick={onClick}
+          selectedKeys={[current]}
+          mode="horizontal"
+          items={items}
+          style={{
+            flex: 4,
+            justifyContent: "center",
+            display: "flex",
+            fontSize: 20,
+            backgroundColor: "F5F5F5"
+          }}
+        />
+        <div style={{ flex: 1, display: "flex", justifyContent: "flex-end" }}>
+          <ProfileBar />
+        </div>
+      </Header>
+    </Layout>
   );
 };
 

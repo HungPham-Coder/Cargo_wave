@@ -23,29 +23,40 @@ export const LandingPage: React.FC = () => {
   return (
     <div
       style={{
-        width: "50%",
-        padding: "50"
+        display: "flex",
+        justifyContent: "center",
+        width: "100%",
       }}
     >
-      <Carousel
-        autoplay
-        swipe
-        arrows
-        infinite={true}
-        afterChange={onChange}
-        dots={true}
-        draggable
+      <div
+        style={{
+          width: "50%",
+        }}
       >
-        {images.map((image, index) => (
-          <div key={index}>
-            <img
-              src={image.src}
-              alt={image.alt}
-              style={{ width: "100%", height: "auto", filter: "brightness(50%)" }}
-            />
-          </div>
-        ))}
-      </Carousel>
+        <Carousel
+          autoplay
+          swipe
+          arrows
+          infinite={true}
+          afterChange={onChange}
+          dots={true}
+          draggable
+        >
+          {images.map((image, index) => (
+            <div key={index}>
+              <img
+                src={image.src}
+                alt={image.alt}
+                style={{
+                  width: "100%",
+                  height: "auto",
+                  filter: "brightness(50%)",
+                }}
+              />
+            </div>
+          ))}
+        </Carousel>
+      </div>
     </div>
   );
 };
