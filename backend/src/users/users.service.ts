@@ -1,72 +1,56 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Users } from '../entities/user.entity';
+import { CreateUserRequest } from './create-user-request.dto';
+
+export type User = any;
 
 @Injectable()
 export class UsersService {
-    private users = [
-        {
-            "id" : 1,
-            "name":"Phuong Dong",
-            "email":"nnpdong.magic1306@gmail.com",
-            "role": "ENGINEER"
-        },
-        {
-            "id" : 2,
-            "name":"Phuong Nam",
-            "email":"nnpdong.magic1306@gmail.com",
-            "role": "INTERN"
-        },
-        {
-            "id" : 3,
-            "name":"Phuong Tay",
-            "email":"nnpdong.magic1306@gmail.com",
-            "role": "ADMIN"
-        },
-        {
-            "id" : 4,
-            "name":"Phuong Bac",
-            "email":"nnpdong.magic1306@gmail.com",
-            "role": "INTERN"
-        },
 
-    ]
-
-    findAll(role?: 'INTERN' | 'ADMIN' |'ENGINEERS'){
-        if(role){
-            return this.users.filter(user => user.role === role);
+    private readonly users = [
+        {
+            userId: 1,
+            username: 'john',
+            password: 'changeme',
+        },
+        {
+            userId: 2,
+            username: 'maria',
+            password: 'guess',
         }
-        return this.users;
-    }
+    ];
 
-    findOne(id: number){
-        const user = this.users.find(user =>user.id === id)
-        return user
-    }
+    // async findOne (username: string): Promise<User | undefined> {
+    //     return this.users.find(user => user.username === username)
+    // }
 
-    create (user: { name: string, email: string, role: 'INTERN' | 'ENGINEER'| 'ADMIN'})
-    {
-        const usersByHighestId = [...this.users].sort ((a, b) => b.id - a.id) // sắp xếp giảm dần
-        const newUser = {
-            id: usersByHighestId[0].id + 1,
-            ...user
-        }
-        this.users.push(newUser)
-        return newUser
-    }
+    constructor(
+        @InjectRepository(Users)
+        private usersRepository: Repository<User>,
+      ) {}
+      async add (userDto: CreateUserRequest): Promise <User>{
+        const user = this.usersRepository.create(userDto);
+        return await this.usersRepository.save(user);
+      }
+  
+      findAll(): Promise<User[]> {
+        return this.usersRepository.find();
+      }
+    
+      async findOne(name: string): Promise<User | null> {
+        return this.usersRepository.findOneBy({ name });
+      }
+    
+      async remove(id: number): Promise<void> {
+        await this.usersRepository.delete(id);
+      }
 
-    update (id: number, updateUser: { name: string, email: string, role: 'INTERN' | 'ENGINEER'| 'ADMIN'})
-    {
-        this.users = this.users.map (user => {
-            if (user.id === id ){
-                return {...user, ...updateUser}
-            }
-            return user
-        })
-        return this.findOne(id)
-    }
+    
+    
+      
 
-    delete (id:number ){
-        const removedUser = this.users.filter (user => user.id !==id)
-        this.users = this.users.filter (user => user.id !== id)
-        return removedUser;
-    }
+
+    
 }
