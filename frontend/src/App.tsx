@@ -1,22 +1,19 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import "./App.css";
 import AppHeader from "./layouts/header";
-import routes from "./router/route";
 import AppFooter from "./layouts/footer";
-
+import Link from "next/link";
+import routes from "./router/routes";
+import { LandingPage } from "./app/landingPage/page";
 
 const App: React.FC = () => {
+  // const location = useLocation();
+  // const shouldHideHeaderFooter = UnauthorizedRoutes.includes(location.pathname);
   return (
-    <BrowserRouter>
-      <AppHeader></AppHeader>
-      <Routes>
-        {routes.map((route) => (
-          <Route key={route.path} path={route.path} element={route.element} />
-        ))}
-      </Routes>
-      <AppFooter></AppFooter>
-    </BrowserRouter>
+    <>
+      <AppHeader />
+      {/* <LandingPage></LandingPage> */}
+      {/* <AppFooter /> */}
+    </>
   );
-}
+};
 
 export default App;

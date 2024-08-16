@@ -1,7 +1,4 @@
 import { Button, Result } from "antd";
-import { useNavigate } from "react-router-dom";
-
-const navigate = useNavigate();
 
 export const PageNotFound: React.FC = () => (
   <Result
@@ -9,7 +6,7 @@ export const PageNotFound: React.FC = () => (
     title="404"
     subTitle="Không tìm thấy trang"
     extra={
-      <Button type="primary" onClick={() => navigate("/")}>
+      <Button type="primary">
         Về trang chủ
       </Button>
     }

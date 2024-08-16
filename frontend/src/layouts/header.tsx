@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { Layout, Menu, MenuProps } from "antd";
+import { Button, Flex, Layout, Menu, MenuProps } from "antd";
 import { Header } from "antd/es/layout/layout";
 import ProfileBar from "./profile";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+// import { useLocation, useNavigate } from "react-router-dom";
+import { LoginOutlined } from "@ant-design/icons";
+import routes from "../router/routes";
+import Link from "next/link";
+// import Link from "next/link";
 
 const AppHeader: React.FC = () => {
   // const router = useRouter();
-
-  const [current, setCurrent] = useState("home");
-  const navigate = useNavigate();
-  const location = useLocation();
+  const [current, setCurrent] = useState<string>("home");
+  const [isLoggedIn] = useState<boolean>(false);
+  // const navigate = useNavigate();
+  // const location = useLocation();
   // const [route, setRoute] = useState(router.pathname);
 
   const onClick: MenuProps["onClick"] = (e) => {
@@ -17,46 +21,39 @@ const AppHeader: React.FC = () => {
   };
 
   const handleLogoClick = () => {
-    navigate("/");
+    // navigate("/");
     setCurrent("home");
   };
+  
 
   const items = [
     {
-      label: <Link to="/">Home</Link>,
+      label: <Link href={routes.root}>Home</Link>,
       key: "home",
     },
     {
-      label: <Link to="/price">Price</Link>,
-      key: "price",
+      // label: <Link href={routes.landing.route}>Route</Link>,
+      key: "route",
     },
     {
-      label: <Link to="/Route">Route</Link>,
-      key: "route",
+      // label: <Link href={routes.landing.about}>About</Link>,
+      key: "about",
     },
   ];
 
   useEffect(() => {
-    const path = location.pathname;
-    if (path === "/") {
-      setCurrent("home");
-    } else if (path === "/price") {
-      setCurrent("price");
-    } else if (path === "/Route") {
-      setCurrent("route");
-    }
+    const path = location.pathname.substring(1) || "home";
+    setCurrent(path);
   }, [location.pathname]);
 
   return (
-    <Layout style={{marginBottom: 20}}>
+    <Layout style={{ marginBottom: 20 }}>
       <Header
         style={{
           display: "flex",
           alignItems: "center",
-          justifyContent: "space-between",
           borderBottom: "1px solid #eee",
           backgroundColor: "#F5F5F5",
-          padding: "0 20px",
         }}
       >
         <div>
@@ -82,11 +79,30 @@ const AppHeader: React.FC = () => {
             justifyContent: "center",
             display: "flex",
             fontSize: 20,
-            backgroundColor: "F5F5F5"
+            backgroundColor: "#F5F5F5",
           }}
         />
         <div style={{ flex: 1, display: "flex", justifyContent: "flex-end" }}>
-          <ProfileBar />
+          {isLoggedIn ? (
+            <ProfileBar />
+          ) : (
+            <Flex gap="small">
+              {/* <Tooltip title="search">
+                <Button
+                  type="primary"
+                  shape="circle"
+                  icon={<SearchOutlined />}
+                />
+              </Tooltip> */}
+              <Button
+                type="default"
+                icon={<LoginOutlined />}
+                style={{ fontSize: "18px", backgroundColor: "white" }}
+              >
+                {/* <Link href={routes.login}>Login</Link> */}
+              </Button>
+            </Flex>
+          )}
         </div>
       </Header>
     </Layout>

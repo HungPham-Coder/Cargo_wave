@@ -1,52 +1,118 @@
-import { Timeline } from "antd";
-import { locationOverall, locationDetail } from "../../mocks/locations";
+import {
+  AutoComplete,
+  AutoCompleteProps,
+  ConfigProvider,
+  Empty,
+  Flex,
+  Input,
+  Timeline,
+} from "antd";
+import { useState } from "react";
+import { timelineData } from "../../mocks/locations";
 
-const RoutesList = () => {
-  // const [groupList, setGroupTypeList] = useState([]);
-  const timelineData = [
-    { title: "1", children: locationDetail },
-    { title: "2", children: locationOverall },
-    { title: "3", children: ["Event A", "Event B"] },
-    { title: "4", children: ["Event A", "Event B"] },
-    { title: "5", children: ["Event A", "Event B"] },
-    { title: "6", children: ["Event A", "Event B"] },
-    { title: "7", children: ["Event A", "Event B"] },
-    { title: "8", children: ["Event A", "Event B"] },
-  ];
+const RoutesList: React.FC = () => {
+  const [options, setOptions] = useState<AutoCompleteProps["options"]>([]);
+  const [searchText, setSearchText] = useState<string>("");
+
+  const onSelect = (data: string) => {
+    console.log("onSelect", data);
+  };
+
+  const filteredData = timelineData.filter((timeline) =>
+    timeline.title.toLowerCase().includes(searchText.toLowerCase())
+  );
+
+  const onSearch = (searchText: string) => {
+    if (searchText) {
+      const data = filteredData.map((item) => ({ value: item.title }));
+      setOptions(data);
+    } else {
+      setOptions([]);
+    }
+  };
+
   return (
     <div
       style={{
-        display: "flex",
-        flexWrap: "wrap",
-        gap: "10px",
-        padding: "20px",
-        justifyContent: "flex-start",
+        paddingLeft: "13%",
+        paddingRight: "5%",
       }}
     >
-      {timelineData.map((timeline, index) => (
-        <div
-          key={index}
-          style={{
-            padding: "10px",
-            height: "auto",
-            width: "300px",
-            backgroundColor: "#ffffff",
-            display: "inline-block",
-            border: "2px solid #1890ff",
-            borderRadius: "8px",
-            cursor: "pointer",
-            marginBottom: "5px",
-          }}
-          onClick={() => console.log("Button clicked")} // Example click handler
-        >
-          <h4>{timeline.title}</h4>
-          <Timeline style={{ textAlign: "left", width: "100%" }}>
-            {timeline.children.map((item, idx) => (
-              <Timeline.Item key={idx}>{item}</Timeline.Item>
-            ))}
-          </Timeline>
-        </div>
-      ))}
+      <h1>Routes</h1>
+      <AutoComplete
+        style={{ width: "20%" }}
+        options={options}
+        onSelect={onSelect}
+        onSearch={onSearch}
+      >
+        <Input.Search
+          allowClear
+          placeholder="input search text"
+          onSearch={(value) => setSearchText(value)} // Update search term
+          style={{ width: "100%", marginBottom: 20 }}
+        />
+      </AutoComplete>
+
+      <Flex wrap="wrap" gap="large" style={{ marginTop: 10 }}>
+        {filteredData.length > 0 ? (
+          filteredData.map((timeline, index) => (
+            <div
+              key={index}
+              style={{
+                paddingLeft: "20px",
+                height: "auto",
+                width: "20%",
+                backgroundColor: "#ffffff",
+                border: "2px solid #D6D6D6",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontSize: 20,
+              }}
+              onClick={() => console.log("Button clicked")} // Example click handler
+            >
+              <div
+                style={{
+                  color: "#341F88",
+                  marginBottom: 15,
+                  marginTop: 10,
+                  fontWeight: "bold",
+                }}
+              >
+                {timeline.title}
+              </div>
+              <ConfigProvider
+                theme={{
+                  token: {
+                    controlHeight: 0,
+                  },
+                  components: {
+                    Timeline: {
+                      tailColor: "#000000",
+                    },
+                  },
+                }}
+              >
+                <Timeline>
+                  {timeline.children.map((item, idx) => (
+                    <Timeline.Item
+                      key={idx}
+                      style={{ fontSize: 16 }}
+                      color="black"
+                    >
+                      {item}
+                    </Timeline.Item>
+                  ))}
+                </Timeline>
+              </ConfigProvider>
+            </div>
+          ))
+        ) : (
+          <Empty
+            description="No search results found"
+            style={{ width: "86%", marginTop: 50 }}
+          />
+        )}
+      </Flex>
     </div>
   );
 };
