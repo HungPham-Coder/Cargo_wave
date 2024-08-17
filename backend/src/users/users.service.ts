@@ -30,7 +30,7 @@ export class UsersService {
         @InjectRepository(Users)
         private usersRepository: Repository<User>,
       ) {}
-      async add (userDto: CreateUserRequest): Promise <User>{
+      async create (userDto: CreateUserRequest): Promise <User>{
         const user = this.usersRepository.create(userDto);
         return await this.usersRepository.save(user);
       }

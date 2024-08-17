@@ -9,14 +9,14 @@ export class AuthController {
 
     @HttpCode (HttpStatus.OK)
     @Post ('login')
-    signIn(@Body() signInDto: Record<string, any>){ 
+    signIn(@Body() signInDto: Record<string, string>){ 
                             // Record<K, T> K ở đây là user name còn value là password với bất kì kiểu nào
-        return this.authService.signIn(signInDto.username, signInDto.password);
+        return this.authService.signIn(signInDto.name, signInDto.password);
     }
 
     @Post ('register')
     signUp(@Body() signUpDto: CreateUserRequest){
-        return this.authService.register(signUpDto)
+        return this.authService.signUp(signUpDto)
     }
 
     
