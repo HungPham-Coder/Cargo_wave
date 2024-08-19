@@ -1,13 +1,11 @@
-const pages = "pages";
-
 const routes = {
   root: "/",
-  login: `${pages}/login`,
-  register: `register`,
-  forgotPassword: `forgot-password`,
-  profile: `${pages}/profile`,
-  route: `${pages}/routes`,
-  about: `${pages}/about`,
+  login: `/login`,
+  register: `/register`,
+  forgotPassword: `/forgot-password`,
+  profile: `/profile`,
+  route: `/routes`,
+  about: `/about`,
 };
 
 export const UnauthorizedRoutes = [

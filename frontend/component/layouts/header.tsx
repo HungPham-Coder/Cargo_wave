@@ -2,59 +2,50 @@
 
 import React, { useEffect, useState } from "react";
 import { Button, Flex, Layout, Menu, MenuProps } from "antd";
-import { Content, Header } from "antd/es/layout/layout";
+import { Header } from "antd/es/layout/layout";
 import ProfileBar from "./profile";
 import { LoginOutlined } from "@ant-design/icons";
 import Link from "next/link";
 import routes from "../router/routes";
-import AppFooter from "./footer";
-
-const contentLayout: React.CSSProperties = {
-  borderBottom: "1px solid #eee",
-  backgroundColor: "#FFFFFF",
-  minHeight: "82vh",
-};
+import { usePathname } from "next/navigation";
 
 const AppHeader: React.FC = () => {
-  // const router = useRouter();
   const [current, setCurrent] = useState<string>("home");
   const [isLoggedIn] = useState<boolean>(false);
-  // const navigate = useNavigate();
-  // const location = useLocation();
-  // const [route, setRoute] = useState(router.pathname);
+
+  const pathname = usePathname();
+  const hideHeaderAndFooter =
+    pathname === routes.login ||
+    pathname === routes.forgotPassword ||
+    pathname === routes.register;
 
   const onClick: MenuProps["onClick"] = (e) => {
     setCurrent(e.key);
   };
 
-  const handleLogoClick = () => {
-    // navigate("/");
-    setCurrent("home");
-  };
-
   const items = [
     {
-      label: "Home",
+      label: <Link href={routes.root}>Home</Link>,
       key: "home",
     },
     {
-      label: "Route",
+      label: <Link href={routes.route}>Route</Link>,
       key: "routes",
     },
     {
-      label: "About",
+      label: <Link href={routes.about}>About</Link>,
       key: "about",
     },
   ];
 
   useEffect(() => {
     const path = location.pathname.substring(1) || "home";
-    console.log(current)
+    console.log(current);
     setCurrent(path);
   }, [location.pathname]);
 
   return (
-    <Layout style={{ marginBottom: 20 }}>
+    <Layout>
       <Header
         style={{
           display: "flex",
@@ -63,7 +54,7 @@ const AppHeader: React.FC = () => {
           backgroundColor: "#F5F5F5",
         }}
       >
-        <div>
+        <Link href={routes.root}>
           <img
             src="/assets/CARGO WAVE.png"
             style={{
@@ -73,22 +64,24 @@ const AppHeader: React.FC = () => {
               height: 40,
             }}
             alt="Logo"
-            onClick={handleLogoClick}
           />
-        </div>
-        <Menu
-          onClick={onClick}
-          selectedKeys={[current]}
-          mode="horizontal"
-          items={items}
-          style={{
-            flex: 4,
-            justifyContent: "center",
-            display: "flex",
-            fontSize: 20,
-            backgroundColor: "#F5F5F5",
-          }}
-        />
+        </Link>
+        {!hideHeaderAndFooter && (
+          <Menu
+            onClick={onClick}
+            selectedKeys={[current]}
+            mode="horizontal"
+            items={items}
+            style={{
+              flex: 4,
+              justifyContent: "center",
+              display: "flex",
+              fontSize: 20,
+              backgroundColor: "#F5F5F5",
+            }}
+          />
+        )}
+
         <div style={{ flex: 1, display: "flex", justifyContent: "flex-end" }}>
           {isLoggedIn ? (
             <ProfileBar />

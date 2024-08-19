@@ -22,10 +22,10 @@ const { Title } = Typography;
 
 const Container = styled.div`
   display: flex;
-  justify-content: center; /* Center horizontally */
-  align-items: center; /* Center vertically */
+  justify-content: center;
+  align-items: center; 
   width: 100%;
-  height: 100vh;
+  height: 70vh;
   background-color: #fff;
 `;
 
@@ -66,8 +66,8 @@ export const LoginPage: React.FC = () => {
             <img src="/assets/CARGO WAVE.png" width={300} alt="Logo" />
           </ImageWrapper>
 
-          <Title level={2} className="!mb-1">
-            Đăng nhập
+          <Title level={2}>
+            Login
           </Title>
 
           <Form
@@ -94,33 +94,34 @@ export const LoginPage: React.FC = () => {
             >
               <Input
                 prefix={<UserOutlined />}
-                placeholder="Nhập số điện thoại của bạn..."
+                placeholder="Phone number..."
                 size="large"
               />
             </Form.Item>
             <Form.Item name="password">
               <Input.Password
                 prefix={<LockOutlined />}
-                placeholder="Nhập mật khẩu của bạn..."
+                placeholder="Password..."
                 size="large"
               />
             </Form.Item>
             <Form.Item name="login-button">
               <Button
-                className="w-full btn-primary app-bg-primary font-semibold"
+                // className="w-full btn-primary app-bg-primary font-semibold"
+                type="primary"
                 size="large"
                 htmlType="submit"
                 style={{ width: "100%" }}
               >
-                Đăng nhập
+                Login
               </Button>
             </Form.Item>
             <Row justify="center">
               <Button type="link">
-                <Link href={routes.register}>Đăng ký tài khoản</Link>
+                <Link href={routes.register}>Register account</Link>
               </Button>
               <Button type="link">
-                <Link href={routes.forgotPassword}>Quên mật khẩu?</Link>
+                <Link href={routes.forgotPassword}>Forgot password?</Link>
               </Button>
             </Row>
             <Row>
