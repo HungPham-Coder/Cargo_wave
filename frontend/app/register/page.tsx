@@ -39,7 +39,7 @@ const formItemLayout = {
 
 const { Title } = Typography;
 
-export const RegisterPage: React.FC = () => {
+const RegisterPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [value, setValue] = useState(1);
   const router = useRouter();

@@ -40,7 +40,7 @@ const ImageWrapper = styled.div`
   margin-bottom: 1.5rem;
 `;
 
-export const LoginPage: React.FC = () => {
+const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   // const handleLogin = async (
