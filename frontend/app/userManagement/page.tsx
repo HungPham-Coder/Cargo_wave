@@ -167,19 +167,37 @@ const UserManagementList: React.FC = () => {
         },
       },
       {
-        key: "SET_STATUS",
-        label: banStatus ? "Unlock" : "Ban",
-        danger: !banStatus,
-        icon: !banStatus ? <Forbid /> : <Unlock />,
-        onClick: () => {
-          // if (banStatus) {
-          //   unbanUser(id);
-          // } else {
-          //   banUser(id);
-          // }
+        title: "Status",
+        dataIndex: "banStatus",
+        key: "banStatus",
+        render: (_: any, { banStatus }: { banStatus: boolean }) => {
+          return (
+            <span
+              style={{
+                color: !banStatus ? "#29CB00" : "#FF0000",
+                fontWeight: "bold",
+              }}
+            >
+              {!banStatus ? "In use" : "Banned"}
+            </span>
+          );
         },
-        // disabled: role === roles.ADMIN,
-      },
+        filter: {
+          placeholder: "Status",
+          label: "Status",
+          filterOptions: [
+            {
+              label: "In use",
+              value: false,
+            },
+            {
+              label: "Banned",
+              value: true,
+            },
+          ],
+        },
+        sorter: (a: { banStatus: any; }, b: { banStatus: any; }) => Number(a.banStatus) - Number(b.banStatus), // Compare boolean values converted to numbers
+      },      
     ];
   };
 
