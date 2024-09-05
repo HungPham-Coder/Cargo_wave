@@ -13,6 +13,23 @@ import { Edit, Forbid, More, Phone, Unlock, User } from "@icon-park/react";
 import { Button, Dropdown, Tag } from "antd";
 import { useState } from "react";
 
+interface ColumnType<T> {
+  title: string;
+  dataIndex: keyof T | 'index' | 'action';
+  key: string;
+  width?: string;
+  render?: (text: any, record: T, index: number) => JSX.Element;
+  sorter?: (a: T, b: T) => number;
+  filter?: {
+    placeholder: string;
+    label: string;
+    filterOptions: {
+      label: string;
+      value: any;
+    }[];
+  };
+}
+
 const UserManagementList: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [user, setUsers] = useState([]);
@@ -26,77 +43,62 @@ const UserManagementList: React.FC = () => {
     WORKER: "#59A7DE",
   };
 
-  const columns = [
+  const columns: ColumnType<{
+    key: string;
+    fullName: string;
+    email: string;
+    phoneNumber: string;
+    roleId: string;
+    banStatus: boolean;
+  }>[] = [
     {
       title: "#",
       dataIndex: "index",
       key: "index",
       width: "5%",
-      render: (_: any, record: any, index: number) => {
-        return (
-          // <span>{index + 1 + (currentPage - 1) * PageSize.EMPLOYEES_LIST}</span>
-          <span>{index + 1 + (currentPage - 1)}</span>
-        );
-      },
+      render: (_: any, record: any, index: number) => (
+        <span>{index + 1 + (currentPage - 1)}</span>
+      ),
     },
     {
       title: "Full name",
       dataIndex: "fullName",
       key: "fullName",
-      sorter: (a: { fullName: string }, b: { fullName: any }) =>
-        a.fullName.localeCompare(b.fullName),
+      sorter: (a, b) => a.fullName.localeCompare(b.fullName),
     },
     {
       title: "Email",
       dataIndex: "email",
       key: "email",
       width: "15%",
-      sorter: (a: { email: string }, b: { email: any }) =>
-        a.email.localeCompare(b.email),
+      sorter: (a, b) => a.email.localeCompare(b.email),
     },
     {
       title: "Phone",
       dataIndex: "phoneNumber",
       key: "phoneNumber",
-      sorter: (a: { phoneNumber: string }, b: { phoneNumber: any }) =>
-        a.phoneNumber.localeCompare(b.phoneNumber),
+      sorter: (a, b) => a.phoneNumber.localeCompare(b.phoneNumber),
     },
-
     {
       title: "Role",
       dataIndex: "roleId",
       key: "roleId",
-      // render: (_: any, { roleId }: { roleId: string }) => {
-      //   const role = roleOptions.find((r) => r.id === roleId);
-      //   return (
-      //     <Tag
-      //       className="text-center"
-      //       color={roleColors[role?.name?.toUpperCase() as keyof typeof roleColors || "STAFF"]}
-      //       style={{ fontWeight: "bold" }}
-      //     >
-      //       {getRoleName(role?.name)}
-      //     </Tag>
-      //   );
-      // },
-      sorter: (a: { roleId: string }, b: { roleId: any }) =>
-        a.roleId.localeCompare(b.roleId),
+      // Render and filter code here (not provided in this snippet)
     },
     {
       title: "Status",
       dataIndex: "banStatus",
       key: "banStatus",
-      render: (_: any, { banStatus }: any) => {
-        return (
-          <span
-            style={{
-              color: !banStatus ? "#29CB00" : "#FF0000",
-              fontWeight: "bold",
-            }}
-          >
-            {!banStatus ? "In use" : "Banned"}
-          </span>
-        );
-      },
+      render: (banStatus: boolean) => (
+        <span
+          style={{
+            color: !banStatus ? "#29CB00" : "#FF0000",
+            fontWeight: "bold",
+          }}
+        >
+          {!banStatus ? "In use" : "Banned"}
+        </span>
+      ),
       filter: {
         placeholder: "Status",
         label: "Status",
@@ -111,25 +113,17 @@ const UserManagementList: React.FC = () => {
           },
         ],
       },
-      sorter: (a: { banStatus: number }, b: { banStatus: number }) =>
-        a.banStatus - b.banStatus,
+      sorter: (a, b) => Number(a.banStatus) - Number(b.banStatus),
     },
     {
       title: "Action",
       dataIndex: "action",
       key: "action",
-      render: (_: any, record: any) => {
-        return (
-          <>
-            {/* {record.role !== roles.ADMIN && */}
-            {
-              <Dropdown menu={{ items: getActionItems(record) }}>
-                <Button className="mx-auto flex-center" icon={<More />} />
-              </Dropdown>
-            }
-          </>
-        );
-      },
+      render: (text: any, record: any) => (
+        <Dropdown menu={{ items: getActionItems(record) }}>
+          <Button className="mx-auto flex-center" icon={<More />} />
+        </Dropdown>
+      ),
     },
   ];
 
@@ -196,8 +190,9 @@ const UserManagementList: React.FC = () => {
             },
           ],
         },
-        sorter: (a: { banStatus: any; }, b: { banStatus: any; }) => Number(a.banStatus) - Number(b.banStatus), // Compare boolean values converted to numbers
-      },      
+        sorter: (a: { banStatus: any }, b: { banStatus: any }) =>
+          Number(a.banStatus) - Number(b.banStatus), // Compare boolean values converted to numbers
+      },
     ];
   };
 

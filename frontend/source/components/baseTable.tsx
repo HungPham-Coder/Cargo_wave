@@ -47,7 +47,7 @@ export const BaseTable = <RecordType extends object>({
   expandable,
   searchOptions = {
     visible: true,
-    placeholder: "Tìm kiếm...",
+    placeholder: "Search...",
     width: undefined,
     onSearch: () => {},
   },
