@@ -1,7 +1,5 @@
-'use client';
-
 export const ForgotPassordPage: React.FC = () => {
-  return <>abc</>;
+  return <>Forgot Page</>;
 };
 
 export default ForgotPassordPage;

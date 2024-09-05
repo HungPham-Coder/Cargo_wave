@@ -1,6 +1,6 @@
 "use client";
 
-import { timelineData } from "@/component/mocks/locations";
+import { timelineData } from "@/source/mocks/mocks";
 import {
   AutoComplete,
   AutoCompleteProps,
@@ -36,13 +36,12 @@ const RoutesList: React.FC = () => {
   return (
     <div
       style={{
-        paddingLeft: "13%",
-        paddingRight: "5%",
+        paddingLeft: "10%",
+        paddingRight: "10%",
       }}
     >
       <h1>Routes</h1>
       <AutoComplete
-        style={{ width: "20%" }}
         options={options}
         onSelect={onSelect}
         onSearch={onSearch}
@@ -55,19 +54,20 @@ const RoutesList: React.FC = () => {
         />
       </AutoComplete>
 
-      <Flex wrap="wrap" gap="large" style={{ marginTop: 10 }}>
+      <Flex wrap="wrap" gap="large" style={{ marginTop: 10, cursor: "pointer"}}>
         {filteredData.length > 0 ? (
           filteredData.map((timeline, index) => (
             <div
               key={index}
               style={{
+                minWidth: "30vh",
                 paddingLeft: "20px",
                 height: "auto",
-                width: "20%",
+                width: "22%",
                 backgroundColor: "#ffffff",
-                border: "2px solid #D6D6D6",
-                borderRadius: "8px",
-                cursor: "pointer",
+                border: "3px solid #D6D6D6",
+                borderRadius: "20px",
+                
                 fontSize: 20,
               }}
               onClick={() => console.log("Button clicked")} // Example click handler

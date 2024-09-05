@@ -91,12 +91,12 @@ export const BaseTable = <RecordType extends object>({
                 options = filterOptions;
               } else {
                 const allValues = dataSource.map((item) => item[dataIndex as keyof RecordType] as string | number);
-                values = [...new Set(allValues)];
+                values = [...allValues];
               }
 
               return (
                 <Col key={String(dataIndex) || "default-key"}>
-                  {label && <span className="mr-2">{label}:</span>}
+                  {label && <span className="mr-2">{label}: </span>}
                   <Select
                     mode={multiple ? "multiple" : undefined}
                     showSearch
@@ -137,7 +137,7 @@ export const BaseTable = <RecordType extends object>({
       <Row justify="space-between">
         <Col span={12}>
           {title && (
-            <Title ellipsis level={4}>
+            <Title ellipsis level={3}>
               {title}
             </Title>
           )}

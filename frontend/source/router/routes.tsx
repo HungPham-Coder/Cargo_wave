@@ -4,8 +4,10 @@ const routes = {
   register: `/register`,
   forgotPassword: `/forgot-password`,
   profile: `/profile`,
+  history: `/history`,
   route: `/routes`,
   about: `/about`,
+  userManagement: `/userManagement`,
 };
 
 export const UnauthorizedRoutes = [

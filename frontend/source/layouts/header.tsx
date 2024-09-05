@@ -36,13 +36,17 @@ const AppHeader: React.FC = () => {
       label: <Link href={routes.about}>About</Link>,
       key: "about",
     },
+    {
+      label: <Link href={routes.userManagement}>User management</Link>,
+      key: "User management",
+    },
   ];
 
   useEffect(() => {
-    const path = location.pathname.substring(1) || "home";
+    const path = pathname.substring(1) || "home";
     console.log(current);
     setCurrent(path);
-  }, [location.pathname]);
+  }, [pathname]);
 
   return (
     <Layout>
@@ -83,14 +87,14 @@ const AppHeader: React.FC = () => {
         )}
 
         <div style={{ flex: 1, display: "flex", justifyContent: "flex-end" }}>
-          {isLoggedIn ? (
+          {!isLoggedIn ? (
             <ProfileBar />
           ) : (
             <Flex gap="small">
               {/* <Tooltip title="search">
                 <Button
                   type="primary"
-                  shape="circle"
+                   shape="circle"
                   icon={<SearchOutlined />}
                 />
               </Tooltip> */}

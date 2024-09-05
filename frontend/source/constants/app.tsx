@@ -3,15 +3,32 @@ export const roles = {
   SHIP_CAPTAIN: "ShipCaptain",
   WAREHOUSE_MANAGER: "WarehouseManager",
   STAFF: "Staff",
-  CUSTOMER: "Khách hàng",
+  CUSTOMER: "Customer"
 };
 
 export const ROLE_MAP = {
-  [roles.PORT_CAPTAIN]: "Trưởng cảng",
-  [roles.SHIP_CAPTAIN]: "Thuyền trưởng",
-  [roles.WAREHOUSE_MANAGER]: "Quản lý kho cảng",
-  [roles.STAFF]: "Nhân viên",
-  [roles.CUSTOMER]: "Khách hàng",
+  [roles.PORT_CAPTAIN]: "Port Captain",
+  [roles.SHIP_CAPTAIN]: "Ship Captain",
+  [roles.WAREHOUSE_MANAGER]: "Warehouse Manager",
+  [roles.STAFF]: "Staff",
+  [roles.CUSTOMER]: "Customer",
+};
+
+export const getRoleName = (role: any) => {
+  switch (role) {
+    case roles.PORT_CAPTAIN:
+      return "Port Captain";
+    case roles.SHIP_CAPTAIN:
+      return "Ship Captain";
+    case roles.WAREHOUSE_MANAGER:
+      return "Warehouse Manager";
+    case roles.STAFF:
+      return "Staff";
+    case roles.CUSTOMER:
+      return "Customer";
+    default:
+      return "";
+  }
 };
 
 export const ALL_PERMISSIONS = {

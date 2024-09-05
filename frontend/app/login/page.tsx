@@ -14,8 +14,8 @@ import styled from "styled-components";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import Link from "next/link";
-import routes from "@/component/router/routes";
-import AuthApi from "@/component/apis/auth";
+import routes from "@/source/router/routes";
+import AuthApi from "@/source/apis/auth";
 import Card from "antd/es/card/Card";
 
 const { Title } = Typography;

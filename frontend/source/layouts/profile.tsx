@@ -7,6 +7,8 @@ import {
 } from "@ant-design/icons";
 import styled from "styled-components";
 import { Avatar, Dropdown, Space } from "antd";
+import Link from "next/link";
+import routes from "../router/routes";
 
 const Container = styled.div`
   color: white;
@@ -34,14 +36,14 @@ const ProfileBar: React.FC = () => {
   const items = [
     {
       key: "PROFILE",
-      //   label: <Link to={routes.dashboard.profile}>Hồ sơ</Link>,
-      label: <span>Profile</span>,
+      label: <Link href={routes.profile}>Profile</Link>,
+      // label: <span>Profile</span>,
       icon: <UserOutlined />,
     },
     {
       key: "HISTORY",
-      //   label: <Link to={routes.dashboard.profile}>Hồ sơ</Link>,
-      label: <span>History</span>,
+      label: <Link href={routes.history}>History</Link>,
+      // label: <span>History</span>,
       icon: <UserOutlined />,
     },
     {
@@ -64,15 +66,16 @@ const ProfileBar: React.FC = () => {
           items,
         }}
       >
-
         <span
           className="text-[#666] font-semibold"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
           {/* {user?.fullName} */}
-        <span style={{color: "black", fontSize: 22, marginRight: 5}}>abc</span>
-          
+          <span style={{ color: "black", fontSize: 22, marginRight: 5 }}>
+            abc
+          </span>
+
           {isHovered ? (
             <DownOutlined
               className="ml-1 top-[0.2rem] bottom-0"
