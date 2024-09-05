@@ -1,4 +1,4 @@
-export const ForgotPasswordPage: React.FC = () => {
+const ForgotPasswordPage: React.FC = () => {
   return <>Forgot Page</>;
 };
 

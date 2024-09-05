@@ -1,5 +1,5 @@
-export const AboutPage: React.FC = () => {
-  return <>About page</>;
+const DashBoard: React.FC = () => {
+  return <>DashBoard page</>;
 };
 
-export default AboutPage;
+export default DashBoard;

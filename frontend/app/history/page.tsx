@@ -1,5 +1,5 @@
-export const HistoryPage: React.FC = () => {
-    return <>history</>;
-  };
-  
-  export default HistoryPage;
+const HistoryPage: React.FC = () => {
+  return <>history</>;
+};
+
+export default HistoryPage;
