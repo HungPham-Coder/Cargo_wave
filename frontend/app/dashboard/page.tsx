@@ -1,3 +1,5 @@
-export default function Dashboard() {
-  return <h1>Hello, Next.js!</h1>;
-}
+export const AboutPage: React.FC = () => {
+  return <>About page</>;
+};
+
+export default AboutPage;

@@ -1,5 +1,5 @@
-export const ForgotPassordPage: React.FC = () => {
+export const ForgotPasswordPage: React.FC = () => {
   return <>Forgot Page</>;
 };
 
-export default ForgotPassordPage;
+export default ForgotPasswordPage;
