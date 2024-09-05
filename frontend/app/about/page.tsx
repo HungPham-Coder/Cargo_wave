@@ -1,7 +1,5 @@
-'use client';
-
 export const AboutPage: React.FC = () => {
-  return <>abc</>;
+  return <>About page</>;
 };
 
 export default AboutPage;
