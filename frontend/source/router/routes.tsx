@@ -8,6 +8,8 @@ const routes = {
   route: `/routes`,
   about: `/about`,
   userManagement: `/userManagement`,
+  roleManagement: `/roleManagement`,
+  permissionManagement: `/permissionManagement`,
 };
 
 export const UnauthorizedRoutes = [

@@ -1,21 +1,15 @@
 "use client";
 
+import UserApi from "@/source/apis/users";
 import { BaseTable } from "@/source/components/baseTable";
-import { getRoleName } from "@/source/constants/app";
-import { userMocks } from "@/source/mocks/mocks";
-import {
-  EditFilled,
-  PhoneFilled,
-  UnlockFilled,
-  UserOutlined,
-} from "@ant-design/icons";
+
 import { Edit, Forbid, More, Phone, Unlock, User } from "@icon-park/react";
-import { Button, Dropdown, Tag } from "antd";
-import { useState } from "react";
+import { Button, Dropdown } from "antd";
+import { useEffect, useState } from "react";
 
 interface ColumnType<T> {
   title: string;
-  dataIndex: keyof T | 'index' | 'action';
+  dataIndex: keyof T | "index" | "action";
   key: string;
   width?: string;
   render?: (text: any, record: T, index: number) => JSX.Element;
@@ -33,23 +27,32 @@ interface ColumnType<T> {
 const UserManagementList: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [user, setUsers] = useState([]);
-  const [roleOptions, setRoleOptions] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const roleColors = {
-    ADMIN: "#FF7777",
-    FOREMAN: "#4ECA69",
-    LEADER: "#F1CA5A",
-    WORKER: "#59A7DE",
+  const getData = async () => {
+    setLoading(true);
+    const response = await UserApi.findAll();
+    console.log(response);
+    setUsers(response);
+    setLoading(false);
   };
 
+  useEffect(() => {
+    getData();
+  }, []);
+
+  const roleColors: { [key in "Admin" | "Manager" | "Employee"]: string } = {
+    Admin: "#FF7777",
+    Manager: "#4ECA69",
+    Employee: "#59A7DE",
+  };
   const columns: ColumnType<{
     key: string;
-    fullName: string;
+    name: string;
     email: string;
-    phoneNumber: string;
-    roleId: string;
-    banStatus: boolean;
+    phone_number: string;
+    roles: { id: number; name: string }[];
+    status: boolean;
   }>[] = [
     {
       title: "#",
@@ -57,14 +60,14 @@ const UserManagementList: React.FC = () => {
       key: "index",
       width: "5%",
       render: (_: any, record: any, index: number) => (
-        <span>{index + 1 + (currentPage - 1)}</span>
+        <span>{index + 1 + (currentPage - 1) * 10}</span>
       ),
     },
     {
       title: "Full name",
-      dataIndex: "fullName",
-      key: "fullName",
-      sorter: (a, b) => a.fullName.localeCompare(b.fullName),
+      dataIndex: "name",
+      key: "name",
+      sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
       title: "Email",
@@ -75,28 +78,48 @@ const UserManagementList: React.FC = () => {
     },
     {
       title: "Phone",
-      dataIndex: "phoneNumber",
-      key: "phoneNumber",
-      sorter: (a, b) => a.phoneNumber.localeCompare(b.phoneNumber),
+      dataIndex: "phone_number",
+      key: "phone_number",
+      sorter: (a, b) => a.phone_number.localeCompare(b.phone_number),
     },
     {
       title: "Role",
-      dataIndex: "roleId",
-      key: "roleId",
-      // Render and filter code here (not provided in this snippet)
+      dataIndex: "roles",
+      key: "roles",
+      render: (roles: { id: number; name: string }[]) => (
+        <span>
+          {roles.map((role) => (
+            <span
+              key={role.id}
+              style={{
+                backgroundColor:
+                  roleColors[role.name as "Admin" | "Manager" | "Employee"] ||
+                  "#ccc", // Use colors based on role name
+                color: "#fff",
+                padding: "2px 8px",
+                borderRadius: "4px",
+                marginRight: "5px",
+                fontWeight: "bold",
+              }}
+            >
+              {role.name ? role.name : "-"}
+            </span>
+          ))}
+        </span>
+      ),
     },
     {
       title: "Status",
-      dataIndex: "banStatus",
-      key: "banStatus",
-      render: (banStatus: boolean) => (
+      dataIndex: "status",
+      key: "status",
+      render: (status: number) => (
         <span
           style={{
-            color: !banStatus ? "#29CB00" : "#FF0000",
+            color: status ? "#29CB00" : "#FF0000",
             fontWeight: "bold",
           }}
         >
-          {!banStatus ? "In use" : "Banned"}
+          {status ? "In use" : "Banned"}
         </span>
       ),
       filter: {
@@ -113,7 +136,7 @@ const UserManagementList: React.FC = () => {
           },
         ],
       },
-      sorter: (a, b) => Number(a.banStatus) - Number(b.banStatus),
+      sorter: (a, b) => Number(a.status) - Number(b.status),
     },
     {
       title: "Action",
@@ -161,37 +184,17 @@ const UserManagementList: React.FC = () => {
         },
       },
       {
-        title: "Status",
-        dataIndex: "banStatus",
-        key: "banStatus",
-        render: (_: any, { banStatus }: { banStatus: boolean }) => {
-          return (
-            <span
-              style={{
-                color: !banStatus ? "#29CB00" : "#FF0000",
-                fontWeight: "bold",
-              }}
-            >
-              {!banStatus ? "In use" : "Banned"}
-            </span>
-          );
+        key: "SET_STATUS",
+        title: banStatus ? "Unban account" : "Ban account",
+        danger: !banStatus,
+        icon: !banStatus ? <Forbid /> : <Unlock />,
+        onClick: () => {
+          if (banStatus) {
+            // unbanUser(id);
+          } else {
+            // banUser(id);
+          }
         },
-        filter: {
-          placeholder: "Status",
-          label: "Status",
-          filterOptions: [
-            {
-              label: "In use",
-              value: false,
-            },
-            {
-              label: "Banned",
-              value: true,
-            },
-          ],
-        },
-        sorter: (a: { banStatus: any }, b: { banStatus: any }) =>
-          Number(a.banStatus) - Number(b.banStatus), // Compare boolean values converted to numbers
       },
     ];
   };
@@ -199,9 +202,10 @@ const UserManagementList: React.FC = () => {
   return (
     <div style={{ paddingLeft: 30, paddingRight: 30 }}>
       <BaseTable
+        rowKey="id"
         title="User management"
         loading={loading}
-        dataSource={userMocks}
+        dataSource={user}
         columns={columns}
         pagination={
           {
@@ -212,7 +216,7 @@ const UserManagementList: React.FC = () => {
         }
         searchOptions={{
           visible: true,
-          placeholder: "Tìm kiếm tài khoản...",
+          placeholder: "Search account...",
           // onSearch: handleSearch,
           width: 300,
         }}

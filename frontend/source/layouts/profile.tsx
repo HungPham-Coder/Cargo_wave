@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   DownOutlined,
   LeftOutlined,
@@ -16,7 +16,6 @@ const Container = styled.div`
 
 const ProfileBar: React.FC = () => {
   const [isHovered, setIsHovered] = useState(false);
-  // let myObj = JSON.parse("jsonString");
 
   const handleMouseEnter = () => {
     setIsHovered(true);
@@ -26,12 +25,10 @@ const ProfileBar: React.FC = () => {
     setIsHovered(false);
   };
 
-  // const handleLogout = () => {
-  //   localStorage.removeItem("jwt");
-  //   localStorage.removeItem("user");
-  //   // setUser(undefined);
-  //   // navigate(routes.login);
-  // };
+  const handleLogout = () => {
+    localStorage.removeItem("jwt");
+    localStorage.removeItem("user");
+  };
 
   const items = [
     {
@@ -51,7 +48,7 @@ const ProfileBar: React.FC = () => {
       label: <span>Logout</span>,
       icon: <LogoutOutlined />,
       danger: true,
-      //   onClick: handleLogout,
+      onClick: handleLogout,
     },
   ];
 

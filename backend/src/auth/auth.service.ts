@@ -1,44 +1,73 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { CreateUserRequest } from 'src/users/create-user-request.dto';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
+import { RolesService } from 'src/roles/roles.service';
+import { CreateUserDTO } from 'src/users/create-user-request.dto';
+import { roles, userStatus } from 'src/constants/enum';
+
 
 @Injectable()
 export class AuthService {
+
     saltOrRounds: number = 10;
-    constructor (
+    constructor(
         private userService: UsersService,
-        private jwtService: JwtService
-    ){}
+        private jwtService: JwtService,
+        private roleService: RolesService
+    ) { }
 
 
-    async signIn (username: string, pass: string): Promise<any> {
-        const user = await this.userService.findOne(username);
-        const isMatch = await bcrypt.compare(pass, user?.password);
-        
-        if (!isMatch){
-            throw new UnauthorizedException("User not matching");
+    async signIn(email: string, pass: string): Promise<any> {
+        try {
+            if(!email || !pass){
+                throw new UnauthorizedException("Email or password empty!");
+            }
+            const user = await this.userService.findByEmail(email);
+            const isMatch = await bcrypt.compare(pass, user?.password);
+
+            if (!isMatch || !user) {
+                throw new UnauthorizedException("Wrong user name or password!");
+            }
+            const payload = { sub: user.id, email: user.email };
+            return {
+                access_token: await this.jwtService.signAsync(payload),
+            }
+        } catch (error) {
+            console.error('Error during SignIn:', error.message);
+            throw error;
         }
-        const payload = {sub: user.userId, username: user.username};
-        return {
-            access_token: await this.jwtService.signAsync(payload),
-        }
-        // const {password, ...result} = user;
-        // return result;
     }
 
-    async signUp (payload: CreateUserRequest ){
-        const hashPass = await bcrypt.hash(payload.password, this.saltOrRounds)
+    async signUp(payload: CreateUserDTO) {
+        try {
+            const hashPass = await bcrypt.hash(payload.password, this.saltOrRounds);
+            const role = await this.roleService.findOneByName(roles.EMPLOYEE); //get employee role
 
-        let data = {
-            ...payload,
-            password: hashPass
+            if (!role) {
+                throw new UnauthorizedException("Role does not exist!");
+            }
+            if (!payload.email || !payload.password) {
+                throw new BadRequestException("Email and password are required!");
+            }
+            const existingUser = await this.userService.findByEmail(payload.email);
+            if (existingUser) {
+                throw new ConflictException('Email is already in use!');
+            }
+
+            const data: CreateUserDTO = {
+                ...payload,
+                status: userStatus.inUse,
+                password: hashPass,
+                roles: [role]
+            };
+            // console.log("role: ", role);
+            console.log('SignUp data:', data);
+            const user = await this.userService.create(data);
+            return user;
+        } catch (error) {
+            console.error('Error during SignUp:', error.message);
+            throw error;
         }
-
-        const user = this.userService.create(data);
-        return user;
     }
-
-
 }

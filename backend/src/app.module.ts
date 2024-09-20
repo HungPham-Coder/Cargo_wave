@@ -2,15 +2,18 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Customers } from './entities/Custormers';
-import { Staffs } from './entities/Staffs';
-
-import { Routes } from './entities/Routes';
-import { Bookshippings } from './entities/Bookshippings';
-import { TypeStaff } from './entities/TypeStaff';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-import { Users } from './entities/user.entity';
+import { User } from './entities/user.entity';
+import { Crew } from './entities/crew.entity';
+import { Log } from './entities/log.entity';
+import { RefreshToken } from './entities/refreshToken.entity';
+import { Role } from './entities/role.entity';
+import { Route } from './entities/routes.entity';
+import { Ship } from './entities/ship.entity';
+import { Permission } from './entities/permission.entity';
+import { RolesModule } from './roles/roles.module';
+import { PermissionsModule } from './permissions/permissions.module';
 
 
 @Module({
@@ -18,22 +21,26 @@ import { Users } from './entities/user.entity';
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
-      port: 5434,
+      port: 5432,
       username: 'postgres',
-      password: '130600',
-      database: 'jwat',
+      password: '123456',
+      database: 'CargoWave',
       entities: [
-        Users, 
-        //  Staffs, 
-        //  Customers,
-        //  Routes, 
-        //  TypeStaff, 
-        //  Bookshippings
-        ],
+        User,
+        Crew,
+        Log,
+        RefreshToken,
+        Role,
+        Permission,
+        Route,
+        Ship,
+      ],
       synchronize: true,
     }),
-    AuthModule, 
-    UsersModule
+    AuthModule,
+    UsersModule,
+    RolesModule,
+    PermissionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
