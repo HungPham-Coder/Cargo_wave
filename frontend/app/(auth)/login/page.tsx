@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   Avatar,
@@ -6,6 +6,7 @@ import {
   Divider,
   Form,
   Input,
+  message,
   Row,
   Typography,
 } from "antd";
@@ -17,13 +18,14 @@ import Link from "next/link";
 import routes from "@/source/router/routes";
 import AuthApi from "@/source/apis/auth";
 import Card from "antd/es/card/Card";
+import { useRouter } from "next/navigation";
 
 const { Title } = Typography;
 
 const Container = styled.div`
   display: flex;
   justify-content: center;
-  align-items: center; 
+  align-items: center;
   width: 100%;
   height: 70vh;
   background-color: #fff;
@@ -42,21 +44,19 @@ const ImageWrapper = styled.div`
 
 const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-  // const handleLogin = async (
-  //   phone: string,
-  //   password: string
-  // ): Promise<void> => {
-  //   setLoading(true);
-  //   const success = await AuthApi.login(phone, password);
-  //   setLoading(false);
-  //   if (success) {
-  //     message.success(`Đăng nhập thành công!`);
-  //     // navigate(routes.root);
-  //   } else {
-  //     message.error("Sai tài khoản hoặc mật khẩu. Vui lòng nhập lại.");
-  //   }
-  // };
+  const handleLogin = async (email: string, password: string): Promise<void> => {
+    setLoading(true);
+    const success = await AuthApi.login(email, password);
+    setLoading(false);
+    if (success) {
+      message.success(`Login successful!`);
+      router.push(routes.root)
+    } else {
+      message.error("Wrong user name or password. Please try again!.");
+    }
+  };
 
   return (
     <Container>
@@ -66,20 +66,18 @@ const LoginPage: React.FC = () => {
             <img src="/assets/CARGO WAVE.png" width={300} alt="Logo" />
           </ImageWrapper>
 
-          <Title level={2}>
-            Login
-          </Title>
+          <Title level={2}>Login</Title>
 
           <Form
             layout="vertical"
             onFinish={async (values: any) => {
               console.log("data: ", values);
-              // const { phone, password } = values;
-              // await handleLogin(phone, password);
+              const { email, password } = values;
+              await handleLogin(email, password);
             }}
           >
             <Form.Item
-              name="phone"
+              name="name"
               labelAlign="right"
               // rules={[
               //   {
@@ -94,7 +92,7 @@ const LoginPage: React.FC = () => {
             >
               <Input
                 prefix={<UserOutlined />}
-                placeholder="Phone number..."
+                placeholder="Email..."
                 size="large"
               />
             </Form.Item>
@@ -105,7 +103,7 @@ const LoginPage: React.FC = () => {
                 size="large"
               />
             </Form.Item>
-            <Form.Item name="login-button">
+            <Form.Item>
               <Button
                 // className="w-full btn-primary app-bg-primary font-semibold"
                 type="primary"

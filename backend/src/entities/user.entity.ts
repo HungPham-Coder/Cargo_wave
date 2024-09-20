@@ -1,27 +1,60 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToMany, JoinTable } from 'typeorm';
+import { Role } from './role.entity';
+import { Route } from './routes.entity';
+import { Crew } from './crew.entity';
+import { Log } from './log.entity';
+import { RefreshToken } from './refreshToken.entity';
 
 @Entity()
-export class Users {
-  @PrimaryGeneratedColumn()
-  id: number;
+export class User {
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   @Column()
   name: string;
 
   @Column()
-  position: number;
+  phone_number: number;
 
   @Column()
   email: string;
 
   @Column()
-  phone: number;
+  dob: Date;
+
+  @Column()
+  gender: number
+
+  @Column({ nullable: true })
+  image: string
 
   @Column()
   password: string;
 
+  @Column({ nullable: true })
+  verify_token: string;
+
+  @Column({ nullable: true })
+  verify_token_expires: Date;
+
   @Column()
-  born: string;
-  // @Column({ default: true })
-  // isActive: boolean;
+  status: number
+
+  @ManyToMany(() => Role, (role) => role.users)
+  @JoinTable({
+    name: 'user_role'
+  })
+  roles: Role[]
+
+  @OneToMany(() => Crew, (crews) => crews.users)
+  crews: Crew[]
+
+  @OneToMany(() => Route, (routes) => routes.users)
+  routes: Route[]
+
+  @OneToMany(() => Log, (logs) => logs.users)
+  logs: Log[]
+
+  @OneToMany(() => RefreshToken, (refreshTokens) => refreshTokens.users)
+  refreshTokens: RefreshToken[]
 }

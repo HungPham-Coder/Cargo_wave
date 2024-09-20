@@ -1,5 +1,8 @@
 "use client";
 
+import AuthApi from "@/source/apis/auth";
+import { useAuth } from "@/source/mocks/auth";
+import routes from "@/source/router/routes";
 import {
   Button,
   Card,
@@ -7,6 +10,7 @@ import {
   DatePickerProps,
   Form,
   Input,
+  message,
   Radio,
   RadioChangeEvent,
   Row,
@@ -19,7 +23,7 @@ import styled from "styled-components";
 
 const Container = styled.div`
   display: flex;
-  justify-content: center; 
+  justify-content: center;
   align-items: center;
   width: 100%;
   height: 80vh;
@@ -43,6 +47,19 @@ const RegisterPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [value, setValue] = useState(1);
   const router = useRouter();
+
+  const handleRegister = async (val: any): Promise<void> => {
+    setLoading(true);
+    const payload = val[0];
+    const success = await AuthApi.register(payload);
+    setLoading(false);
+    if (success) {
+      message.success(`Register successful!`);
+      router.push(routes.login)
+    } else {
+      message.error("Wrong user name or password. Please try again!.");
+    }
+  };
 
   const onChangeRadio = (e: RadioChangeEvent) => {
     console.log("radio checked", e.target.value);
@@ -71,13 +88,13 @@ const RegisterPage: React.FC = () => {
             // layout="vertical"
             initialValues={{
               gender: 1,
-              dob: dayjs(), 
+              dob: dayjs(),
             }}
-            onFinish={async (values: any) => {
+            onFinish={async (...values: any) => {
               console.log("data: ", values);
-              const { phone, password } = values;
-              // await handleLogin(phone, password);
-              // navigate(routes.root);
+              // const { phone, password } = values;
+              await handleRegister(values);
+              
             }}
           >
             <Form.Item
@@ -99,7 +116,7 @@ const RegisterPage: React.FC = () => {
               <Input placeholder="Input your full name..." size="large" />
             </Form.Item>
             <Form.Item
-              name="phone"
+              name="phone_number"
               labelAlign="left"
               label="Phone number"
               hasFeedback
@@ -117,6 +134,7 @@ const RegisterPage: React.FC = () => {
             >
               <Input placeholder="Input your phone number..." size="large" />
             </Form.Item>
+            
             <Form.Item
               name="email"
               label="Email"

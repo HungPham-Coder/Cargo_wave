@@ -1,31 +1,34 @@
 import BaseApi from "./app";
 
-// Define types for responses and parameters
-interface LoginResponse {
-  result: {
-    access_token: string;
-    userId: string;
-    role: string[];
-  };
+interface RegisterPayload {
+  name: string;
+  phone: string;
+  position?: string;
+  born?: string;
+  email: string;
+  password: string;
 }
 
 const login = async (username: string, password: string): Promise<boolean> => {
   try {
-    const response = await BaseApi.post<LoginResponse>("/User/Login", {
-      phoneNumber: username,
+    const response = await BaseApi.post("auth/login", {
+      name: username,
       password: password,
     });
+    console.log("data: ", response.data);
 
     if (response.status === 200) {
-      const { access_token: jwt, userId, role } = response.data.result;
-      localStorage.setItem("jwt", jwt);
-      localStorage.setItem("userId", userId);
-      localStorage.setItem("userRole", JSON.stringify(role));
+      // const { access_token: jwt, userId, role } = response.data.result;
+      const { access_token } = response.data;
+
+      localStorage.setItem("jwt", access_token);
+      // localStorage.setItem("userId", userId);
+      // localStorage.setItem("userRole", JSON.stringify(role));
       return true;
     }
     return false;
   } catch (error) {
-    console.log("Wrong phone number or password", error);
+    console.log("Wrong user name or password", error);
     return false;
   }
 };
@@ -46,19 +49,10 @@ const authorize = async (): Promise<any | undefined> => {
   }
 };
 
-const register = async (
-  email: string,
-  fullName: string,
-  password: string,
-  roleId: string
-): Promise<boolean> => {
+const register = async (payload: RegisterPayload): Promise<boolean> => {
   try {
-    const response = await BaseApi.post("/User/Register", {
-      email,
-      fullName,
-      password,
-      roleId,
-    });
+    const response = await BaseApi.post("auth/register", payload);
+    console.log("response: ", response.status);
     return response.status === 200;
   } catch (error) {
     console.log("Error during registration: ", error);

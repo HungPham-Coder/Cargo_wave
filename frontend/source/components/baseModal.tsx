@@ -39,8 +39,8 @@ const BaseModal: React.FC<BaseModalProps> = ({
     <Modal
       style={style}
       destroyOnClose
-      okText={okText ?? "Xác nhận"}
-      cancelText="Hủy"
+      okText={okText ?? "Confirm"}
+      cancelText="Cancel"
       open={open}
       onCancel={onCancel}
       title={<Title level={4}>{title}</Title>}

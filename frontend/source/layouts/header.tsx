@@ -8,37 +8,41 @@ import { LoginOutlined } from "@ant-design/icons";
 import Link from "next/link";
 import routes from "../router/routes";
 import { usePathname } from "next/navigation";
+import { useAuth } from "../mocks/auth";
 
 const AppHeader: React.FC = () => {
   const [current, setCurrent] = useState<string>("home");
-  const [isLoggedIn] = useState<boolean>(false);
-
+  const isAuthenticated = useAuth();
   const pathname = usePathname();
-  const hideHeaderAndFooter =
-    pathname === routes.login ||
-    pathname === routes.forgotPassword ||
-    pathname === routes.register;
 
   const onClick: MenuProps["onClick"] = (e) => {
     setCurrent(e.key);
   };
 
   const items = [
-    {
-      label: <Link href={routes.root}>Home</Link>,
-      key: "home",
-    },
-    {
-      label: <Link href={routes.route}>Route</Link>,
-      key: "routes",
-    },
-    {
-      label: <Link href={routes.about}>About</Link>,
-      key: "about",
-    },
+    // {
+    //   label: <Link href={routes.root}>Home</Link>,
+    //   key: "home",
+    // },
+    // {
+    //   label: <Link href={routes.route}>Route</Link>,
+    //   key: "routes",
+    // },
+    // {
+    //   label: <Link href={routes.about}>About</Link>,
+    //   key: "about",
+    // },
     {
       label: <Link href={routes.userManagement}>User management</Link>,
-      key: "User management",
+      key: "userManagement",
+    },
+    {
+      label: <Link href={routes.roleManagement}>Role management</Link>,
+      key: "roleManagement",
+    },
+    {
+      label: <Link href={routes.permissionManagement}>Permission management</Link>,
+      key: "permissionManagement",
     },
   ];
 
@@ -70,24 +74,21 @@ const AppHeader: React.FC = () => {
             alt="Logo"
           />
         </Link>
-        {!hideHeaderAndFooter && (
-          <Menu
-            onClick={onClick}
-            selectedKeys={[current]}
-            mode="horizontal"
-            items={items}
-            style={{
-              flex: 4,
-              justifyContent: "center",
-              display: "flex",
-              fontSize: 20,
-              backgroundColor: "#F5F5F5",
-            }}
-          />
-        )}
-
+        <Menu
+          onClick={onClick}
+          selectedKeys={[current]}
+          mode="horizontal"
+          items={items}
+          style={{
+            flex: 4,
+            justifyContent: "center",
+            display: "flex",
+            fontSize: 20,
+            backgroundColor: "#F5F5F5",
+          }}
+        />
         <div style={{ flex: 1, display: "flex", justifyContent: "flex-end" }}>
-          {!isLoggedIn ? (
+          {isAuthenticated ? (
             <ProfileBar />
           ) : (
             <Flex gap="small">

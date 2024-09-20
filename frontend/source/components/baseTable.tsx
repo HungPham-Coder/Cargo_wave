@@ -6,7 +6,7 @@ const { Title, Text } = Typography;
 
 interface FilterOptions {
   label: string | number;
-  value: string | number | boolean; 
+  value: string | number | boolean;
 }
 
 interface CustomColumnType<RecordType> extends AntdColumnType<RecordType> {
@@ -27,12 +27,12 @@ interface SearchOptions {
 }
 
 interface BaseTableProps<RecordType> {
-  columns: CustomColumnType<RecordType>[];
+  columns?: CustomColumnType<RecordType>[];
   title?: React.ReactNode;
   dataSource: RecordType[];
-  expandable?: TableProps<RecordType>['expandable'];
+  expandable?: TableProps<RecordType>["expandable"];
   searchOptions?: SearchOptions;
-  pagination?: false | TableProps<RecordType>['pagination'];
+  pagination?: false | TableProps<RecordType>["pagination"];
   actions?: React.ReactNode;
   loading?: boolean;
   rowKey?: string | ((record: RecordType) => string);
@@ -41,7 +41,7 @@ interface BaseTableProps<RecordType> {
 }
 
 export const BaseTable = <RecordType extends object>({
-  columns,
+  columns = [],
   title,
   dataSource,
   expandable,
@@ -90,12 +90,15 @@ export const BaseTable = <RecordType extends object>({
               if (filterOptions) {
                 options = filterOptions;
               } else {
-                const allValues = dataSource.map((item) => item[dataIndex as keyof RecordType] as string | number);
+                const allValues = dataSource.map(
+                  (item) =>
+                    item[dataIndex as keyof RecordType] as string | number
+                );
                 values = [...allValues];
               }
 
               return (
-                <Col key={String(dataIndex) || "default-key"}>
+                <Col key={String(dataIndex) ?? "default-key"}>
                   {label && <span className="mr-2">{label}: </span>}
                   <Select
                     mode={multiple ? "multiple" : undefined}
@@ -109,10 +112,11 @@ export const BaseTable = <RecordType extends object>({
                     options={
                       options
                         ? options
-                        : values.map((v) => {
+                        : values.map((v, index) => {
                             return {
                               label: v,
                               value: v,
+                              key: `${v}-${index}`,
                             };
                           })
                     }
@@ -149,7 +153,7 @@ export const BaseTable = <RecordType extends object>({
               {visible && (
                 <Input.Search
                   className="mb-4"
-                  placeholder={placeholder ?? "Tìm kiếm..."}
+                  placeholder={placeholder ?? "Searching..."}
                   onSearch={onSearch}
                   style={{ width: width }}
                 />
@@ -162,13 +166,15 @@ export const BaseTable = <RecordType extends object>({
       <Table<RecordType>
         rowKey={rowKey}
         pagination={
-          pagination === false ? false : { ...pagination, showSizeChanger: false }
+          pagination === false
+            ? false
+            : { ...pagination, showSizeChanger: false }
         }
         dataSource={list}
         columns={columns}
         loading={loading}
         locale={{
-          emptyText: <Empty description={<Text disabled>Chưa có dữ liệu</Text>} />,
+          emptyText: <Empty description={<Text disabled>Empty list</Text>} />,
         }}
         expandable={expandable}
       />
