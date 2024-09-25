@@ -1,11 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from 'src/entities/role.entity';
-import { Repository } from 'typeorm';
-import { CreateRoleDTO } from './create-role-request.dto';
+import { In, Repository } from 'typeorm';
+import { CreateRoleDTO } from './roles.dto/create-role-request.dto';
 import { PaginationDTO } from 'src/users/create-user-request.dto';
+import { AssignPermissionDTO } from './roles.dto/assign-permission-dto';
+import { Permission } from 'src/entities/permission.entity';
 
 export type Roles = any;
+export type Permissions = any;
 
 @Injectable()
 export class RolesService {
@@ -13,10 +16,12 @@ export class RolesService {
   constructor(
     @InjectRepository(Role)
     private rolesRepository: Repository<Roles>,
+    @InjectRepository(Permission)
+    private permissionRepository: Repository<Permissions>,
   ) { }
 
   // Method to find all roles
-  async findAll(paginationDTO: PaginationDTO): Promise<{ data: Roles[], total: number }> {
+  async findAllWithPaging(paginationDTO: PaginationDTO): Promise<{ data: Roles[], total: number }> {
     const { search = '', pageIndex = 0, pageSize = 10 } = paginationDTO;
 
     // Ensure pageIndex and pageSize are numbers
@@ -25,7 +30,7 @@ export class RolesService {
 
     try {
       // Build query with or without search filter
-      const query = this.rolesRepository.createQueryBuilder('roles');
+      const query = this.rolesRepository.createQueryBuilder('roles').leftJoinAndSelect('roles.permissions', 'permissions');;
 
       if (search) {
         query.where('LOWER(roles.name) LIKE LOWER(:search)', { search: `%${search.toLowerCase()}%` });
@@ -119,5 +124,52 @@ export class RolesService {
       console.error('Error updating role name:', error);
       throw new Error('Error updating role name');
     }
+  }
+
+  // Method to update the name of a role by ID
+  async assignPermissions(assignPermissionDTO: AssignPermissionDTO): Promise<Role> {
+    const { roleId, permissionIDs } = assignPermissionDTO;
+    // Find the role with the given ID
+    const role = await this.rolesRepository.findOne({
+      where: { id: roleId },
+      relations: ['permissions'],
+    });
+    if (!role) {
+      throw new Error('Role not found');
+    }
+    // Find the permissions by the provided IDs
+    const permissionsToAdd = await this.permissionRepository.findBy({
+      id: In(permissionIDs),
+    });
+    // Create a set of existing permission IDs for easier lookup
+    const existingPermissionIDs = new Set(role.permissions.map((p: { id: any; }) => p.id));
+    // Add new permissions
+    const newPermissions = permissionsToAdd.filter(p => !existingPermissionIDs.has(p.id));
+    role.permissions = [...role.permissions, ...newPermissions];
+    // Remove permissions that are not included in the new list
+    role.permissions = role.permissions.filter(p => permissionIDs.includes(p.id) || newPermissions.includes(p));
+    // Save the updated role
+    return this.rolesRepository.save(role);
+  }
+
+  async updatePermissions(roleId: string, permissions: string[]): Promise<Role> {
+    const role = await this.rolesRepository.findOne({
+      where: { id: roleId },
+      relations: ['permissions'],
+    });
+
+    if (!role) {
+      throw new Error('Role not found');
+    }
+
+    // Fetch permission entities based on the provided IDs
+    const permissionEntities = await this.permissionRepository.find({
+      where: { id: In(permissions) },
+    });
+
+    // Update the role's permissions
+    role.permissions = permissionEntities;
+
+    return await this.rolesRepository.save(role); // Save and return the updated role
   }
 }

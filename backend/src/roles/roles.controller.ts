@@ -1,7 +1,9 @@
-import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Param, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Param, Patch, Post, Put, Query } from '@nestjs/common';
 import { Roles, RolesService } from './roles.service';
-import { CreateRoleDTO } from './create-role-request.dto';
+import { CreateRoleDTO } from './roles.dto/create-role-request.dto';
 import { PaginationDTO } from 'src/users/create-user-request.dto';
+import { AssignPermissionDTO } from './roles.dto/assign-permission-dto';
+import { UpdatePermissionsDTO } from './roles.dto/update-permission-request-dto';
 
 @Controller('roles')
 export class RolesController {
@@ -9,9 +11,9 @@ export class RolesController {
 
     //Get all data of roles
     @HttpCode(HttpStatus.OK)
-    @Get('findAll')
-    async findAll(@Query() paginationDTO: PaginationDTO): Promise<{ data: Roles[], total: number }> {
-        return this.roleService.findAll(paginationDTO);
+    @Get('findAllWithPaging')
+    async findAllWithPaging(@Query() paginationDTO: PaginationDTO): Promise<{ data: Roles[], total: number }> {
+        return this.roleService.findAllWithPaging(paginationDTO);
     }
 
     // Get roles by name
@@ -38,11 +40,11 @@ export class RolesController {
         // Convert isDisabled to a boolean
         try {
             const isDisabledBool = isDisabled.toLowerCase() === 'true';
-            const updatedRoleStatus = this.roleService.updateRoleStatus(id, isDisabledBool);
-            if (!updatedRoleStatus) {
+            const body = this.roleService.updateRoleStatus(id, isDisabledBool);
+            if (!body) {
                 throw new HttpException(`Role with ID ${id} not found`, HttpStatus.NOT_FOUND);
             }
-            return updatedRoleStatus;
+            return body;
         } catch (error) {
             throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
 
@@ -57,11 +59,26 @@ export class RolesController {
         @Body('name') newName: string
     ) {
         try {
-            const updatedRoleName = await this.roleService.updateRoleName(id, newName);
-            if (!updatedRoleName) {
+            const body = await this.roleService.updateRoleName(id, newName);
+            if (!body) {
                 throw new HttpException(`Role with ID ${id} not found`, HttpStatus.NOT_FOUND);
             }
-            return updatedRoleName;
+            return body;
+        } catch (error) {
+            throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Patch('assignPermissions')
+    @HttpCode(HttpStatus.OK)
+    async assignPermissions(@Body() assignPermissionDTO: AssignPermissionDTO) {
+        try {
+            const body = this.roleService.assignPermissions(assignPermissionDTO)
+            if (!body) {
+                throw new HttpException(`Assign permissions not found`, HttpStatus.NOT_FOUND);
+            }
+            return body;
+
         } catch (error) {
             throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
         }

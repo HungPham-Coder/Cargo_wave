@@ -2,6 +2,29 @@ import BaseApi from "./app";
 
 const resource = "permissions";
 
+const findAll = async () => {
+  try {
+    // Make API request with proper params
+    const response = await BaseApi.get(`/${resource}/findAll`, {});
+    console.log("Respone: ", response.data);
+    return response.data;
+  } catch (error) {
+    console.log("Error enroll group: ", error);
+    return false;
+  }
+};
+const findPermissionEnabled = async () => {
+  try {
+    // Make API request with proper params
+    const response = await BaseApi.get(`/${resource}/findPermissionEnabled`, {});
+    console.log("Respone: ", response.data);
+    return response.data;
+  } catch (error) {
+    console.log("Error enroll group: ", error);
+    return false;
+  }
+};
+
 const findAllWithPaging = async (
   search: string,
   pageIndex: number,
@@ -23,7 +46,7 @@ const findAllWithPaging = async (
     }
 
     // Make API request with proper params
-    const response = await BaseApi.get(`/${resource}/findAll`, {
+    const response = await BaseApi.get(`/${resource}/findAllWithPaging`, {
       params: params,
     });
     console.log("Respone: ", response.data);
@@ -75,7 +98,11 @@ const updatePermissionStatus = async (
   }
 };
 
+
+
 const PermissionApi = {
+  findAll,
+  findPermissionEnabled,
   findAllWithPaging,
   updatePermissionByID,
   createPermission,

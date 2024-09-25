@@ -3,9 +3,10 @@
 import RoleApi from "@/source/apis/roles";
 import { BaseTable } from "@/source/components/baseTable";
 import RoleModal from "@/source/components/roleModal";
+import RolePermissionModal from "@/source/components/rolePermissionModal";
 import RoleUpdateModal from "@/source/components/roleUpdateModal";
 import { PageSize } from "@/source/constants/app";
-import { Forbid, More, Unlock, User } from "@icon-park/react";
+import { Forbid, ListAdd, More, Unlock, User } from "@icon-park/react";
 import { Button, Dropdown, MenuProps, message, Space } from "antd";
 import confirm from "antd/es/modal/confirm";
 import { useEffect, useState } from "react";
@@ -27,15 +28,29 @@ interface ColumnType<T> {
   };
 }
 
-interface Role {
+interface Permission {
   id: string;
   name: string;
   isDisabled: boolean;
 }
 
+interface Role {
+  id: string;
+  name: string;
+  isDisabled: boolean;
+  permissions?: Permission[];
+}
+
 interface RolesResponse {
   data: Role[];
   total: number;
+}
+
+interface SelectedRole {
+  id?: string;
+  name?: string;
+  permissions?: string[]; // Make sure to define permissions here
+  isDeleted?: boolean;
 }
 
 const RoleManagementList: React.FC = () => {
@@ -47,9 +62,8 @@ const RoleManagementList: React.FC = () => {
   const [roleCreating, setRoleCreating] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [showUpdateRoleNameModal, setShowUpdateRoleNameModal] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<
-    { id?: string; name?: string; isDeleted?: boolean } | undefined
-  >();
+  const [assignPermissionModal, setAssignPermissionModal] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<SelectedRole | undefined>();
 
   const getData = async (
     search?: string,
@@ -73,6 +87,8 @@ const RoleManagementList: React.FC = () => {
       setLoading(false);
     }
   };
+
+  console.log("Roles: ", roles);
 
   const handleCreateRoles = async (names: string[]) => {
     setRoleCreating(true);
@@ -115,6 +131,7 @@ const RoleManagementList: React.FC = () => {
   const columns: ColumnType<{
     key: string;
     name: string;
+    permissions: Permission[];
     isDisabled: boolean;
   }>[] = [
     {
@@ -133,8 +150,23 @@ const RoleManagementList: React.FC = () => {
       title: "Role name",
       dataIndex: "name",
       key: "name",
-      width: "60%",
+      width: "30%",
       sorter: (a, b) => a.name.localeCompare(b.name),
+    },
+    {
+      title: "Permissions",
+      dataIndex: "permissions",
+      key: "permissions",
+      render: (permissions: Permission[]) => (
+        <span>
+          {permissions.map((permission, i) => (
+            <div key={permission.id}>
+              {" "}
+              {i + 1}. {permission.name}
+            </div>
+          ))}
+        </span>
+      ),
     },
     {
       title: "Status",
@@ -182,17 +214,34 @@ const RoleManagementList: React.FC = () => {
     isDisabled: boolean;
     id: string;
     name: string;
+    permissions: Permission[];
   }): MenuProps["items"] => {
-    const { isDisabled, id } = record;
+    const { isDisabled, id, name, permissions } = record;
 
     return [
       {
         key: "UPDATE_ROLE",
         label: "Update role",
-        icon: <User />,
+        icon: <User size="16" />,
         onClick: () => {
-          setSelectedRole({ id, name: record.name });
+          setSelectedRole({ id, name });
           setShowUpdateRoleNameModal(true);
+        },
+      },
+      {
+        key: "ASSIGN_PERMISSION",
+        label:
+          permissions.length === 0
+            ? "Assign permissions"
+            : "Update permissions",
+        icon: <ListAdd size="16" />,
+        onClick: () => {
+          setSelectedRole({
+            id,
+            name: record.name,
+            permissions: permissions?.map((p) => p.id),
+          });
+          setAssignPermissionModal(true);
         },
       },
       {
@@ -217,8 +266,19 @@ const RoleManagementList: React.FC = () => {
   };
 
   return (
-    <div style={{ paddingLeft: 30, paddingRight: 30, display: "flex", justifyContent: "center"}}>
-      <Space direction="vertical" className="w-full gap-6" style={{ width: "100%" }}>
+    <div
+      style={{
+        paddingLeft: 30,
+        paddingRight: 30,
+        display: "flex",
+        justifyContent: "center",
+      }}
+    >
+      <Space
+        direction="vertical"
+        className="w-full gap-6"
+        style={{ width: "100%" }}
+      >
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
           <Button
             type="primary"
@@ -237,10 +297,12 @@ const RoleManagementList: React.FC = () => {
             roles?.data?.map((role) => ({
               ...role,
               key: role.id,
+              permissions: role.permissions || [],
             })) || []
           }
           columns={columns}
           pagination={{
+            current: currentPage,
             onChange: onPageChange,
             pageSize: PageSize.ROLE_LIST,
             total: roles.total,
@@ -265,6 +327,12 @@ const RoleManagementList: React.FC = () => {
         open={showItemModal}
         data={undefined}
       />
+      <RolePermissionModal
+        onCancel={() => setAssignPermissionModal(false)}
+        onSuccess={() => getData(undefined, defaultPage, true)}
+        open={assignPermissionModal}
+        data={selectedRole}
+      ></RolePermissionModal>
     </div>
   );
 };

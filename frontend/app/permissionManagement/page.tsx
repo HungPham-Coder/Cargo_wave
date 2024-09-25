@@ -41,13 +41,17 @@ interface permissionsResponse {
 
 const PermissionManagementList: React.FC = () => {
   const [loading, setLoading] = useState(false);
-  const [permissions, setPermissions] = useState<permissionsResponse>({ data: [], total: 0 });
+  const [permissions, setPermissions] = useState<permissionsResponse>({
+    data: [],
+    total: 0,
+  });
   const [currentPage, setCurrentPage] = useState(1);
   const defaultPage = 1;
   const [showItemModal, setShowItemModal] = useState(false);
   const [permissionCreating, setPermissionCreating] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [showUpdatePermissionNameModal, setShowUpdatePermissionNameModal] = useState(false);
+  const [showUpdatePermissionNameModal, setShowUpdatePermissionNameModal] =
+    useState(false);
   const [selectedpermission, setSelectedpermission] = useState<
     { id?: string; name?: string; isDeleted?: boolean } | undefined
   >();
@@ -61,11 +65,12 @@ const PermissionManagementList: React.FC = () => {
       setLoading(true);
     }
     try {
-      const response: permissionsResponse = await PermissionApi.findAllWithPaging(
-        search!,
-        pageIndex! - 1,
-        PageSize.PERMISSION_LIST
-      );
+      const response: permissionsResponse =
+        await PermissionApi.findAllWithPaging(
+          search!,
+          pageIndex! - 1,
+          PageSize.PERMISSION_LIST
+        );
       setPermissions(response);
     } catch (error) {
       message.error("Failed to fetch permissions");
@@ -88,7 +93,10 @@ const PermissionManagementList: React.FC = () => {
     }
   };
 
-  const updatepermissionStatus = async (permissionID: string, isDisabled: boolean) => {
+  const updatepermissionStatus = async (
+    permissionID: string,
+    isDisabled: boolean
+  ) => {
     try {
       await PermissionApi.updatePermissionStatus(permissionID, isDisabled);
       message.success("permission status updated successfully");
@@ -126,7 +134,9 @@ const PermissionManagementList: React.FC = () => {
       // align: "center",
       render: (_, record, index) => {
         return (
-          <span>{index + 1 + (currentPage - 1) * PageSize.PERMISSION_LIST}</span>
+          <span>
+            {index + 1 + (currentPage - 1) * PageSize.PERMISSION_LIST}
+          </span>
         );
       },
     },
@@ -218,8 +228,19 @@ const PermissionManagementList: React.FC = () => {
   };
 
   return (
-    <div style={{ paddingLeft: 30, paddingRight: 30, display: "flex", justifyContent: "center"}}>
-      <Space direction="vertical" className="w-full gap-6" style={{ width: "100%" }}>
+    <div
+      style={{
+        paddingLeft: 30,
+        paddingRight: 30,
+        display: "flex",
+        justifyContent: "center",
+      }}
+    >
+      <Space
+        direction="vertical"
+        className="w-full gap-6"
+        style={{ width: "100%" }}
+      >
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
           <Button
             type="primary"

@@ -5,8 +5,8 @@ import type { TableProps, ColumnType as AntdColumnType } from "antd/es/table";
 const { Title, Text } = Typography;
 
 interface FilterOptions {
-  label: string | number;
-  value: string | number | boolean;
+  label: string | number | string[];
+  value: string | number | boolean | string[];
 }
 
 interface CustomColumnType<RecordType> extends AntdColumnType<RecordType> {

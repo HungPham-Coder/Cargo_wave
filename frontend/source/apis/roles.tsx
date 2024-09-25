@@ -6,35 +6,24 @@ const findAllWithPaging = async (
   search: string,
   pageIndex: number,
   pageSize: number
-) => {
+): Promise<any> => {
   try {
-    let params: any = {};
+    const params: any = {
+      ...(pageIndex && { pageIndex }),
+      ...(pageSize && { pageSize }),
+      ...(search && { search }),
+    };
 
-    if (pageIndex) {
-      params.pageIndex = pageIndex;
-    }
-    if (pageSize) {
-      params.pageSize = pageSize;
-    }
-
-    if (search) {
-      // Add search query to params if search is present
-      params.search = search;
-    }
-
-    // Make API request with proper params
-    const response = await BaseApi.get(`/${resource}/findAll`, {
-      params: params,
-    });
-    console.log("Respone: ", response.data);
+    const response = await BaseApi.get(`/${resource}/findAllWithPaging`, { params });
+    console.log("Response: ", response.data);
     return response.data;
   } catch (error) {
-    console.log("Error enroll group: ", error);
+    console.log("Error findAllWithPaging: ", error);
     return false;
   }
 };
 
-const createRole = async (values: any) => {
+const createRole = async (values: any): Promise<any> => {
   try {
     const response = await BaseApi.post(`/${resource}/createRoles`, values);
     return response.data;
@@ -44,7 +33,7 @@ const createRole = async (values: any) => {
   }
 };
 
-const updateRoleNameByID = async (id: string, name: string) => {
+const updateRoleNameByID = async (id: string, name: string): Promise<any> => {
   try {
     const response = await BaseApi.put(
       `/${resource}/updateRoleNameByID/${id}/name`,
@@ -52,28 +41,54 @@ const updateRoleNameByID = async (id: string, name: string) => {
     );
     return response.data;
   } catch (error) {
-    console.log("Error findAll class: ", error);
+    console.log("Error updateRoleNameByID: ", error);
     return false;
   }
 };
 
-const updateRoleStatus = async (roleID: string, status: boolean) => {
+const updateRoleStatus = async (
+  roleID: string,
+  status: boolean
+): Promise<any> => {
   try {
     const response = await BaseApi.put(
       `/${resource}/updateRoleStatus/${roleID}/${status}`
     );
     return response.data;
   } catch (error) {
-    console.log("Error enableRole class: ", error);
+    console.log("Error updateRoleStatus: ", error);
+    return false;
+  }
+};
+
+
+const assignPermissionsToRole = async (
+  roleId: string,
+  permissionIDs: string[]
+) => {
+  try {
+    console.log("Payload sent to the server:", { roleId, permissionIDs });
+
+    const response = await BaseApi.patch(
+      `/${resource}/assignPermissions/`, 
+      {
+        roleId,
+        permissionIDs
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Error update permission status class: ", error);
     return false;
   }
 };
 
 const RoleApi = {
   findAllWithPaging,
-  updateRoleNameByID,
   createRole,
+  updateRoleNameByID,
   updateRoleStatus,
+  assignPermissionsToRole,
 };
 
 export default RoleApi;
