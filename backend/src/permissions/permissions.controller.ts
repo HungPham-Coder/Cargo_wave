@@ -1,17 +1,36 @@
 import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Param, Post, Put, Query } from '@nestjs/common';
-import { PermissionsService } from './permissions.service';
+import { Permissions, PermissionsService } from './permissions.service';
 import { PaginationDTO } from 'src/users/create-user-request.dto';
 import { CreatePermissionDTO } from './create-permission-request.dto';
 
 @Controller('permissions')
 export class PermissionsController {
-        constructor(private permissionService: PermissionsService) { }
+    constructor(private permissionService: PermissionsService) { }
 
     //Get all data of permissions
-    @HttpCode(HttpStatus.OK)
     @Get('findAll')
-    async findAll(@Query() paginationDTO: PaginationDTO): Promise<{ data: Permissions[], total: number }> {
-        return this.permissionService.findAll(paginationDTO);
+    async findAll(): Promise<Permissions[]> {
+        try {
+            return await this.permissionService.findAll();
+        } catch (error) {
+            throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    //Get all data of permissions
+    @Get('findPermissionEnabled')
+    async findPermissionEnabled(): Promise<Permissions[]> {
+        try {
+            return await this.permissionService.findPermissionEnabled();
+        } catch (error) {
+            throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    //Get all data of permissions with paging
+    @HttpCode(HttpStatus.OK)
+    @Get('findAllWithPaging')
+    async findAllWithPaging(@Query() paginationDTO: PaginationDTO): Promise<{ data: Permissions[], total: number }> {
+        return this.permissionService.findAllWithPaging(paginationDTO);
     }
 
     // Get permissions by name
