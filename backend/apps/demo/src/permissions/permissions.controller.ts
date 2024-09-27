@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Param, Post, Put, Query } from '@nestjs/common';
 import { Permissions, PermissionsService } from './permissions.service';
-import { PaginationDTO } from 'src/users/create-user-request.dto';
 import { CreatePermissionDTO } from './create-permission-request.dto';
+import { PaginationDTO } from '../users/create-user-request.dto';
 
 @Controller('permissions')
 export class PermissionsController {

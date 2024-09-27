@@ -1,9 +1,9 @@
 import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Param, Patch, Post, Put, Query } from '@nestjs/common';
 import { Roles, RolesService } from './roles.service';
 import { CreateRoleDTO } from './roles.dto/create-role-request.dto';
-import { PaginationDTO } from 'src/users/create-user-request.dto';
 import { AssignPermissionDTO } from './roles.dto/assign-permission-dto';
 import { UpdatePermissionsDTO } from './roles.dto/update-permission-request-dto';
+import { PaginationDTO } from '../users/create-user-request.dto';
 
 @Controller('roles')
 export class RolesController {

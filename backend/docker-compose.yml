@@ -1,0 +1,43 @@
+version: '2'
+
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper:latest
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: wurstmeister/kafka:latest
+    ports:
+      - "9092:9092"
+    expose:
+      - "9093"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9093,OUTSIDE://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: INSIDE://0.0.0.0:9093,OUTSIDE://0.0.0.0:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_CREATE_TOPICS: "my-topic:1:1"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  db:
+    image: postgres:16.4
+    container_name: clv_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 130600
+      POSTGRES_DB: jwat
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 1s # Khoảng tg của các lần kiểm tra 
+      timeout: 5s # tg tối đa mà lệnh kiểm tra có thể chạy trc khi bị đánh dấu là không thành công
+      retries: 10
+ 
+volumes:
+  pgdata:

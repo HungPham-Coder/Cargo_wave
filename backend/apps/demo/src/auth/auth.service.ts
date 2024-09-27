@@ -1,10 +1,12 @@
 import { BadRequestException, ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UsersService } from 'src/users/users.service';
+
 import * as bcrypt from 'bcrypt';
-import { RolesService } from 'src/roles/roles.service';
-import { CreateUserDTO } from 'src/users/create-user-request.dto';
-import { roles, userStatus } from 'src/constants/enum';
+import { RolesService } from '../roles/roles.service';
+import { UsersService } from '../users/users.service';
+import { CreateUserDTO } from '../users/create-user-request.dto';
+import { roles, userStatus } from '../constants/enum';
+
 
 
 @Injectable()
