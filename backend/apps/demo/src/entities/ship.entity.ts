@@ -1,7 +1,9 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import { Route } from './routes.entity';
 import { Crew } from './crew.entity';
 import { Log } from './log.entity';
+import { VehicleType } from './vehicleType.entity';
+import { ShippingType } from './shippingType.entity';
 
 @Entity()
 export class Ship {
@@ -25,4 +27,10 @@ export class Ship {
 
     @OneToMany(() => Log, (logs) => logs.ships)
     logs: Log[]
+
+    @OneToOne(() => VehicleType, (vehicle) => vehicle.id)
+    vehicle: VehicleType;
+    
+    @OneToOne(() => ShippingType, (shipping) => shipping.id)
+    shipping: ShippingType;
 }

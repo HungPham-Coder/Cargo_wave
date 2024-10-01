@@ -1,11 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Role } from 'src/entities/role.entity';
 import { In, Repository } from 'typeorm';
 import { CreateRoleDTO } from './roles.dto/create-role-request.dto';
-import { PaginationDTO } from 'src/users/create-user-request.dto';
+
 import { AssignPermissionDTO } from './roles.dto/assign-permission-dto';
-import { Permission } from 'src/entities/permission.entity';
+import { Permission } from '../entities/permission.entity';
+import { Role } from '../entities/role.entity';
+import { PaginationDTO } from '../users/create-user-request.dto';
+
 
 export type Roles = any;
 export type Permissions = any;

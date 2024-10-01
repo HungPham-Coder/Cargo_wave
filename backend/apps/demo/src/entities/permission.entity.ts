@@ -10,6 +10,9 @@ export class Permission {
   @Column()
   name: string;
 
+  @Column()
+  description: string;
+
   @Column({ nullable: true })
   isDisabled: boolean;
 
