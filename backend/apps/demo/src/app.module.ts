@@ -14,6 +14,8 @@ import { Ship } from './entities/ship.entity';
 import { Permission } from './entities/permission.entity';
 import { RolesModule } from './roles/roles.module';
 import { PermissionsModule } from './permissions/permissions.module';
+import { VehicleType } from './entities/vehicleType.entity';
+import { ShippingType } from './entities/shippingType.entity';
 
 
 @Module({
@@ -35,6 +37,8 @@ import { PermissionsModule } from './permissions/permissions.module';
         Permission,
         Route,
         Ship,
+        VehicleType,
+        ShippingType
       ],
       synchronize: true,
     }),
@@ -42,6 +46,7 @@ import { PermissionsModule } from './permissions/permissions.module';
     UsersModule,
     RolesModule,
     PermissionsModule,
+
   ],
   controllers: [AppController],
   providers: [AppService],
