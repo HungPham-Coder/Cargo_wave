@@ -1,6 +1,6 @@
 import { Type } from "class-transformer";
 import { IsDate, IsEmail, IsInt, IsNotEmpty, IsOptional, IsString, Min } from "class-validator";
-import userError from "src/constants/errorCode/userError";
+import userError from "../constants/errorCode/userError";
 
 export class LoginDTO {
     @IsNotEmpty(userError.US_03)
