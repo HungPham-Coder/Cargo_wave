@@ -1,6 +1,6 @@
 import { Select } from "antd";
 import React, { useEffect, useState } from "react";
-import PermissionApi from "../apis/permissions";
+import PermissionApi from "../../apis/permissions";
 
 interface Permission {
   id: string;

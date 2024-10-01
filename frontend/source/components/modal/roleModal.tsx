@@ -1,10 +1,10 @@
 import React, { useState } from "react";
+import RoleApi from "../../apis/roles";
 import { Button, Form, Input, message, Space } from "antd";
-import BaseModal from "./baseModal";
+import BaseModal from "../baseModal";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
-import PermissionApi from "../apis/permissions";
 
-interface PermissionModalProps {
+interface RoleModalProps {
   data?: {
     id?: string;
     name?: string;
@@ -14,7 +14,7 @@ interface PermissionModalProps {
   onSuccess: () => void;
 }
 
-const PermissionModal: React.FC<PermissionModalProps> = ({
+const RoleModal: React.FC<RoleModalProps> = ({
   data,
   open,
   onCancel,
@@ -26,14 +26,14 @@ const PermissionModal: React.FC<PermissionModalProps> = ({
   const [loading, setLoading] = useState(false);
 
   // Transform the form values to the desired format
-  const handlePermission = async (values: any) => {
+  const handleRole = async (values: any) => {
     setLoading(true);
 
     const body = {
       ...values,
-      names: values.names.map((item: { permission: string }) => item.permission),
+      names: values.names.map((item: { role: string }) => item.role),
     };
-    const success = await PermissionApi.createPermission(body);
+    const success = await RoleApi.createRole(body);
     if (success) {
       message.success(`Create successful`);
       form.resetFields();
@@ -52,7 +52,7 @@ const PermissionModal: React.FC<PermissionModalProps> = ({
         onCancel();
         form.resetFields();
       }}
-      title={`Create permission name`}
+      title={`Create role name`}
       confirmLoading={loading}
       onOk={() => form.submit()}
     >
@@ -61,16 +61,16 @@ const PermissionModal: React.FC<PermissionModalProps> = ({
         layout="vertical"
         initialValues={{
           id: data?.id,
-          names: data?.name ? [{ permission: data.name }] : [{ permission: "" }],
+          names: data?.name ? [{ role: data.name }] : [{ role: "" }],
         }}
-        onFinish={handlePermission}
+        onFinish={handleRole}
       >
         {!isCreate && (
           <Form.Item name="id" hidden>
             <Input />
           </Form.Item>
         )}
-        <Form.List name="names" initialValue={[{ permission: "" }]}>
+        <Form.List name="names" initialValue={[{ role: "" }]}>
           {(fields, { add, remove }) => (
             <>
               {fields.map(({ key, name, ...restField }) => (
@@ -81,16 +81,16 @@ const PermissionModal: React.FC<PermissionModalProps> = ({
                 >
                   <Form.Item
                     {...restField}
-                    name={[name, "permission"]}
+                    name={[name, "role"]}
                     rules={[
                       {
                         required: true,
-                        message: "Please input permission name or delete this field!",
+                        message: "Please input role name or delete this field!",
                       },
                     ]}
                   >
                     <Input
-                      placeholder="Input permission name"
+                      placeholder="Input role name"
                       style={{ width: 450 }}
                     />
                   </Form.Item>
@@ -120,4 +120,4 @@ const PermissionModal: React.FC<PermissionModalProps> = ({
   );
 };
 
-export default PermissionModal;
+export default RoleModal;

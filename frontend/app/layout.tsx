@@ -5,6 +5,8 @@ import AppHeader from "@/source/layouts/header";
 import { Content } from "antd/es/layout/layout";
 import AppFooter from "@/source/layouts/footer";
 import StyledComponentsRegistry from "./registry";
+import { Layout } from "antd";
+import AppSider from "@/source/layouts/sider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -29,9 +31,14 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <StyledComponentsRegistry>
-          <AppHeader></AppHeader>
-          <Content style={contentLayout}>{children}</Content>
-          <AppFooter></AppFooter>
+          <Layout>
+            <AppHeader />
+            <Layout > 
+              <AppSider />
+              <Content style={contentLayout}>{children}</Content>
+            </Layout>
+            <AppFooter />
+          </Layout>
         </StyledComponentsRegistry>
       </body>
     </html>

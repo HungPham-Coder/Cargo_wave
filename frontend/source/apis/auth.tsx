@@ -9,26 +9,24 @@ interface RegisterPayload {
   password: string;
 }
 
-const login = async (username: string, password: string): Promise<boolean> => {
+const login = async (email: string, password: string): Promise<boolean> => {
   try {
     const response = await BaseApi.post("auth/login", {
-      name: username,
-      password: password,
+      email,
+      password,
     });
     console.log("data: ", response.data);
 
     if (response.status === 200) {
-      // const { access_token: jwt, userId, role } = response.data.result;
       const { access_token } = response.data;
-
       localStorage.setItem("jwt", access_token);
-      // localStorage.setItem("userId", userId);
-      // localStorage.setItem("userRole", JSON.stringify(role));
+      // localStorage.setItem("user", JSON.stringify(user));
+      window.dispatchEvent(new Event('storage'));
       return true;
     }
     return false;
   } catch (error) {
-    console.log("Wrong user name or password", error);
+    console.log("Wrong email or password", error);
     return false;
   }
 };

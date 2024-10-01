@@ -2,12 +2,19 @@
 
 import RoleApi from "@/source/apis/roles";
 import { BaseTable } from "@/source/components/baseTable";
-import RoleModal from "@/source/components/roleModal";
-import RolePermissionModal from "@/source/components/rolePermissionModal";
-import RoleUpdateModal from "@/source/components/roleUpdateModal";
+import RoleModal from "@/source/components/modal/roleModal";
+import RolePermissionModal from "@/source/components/modal/rolePermissionModal";
+import RoleUpdateModal from "@/source/components/modal/roleUpdateModal";
 import { PageSize } from "@/source/constants/app";
 import { Forbid, ListAdd, More, Unlock, User } from "@icon-park/react";
-import { Button, Dropdown, MenuProps, message, Space } from "antd";
+import {
+  Button,
+  Dropdown,
+  MenuProps,
+  message,
+  PaginationProps,
+  Space,
+} from "antd";
 import confirm from "antd/es/modal/confirm";
 import { useEffect, useState } from "react";
 
@@ -266,20 +273,32 @@ const RoleManagementList: React.FC = () => {
   };
 
   return (
-    <div
-      style={{
-        paddingLeft: 30,
-        paddingRight: 30,
-        display: "flex",
-        justifyContent: "center",
-      }}
-    >
-      <Space
-        direction="vertical"
-        className="w-full gap-6"
-        style={{ width: "100%" }}
-      >
-        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+    <div>
+      <BaseTable
+        rowKey="id"
+        title="Role management"
+        loading={loading}
+        dataSource={
+          roles?.data?.map((role) => ({
+            ...role,
+            key: role.id,
+            permissions: role.permissions || [],
+          })) || []
+        }
+        columns={columns}
+        pagination={{
+          current: currentPage,
+          onChange: onPageChange,
+          pageSize: PageSize.ROLE_LIST,
+          total: roles.total,
+        }}
+        searchOptions={{
+          visible: true,
+          placeholder: "Search roles...",
+          onSearch: handleSearch,
+          width: 300,
+        }}
+        addButton={
           <Button
             type="primary"
             className="btn-primary app-bg-primary font-semibold text-white"
@@ -287,34 +306,8 @@ const RoleManagementList: React.FC = () => {
           >
             Create role
           </Button>
-        </div>
-
-        <BaseTable
-          rowKey="id"
-          title="Role management"
-          loading={loading}
-          dataSource={
-            roles?.data?.map((role) => ({
-              ...role,
-              key: role.id,
-              permissions: role.permissions || [],
-            })) || []
-          }
-          columns={columns}
-          pagination={{
-            current: currentPage,
-            onChange: onPageChange,
-            pageSize: PageSize.ROLE_LIST,
-            total: roles.total,
-          }}
-          searchOptions={{
-            visible: true,
-            placeholder: "Search roles...",
-            onSearch: handleSearch,
-            width: 300,
-          }}
-        />
-      </Space>
+        }
+      />
       <RoleUpdateModal
         onCancel={() => setShowUpdateRoleNameModal(false)}
         onSuccess={() => getData(undefined, defaultPage, true)}

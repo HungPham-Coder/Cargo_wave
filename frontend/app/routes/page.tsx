@@ -36,11 +36,11 @@ const RoutesList: React.FC = () => {
   return (
     <div
       style={{
-        paddingLeft: "10%",
-        paddingRight: "10%",
+        paddingLeft: "3%",
+        paddingRight: "3%",
       }}
     >
-      <h1>Routes</h1>
+      <span className="mr-2">Routes list</span>
       <AutoComplete
         options={options}
         onSelect={onSelect}
@@ -50,7 +50,7 @@ const RoutesList: React.FC = () => {
           allowClear
           placeholder="input search text"
           onSearch={(value) => setSearchText(value)} // Update search term
-          style={{ width: "100%", marginBottom: 20 }}
+          style={{ marginBottom: 20 }}
         />
       </AutoComplete>
 
@@ -67,7 +67,6 @@ const RoutesList: React.FC = () => {
                 backgroundColor: "#ffffff",
                 border: "3px solid #D6D6D6",
                 borderRadius: "20px",
-                
                 fontSize: 20,
               }}
               onClick={() => console.log("Button clicked")} // Example click handler

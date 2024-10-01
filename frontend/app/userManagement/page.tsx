@@ -200,7 +200,7 @@ const UserManagementList: React.FC = () => {
   };
 
   return (
-    <div style={{ paddingLeft: 30, paddingRight: 30 }}>
+    <div>
       <BaseTable
         rowKey="id"
         title="User management"

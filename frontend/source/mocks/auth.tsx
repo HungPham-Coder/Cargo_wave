@@ -6,6 +6,17 @@ export const useAuth = () => {
   useEffect(() => {
     const token = localStorage.getItem('jwt');
     setIsAuthenticated(!!token);
+
+    const handleStorageChange = () => {
+      const newToken = localStorage.getItem('jwt');
+      setIsAuthenticated(!!newToken);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   return isAuthenticated;
