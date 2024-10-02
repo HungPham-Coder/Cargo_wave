@@ -13,8 +13,8 @@ export class CreateUserDTO{
     @IsEmail({}, { message: userError.US_04.message })
     email: string;
 
-    // @IsNotEmpty(userError.US_05)
-    // @IsDate(userError.US_06)
+    @IsNotEmpty(userError.US_05)
+    @IsDate(userError.US_06)
     dob: Date;
 
     @IsNotEmpty(userError.US_07)
