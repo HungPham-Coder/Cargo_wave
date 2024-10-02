@@ -1,12 +1,14 @@
 import { Post, Body, Controller, HttpCode, HttpStatus, UsePipes, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDTO, LoginDTO } from '../users/create-user-request.dto';
+import { MessagePattern } from '@nestjs/microservices';
 // import { CreateUserDTO, LoginDTO } from 'src/users/create-user-request.dto';
 
 @Controller('auth')
 export class AuthController {
     constructor(private authService: AuthService) { }
 
+    
     @HttpCode(HttpStatus.OK)
     @Post('login')
     signIn(@Body() signInDto: LoginDTO) {
@@ -16,7 +18,8 @@ export class AuthController {
     }
 
     @HttpCode(HttpStatus.OK)
-    @Post('register')
+    // @Post('register')
+    @MessagePattern('hero.auth.register')
     signUp(@Body(ValidationPipe) signUpDto: CreateUserDTO) {
         return this.authService.signUp(signUpDto)
     }

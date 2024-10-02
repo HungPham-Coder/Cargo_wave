@@ -1,9 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { ApiGatewayModule } from './api-gateway.module';
+import { ValidationPipe } from '@nestjs/common/pipes';
 
 async function bootstrap() {
   const app = await NestFactory.create(ApiGatewayModule);
   app.startAllMicroservices();
-  await app.listen(3000);
+  app.useGlobalPipes (new ValidationPipe());
+  await app.listen(3001);
 }
 bootstrap();
