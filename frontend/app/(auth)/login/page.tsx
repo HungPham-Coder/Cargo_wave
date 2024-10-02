@@ -77,18 +77,14 @@ const LoginPage: React.FC = () => {
             }}
           >
             <Form.Item
-              name="name"
+              name="email"
               labelAlign="right"
-              // rules={[
-              //   {
-              //     required: true,
-              //     message: "Please input your username!",
-              //   },
-              //   {
-              //     pattern: /^[a-zA-Z0-9]*$/,
-              //     message: "No special characters allowed!",
-              //   },
-              // ]}
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your email!",
+                },
+              ]}
             >
               <Input
                 prefix={<UserOutlined />}

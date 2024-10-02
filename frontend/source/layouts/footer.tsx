@@ -1,5 +1,4 @@
-import { Layout } from "antd";
-import { Content, Footer, Header } from "antd/es/layout/layout";
+import { Footer } from "antd/es/layout/layout";
 
 const footerStyle: React.CSSProperties = {
   textAlign: "center",
@@ -10,7 +9,7 @@ const footerStyle: React.CSSProperties = {
 const AppFooter: React.FC = () => {
   return (
     <Footer style={footerStyle}>
-      &copy;{new Date().getFullYear()} Created by Hung Pham.
+      &copy;{new Date().getFullYear()} Created by Team 03.
     </Footer>
   );
 };

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import RoleApi from "../apis/roles"; // Assuming this is your API handler
+import RoleApi from "../../apis/roles"; // Assuming this is your API handler
 import { Form, Input, message } from "antd";
-import BaseModal from "./baseModal";
+import BaseModal from "../baseModal";
 import { PermissionSelect } from "./permissionSelect";
 
 interface RolePermissionModalProps {

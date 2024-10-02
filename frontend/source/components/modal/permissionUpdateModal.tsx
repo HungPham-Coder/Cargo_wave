@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from "react";
-import RoleApi from "../apis/roles"; // Assuming this is your API handler
 import { Form, Input, message } from "antd";
-import BaseModal from "./baseModal";
+import BaseModal from "../baseModal";
+import PermissionApi from "../../apis/permissions";
+import TextArea from "antd/es/input/TextArea";
 
-interface RoleUpdateModalProps {
-  data?: { id?: string; name?: string };
+interface PermissionUpdateModalProps {
+  data?: { id?: string; name?: string; description?: string };
   onCancel: () => void;
   onSuccess: () => void;
   open: boolean;
 }
 
-const RoleUpdateModal: React.FC<RoleUpdateModalProps> = ({
+const PermissionUpdateModal: React.FC<PermissionUpdateModalProps> = ({
   data,
   open,
   onCancel,
@@ -20,7 +21,6 @@ const RoleUpdateModal: React.FC<RoleUpdateModalProps> = ({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    console.log("Modal data:", data); // Check the values here
     if (data && open) {
       form.setFieldsValue({
         id: data.id,
@@ -29,23 +29,23 @@ const RoleUpdateModal: React.FC<RoleUpdateModalProps> = ({
     }
   }, [data, open, form]);
 
-  const handleRole = async (values: any) => {
+  const handlePermission = async (values: any) => {
     setLoading(true);
     const { id, name } = values;
 
     try {
-      const body = await RoleApi.updateRoleNameByID(id, name); // Update API call
+      const body = await PermissionApi.updatePermissionByID(id, name); // Update API call
 
       if (body) {
-        message.success(`Role updated successfully`);
+        message.success(`Permission updated successfully`);
         form.resetFields();
         onSuccess();
         console.log("body", body)
       } else {
-        message.error(`Failed to update role`);
+        message.error(`Failed to update permission`);
       }
     } catch (error) {
-      message.error(`An error occurred while updating the role`);
+      message.error(`An error occurred while updating the permission`);
     } finally {
       setLoading(false);
       onCancel();
@@ -59,7 +59,7 @@ const RoleUpdateModal: React.FC<RoleUpdateModalProps> = ({
         onCancel();
         form.resetFields();
       }}
-      title="Update Role Name"
+      title="Update permission name"
       confirmLoading={loading}
       onOk={() => form.submit()}
     >
@@ -69,23 +69,31 @@ const RoleUpdateModal: React.FC<RoleUpdateModalProps> = ({
         initialValues={{
           id: data?.id || "",
           name: data?.name || "",
+          description: data?.description || "",
         }}
-        onFinish={handleRole}
+        onFinish={handlePermission}
       >
         <Form.Item name="id" hidden>
           <Input />
         </Form.Item>
 
         <Form.Item
-          label="Role Name"
+          label="Permission Name"
           name="name"
-          rules={[{ required: true, message: "Please enter the role name" }]}
+          rules={[{ required: true, message: "Please enter the permission name" }]}
         >
-          <Input placeholder="Enter role name" />
+          <Input placeholder="Enter permission name" />
+        </Form.Item>
+        <Form.Item
+          label="Description"
+          name="description"
+          rules={[{ required: true, message: "Please enter the permission name" }]}
+        >
+          <TextArea rows={8} placeholder="Enter permission description" />
         </Form.Item>
       </Form>
     </BaseModal>
   );
 };
 
-export default RoleUpdateModal;
+export default PermissionUpdateModal;

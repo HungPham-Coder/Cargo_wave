@@ -9,6 +9,7 @@ import styled from "styled-components";
 import { Avatar, Dropdown, Space } from "antd";
 import Link from "next/link";
 import routes from "../router/routes";
+import { useAuth } from "../mocks/auth";
 
 const Container = styled.div`
   color: white;
@@ -27,7 +28,7 @@ const ProfileBar: React.FC = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("jwt");
-    localStorage.removeItem("user");
+    window.dispatchEvent(new Event("storage"));
   };
 
   const items = [
@@ -70,6 +71,7 @@ const ProfileBar: React.FC = () => {
         >
           {/* {user?.fullName} */}
           <span style={{ color: "black", fontSize: 22, marginRight: 5 }}>
+            {/* {user?.name} Show user name from auth */}
             abc
           </span>
 
