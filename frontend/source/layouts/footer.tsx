@@ -9,7 +9,7 @@ const footerStyle: React.CSSProperties = {
 const AppFooter: React.FC = () => {
   return (
     <Footer style={footerStyle}>
-      &copy;{new Date().getFullYear()} Created by Hung Pham.
+      &copy;{new Date().getFullYear()} Created by Team 03.
     </Footer>
   );
 };

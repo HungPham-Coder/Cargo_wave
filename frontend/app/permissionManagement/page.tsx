@@ -1,16 +1,13 @@
 "use client";
 
+import { useSearchParams, useRouter } from "next/navigation"; // Import useSearchParams and useRouter
 import PermissionApi from "@/source/apis/permissions";
-import permissionApi from "@/source/apis/permissions";
 import { BaseTable } from "@/source/components/baseTable";
 import PermissionModal from "@/source/components/modal/permissionModal";
 import PermissionUpdateModal from "@/source/components/modal/permissionUpdateModal";
 import { PageSize } from "@/source/constants/app";
-import { Forbid, More, Unlock, User } from "@icon-park/react";
-import { Button, Dropdown, MenuProps, message, Space } from "antd";
-import confirm from "antd/es/modal/confirm";
-import { String } from "lodash";
-import { useSearchParams } from "next/navigation";
+import { More, User } from "@icon-park/react";
+import { Button, Dropdown, MenuProps, message } from "antd";
 import { useEffect, useState } from "react";
 
 interface ColumnType<T> {
@@ -20,14 +17,6 @@ interface ColumnType<T> {
   width?: string;
   render?: (text: any, record: T, index: number) => JSX.Element;
   sorter?: (a: T, b: T) => number;
-  filter?: {
-    placeholder: string;
-    label: string;
-    filterOptions: {
-      label: string;
-      value: any;
-    }[];
-  };
 }
 
 interface permission {
@@ -51,12 +40,14 @@ const PermissionManagementList: React.FC = () => {
   const defaultPage = 1;
   const [showItemModal, setShowItemModal] = useState(false);
   const [permissionCreating, setPermissionCreating] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
   const [showUpdatePermissionNameModal, setShowUpdatePermissionNameModal] =
     useState(false);
   const [selectedpermission, setSelectedpermission] = useState<
     { id?: string; name?: string; description?: string } | undefined
   >();
+
+  const searchParams = useSearchParams(); // Get search params
+  const router = useRouter(); // Get the router for navigation
 
   const getData = async (
     search?: string,
@@ -86,7 +77,7 @@ const PermissionManagementList: React.FC = () => {
     setPermissionCreating(true);
     try {
       await PermissionApi.createPermission({ names });
-      getData(searchTerm, currentPage, true);
+      getData(searchParams.get("search") || "", currentPage, true); // Use search param from the URL
     } catch (error) {
       message.error("Failed to create permissions");
       console.error("Failed to create permissions: ", error);
@@ -95,33 +86,21 @@ const PermissionManagementList: React.FC = () => {
     }
   };
 
-  // const updatepermissionStatus = async (
-  //   permissionID: string,
-  //   isDisabled: boolean
-  // ) => {
-  //   try {
-  //     await PermissionApi.updatePermissionStatus(permissionID, isDisabled);
-  //     message.success("permission status updated successfully");
-  //     // Refresh list with current search term and page
-  //     getData(searchTerm, currentPage, true);
-  //   } catch (error) {
-  //     message.error("Failed to update permission status");
-  //     console.error("Failed to update permission status: ", error);
-  //   }
-  // };
   const handleSearch = (value: string) => {
-    setSearchTerm(value);
-    getData(value, defaultPage, true);
+    setCurrentPage(defaultPage);
+    router.push(`?search=${value}`); // Update URL query parameter with search term
+    getData(value, defaultPage, true); // Fetch data with the new search term
   };
 
   const onPageChange = (current: number) => {
     setCurrentPage(current);
-    getData(undefined, current, false);
+    getData(searchParams.get("search") || "", current, false);
   };
 
   useEffect(() => {
-    getData(undefined, defaultPage, true);
-  }, []);
+    const search = searchParams.get("search") || "";
+    getData(search, defaultPage, true); // Fetch data on component mount
+  }, [searchParams]); // Re-fetch data when search params change
 
   const columns: ColumnType<{
     key: string;
@@ -133,7 +112,6 @@ const PermissionManagementList: React.FC = () => {
       dataIndex: "index",
       key: "index",
       width: "5%",
-      // align: "center",
       render: (_, record, index) => {
         return (
           <span>

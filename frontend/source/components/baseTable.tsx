@@ -89,7 +89,7 @@ export const BaseTable = <RecordType extends object>({
   };
 
   return (
-    <div style={{ marginLeft: "2%", marginRight: "2%" }}>
+    <div style={{ marginLeft: "2%", marginRight: "2%", marginTop: 10 }}>
       {/* Header */}
       <Row justify="space-between" style={{ marginBottom: 20 }}>
         <Col>

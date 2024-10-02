@@ -6,6 +6,7 @@ const routes = {
   profile: `/profile`,
   history: `/history`,
   route: `/routes`,
+  routeDetail: (id: string) => `/routes/${id}`,
   about: `/about`,
   userManagement: `/userManagement`,
   roleManagement: `/roleManagement`,

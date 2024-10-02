@@ -1,6 +1,6 @@
 const userError = {
   US_01: {
-    message: 'Email is required.',
+    message: 'Name is required.',
     context: { errorCode: 'US-01' },
   },
   US_02: {
