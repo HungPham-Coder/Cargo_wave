@@ -11,7 +11,6 @@ const routes = {
   userManagement: `/userManagement`,
   roleManagement: `/roleManagement`,
   permissionManagement: `/permissionManagement`,
-  locationManagement: `/locationManagement`,
 };
 
 export const UnauthorizedRoutes = [

@@ -99,7 +99,6 @@ const PermissionManagementList: React.FC = () => {
   };
 
   useEffect(() => {
-    
     getData(search, defaultPage, true); // Fetch data on component mount
   }, [searchParams]); // Re-fetch data when search params change
 
@@ -168,7 +167,7 @@ const PermissionManagementList: React.FC = () => {
   };
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <div>
       <BaseTable
         rowKey="id"
         title="Permission list"
@@ -213,8 +212,17 @@ const PermissionManagementList: React.FC = () => {
         open={showItemModal}
         data={undefined}
       />
+    </div>
+  );
+};
+
+const PermissionManagementPage: React.FC = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}> {/* Add Suspense here */}
+      <PermissionManagementList />
     </Suspense>
   );
 };
 
-export default PermissionManagementList;
+
+export default PermissionManagementPage;
