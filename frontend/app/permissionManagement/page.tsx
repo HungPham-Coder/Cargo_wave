@@ -1,14 +1,13 @@
 "use client";
 
+import { useSearchParams, useRouter } from "next/navigation"; // Import useSearchParams and useRouter
 import PermissionApi from "@/source/apis/permissions";
-import permissionApi from "@/source/apis/permissions";
 import { BaseTable } from "@/source/components/baseTable";
-import PermissionModal from "@/source/components/permissionModal";
-import PermissionUpdateModal from "@/source/components/permissionUpdateModal";
+import PermissionModal from "@/source/components/modal/permissionModal";
+import PermissionUpdateModal from "@/source/components/modal/permissionUpdateModal";
 import { PageSize } from "@/source/constants/app";
-import { Forbid, More, Unlock, User } from "@icon-park/react";
-import { Button, Dropdown, MenuProps, message, Space } from "antd";
-import confirm from "antd/es/modal/confirm";
+import { More, User } from "@icon-park/react";
+import { Button, Dropdown, MenuProps, message } from "antd";
 import { useEffect, useState } from "react";
 
 interface ColumnType<T> {
@@ -18,20 +17,12 @@ interface ColumnType<T> {
   width?: string;
   render?: (text: any, record: T, index: number) => JSX.Element;
   sorter?: (a: T, b: T) => number;
-  filter?: {
-    placeholder: string;
-    label: string;
-    filterOptions: {
-      label: string;
-      value: any;
-    }[];
-  };
 }
 
 interface permission {
   id: string;
   name: string;
-  isDisabled: boolean;
+  description: string;
 }
 
 interface permissionsResponse {
@@ -49,12 +40,15 @@ const PermissionManagementList: React.FC = () => {
   const defaultPage = 1;
   const [showItemModal, setShowItemModal] = useState(false);
   const [permissionCreating, setPermissionCreating] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
   const [showUpdatePermissionNameModal, setShowUpdatePermissionNameModal] =
     useState(false);
   const [selectedpermission, setSelectedpermission] = useState<
-    { id?: string; name?: string; isDeleted?: boolean } | undefined
+    { id?: string; name?: string; description?: string } | undefined
   >();
+
+  const searchParams = useSearchParams(); // Get search params
+  const router = useRouter(); // Get the router for navigation
+  const search = searchParams.get("search") || "";
 
   const getData = async (
     search?: string,
@@ -80,11 +74,11 @@ const PermissionManagementList: React.FC = () => {
     }
   };
 
-  const handleCreatepermissions = async (names: string[]) => {
+  const handleCreatePermissions = async (names: string[]) => {
     setPermissionCreating(true);
     try {
       await PermissionApi.createPermission({ names });
-      getData(searchTerm, currentPage, true);
+      getData(search, currentPage, true); // Use search param from the URL
     } catch (error) {
       message.error("Failed to create permissions");
       console.error("Failed to create permissions: ", error);
@@ -93,45 +87,32 @@ const PermissionManagementList: React.FC = () => {
     }
   };
 
-  const updatepermissionStatus = async (
-    permissionID: string,
-    isDisabled: boolean
-  ) => {
-    try {
-      await PermissionApi.updatePermissionStatus(permissionID, isDisabled);
-      message.success("permission status updated successfully");
-      // Refresh list with current search term and page
-      getData(searchTerm, currentPage, true);
-    } catch (error) {
-      message.error("Failed to update permission status");
-      console.error("Failed to update permission status: ", error);
-    }
-  };
   const handleSearch = (value: string) => {
-    setSearchTerm(value);
-    getData(value, defaultPage, true);
+    setCurrentPage(defaultPage);
+    router.push(`?search=${value}`); // Update URL query parameter with search term
+    getData(value, defaultPage, true); // Fetch data with the new search term
   };
 
   const onPageChange = (current: number) => {
     setCurrentPage(current);
-    getData(undefined, current, false);
+    getData(search, current, false);
   };
 
   useEffect(() => {
-    getData(undefined, defaultPage, true);
-  }, []);
+    
+    getData(search, defaultPage, true); // Fetch data on component mount
+  }, [searchParams]); // Re-fetch data when search params change
 
   const columns: ColumnType<{
     key: string;
     name: string;
-    isDisabled: boolean;
+    description: string;
   }>[] = [
     {
       title: "#",
       dataIndex: "index",
       key: "index",
       width: "5%",
-      // align: "center",
       render: (_, record, index) => {
         return (
           <span>
@@ -144,38 +125,15 @@ const PermissionManagementList: React.FC = () => {
       title: "Permission name",
       dataIndex: "name",
       key: "name",
-      width: "60%",
+      width: "30%",
       sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
-      title: "Status",
-      dataIndex: "isDisabled",
-      key: "isDisabled",
-      render: (isDisabled: boolean) => (
-        <span
-          style={{
-            color: !isDisabled ? "#29CB00" : "#FF0000",
-            fontWeight: "bold",
-          }}
-        >
-          {!isDisabled ? "In use" : "Disabled"}
-        </span>
-      ),
-      filter: {
-        placeholder: "permission status",
-        label: "Status",
-        filterOptions: [
-          {
-            label: "In use",
-            value: false,
-          },
-          {
-            label: "Disabled",
-            value: true,
-          },
-        ],
-      },
-      sorter: (a, b) => Number(a.isDisabled) - Number(b.isDisabled),
+      title: "Description",
+      dataIndex: "description",
+      width: "50%",
+      key: "description",
+      sorter: (a, b) => a.description.localeCompare(b.description),
     },
     {
       title: "Action",
@@ -190,11 +148,11 @@ const PermissionManagementList: React.FC = () => {
   ];
 
   const getActionItems = (record: {
-    isDisabled: boolean;
+    description: string;
     id: string;
     name: string;
   }): MenuProps["items"] => {
-    const { isDisabled, id } = record;
+    const { id, name, description } = record;
 
     return [
       {
@@ -202,46 +160,38 @@ const PermissionManagementList: React.FC = () => {
         label: "Update permission",
         icon: <User />,
         onClick: () => {
-          setSelectedpermission({ id, name: record.name });
+          setSelectedpermission({ id, name, description });
           setShowUpdatePermissionNameModal(true);
-        },
-      },
-      {
-        key: "SET_STATUS",
-        label: isDisabled ? "Enable permission" : "Disable permission",
-        danger: !isDisabled,
-        icon: isDisabled ? <Unlock /> : <Forbid />,
-        onClick: () => {
-          confirm({
-            title: isDisabled
-              ? "Do you want to enable permission?"
-              : "Do you want to disable permission?",
-            type: "confirm",
-            cancelText: "Cancel",
-            onOk: () => updatepermissionStatus(id, !isDisabled),
-            onCancel: () => {},
-            closable: true,
-          });
         },
       },
     ];
   };
 
   return (
-    <div
-      style={{
-        paddingLeft: 30,
-        paddingRight: 30,
-        display: "flex",
-        justifyContent: "center",
-      }}
-    >
-      <Space
-        direction="vertical"
-        className="w-full gap-6"
-        style={{ width: "100%" }}
-      >
-        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+    <div>
+      <BaseTable
+        rowKey="id"
+        title="Permission list"
+        loading={loading}
+        dataSource={
+          permissions?.data?.map((permission) => ({
+            key: permission.id,
+            ...permission,
+          })) || []
+        }
+        columns={columns}
+        pagination={{
+          onChange: onPageChange,
+          pageSize: PageSize.PERMISSION_LIST,
+          total: permissions.total,
+        }}
+        searchOptions={{
+          visible: true,
+          placeholder: "Search permissions...",
+          onSearch: handleSearch,
+          width: 300,
+        }}
+        addButton={
           <Button
             type="primary"
             className="btn-primary app-bg-primary font-semibold text-white"
@@ -249,32 +199,8 @@ const PermissionManagementList: React.FC = () => {
           >
             Create permission
           </Button>
-        </div>
-
-        <BaseTable
-          rowKey="id"
-          title="permission management"
-          loading={loading}
-          dataSource={
-            permissions?.data?.map((permission) => ({
-              ...permission,
-              key: permission.id,
-            })) || []
-          }
-          columns={columns}
-          pagination={{
-            onChange: onPageChange,
-            pageSize: PageSize.PERMISSION_LIST,
-            total: permissions.total,
-          }}
-          searchOptions={{
-            visible: true,
-            placeholder: "Search permissions...",
-            onSearch: handleSearch,
-            width: 300,
-          }}
-        />
-      </Space>
+        }
+      />
       <PermissionUpdateModal
         onCancel={() => setShowUpdatePermissionNameModal(false)}
         onSuccess={() => getData(undefined, defaultPage, true)}

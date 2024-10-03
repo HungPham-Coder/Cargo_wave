@@ -20,7 +20,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
       }
     ]),
   ],
-  exports: [ClientsModule],
+  exports: [ClientsModule],// Xuất ClientsModule để sử dụng lại
   providers: [MicroserviceClientService]
 })
 export class MicroserviceClientModule { }

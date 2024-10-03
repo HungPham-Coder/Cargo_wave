@@ -1,5 +1,5 @@
 import React from "react";
-import BaseModal from "./baseModal";
+import BaseModal from "../baseModal";
 
 interface ConfirmDeleteModalProps {
   open: boolean;

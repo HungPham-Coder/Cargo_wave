@@ -1,4 +1,14 @@
-import { Col, Empty, Input, Row, Select, Table, Typography } from "antd";
+import {
+  Col,
+  Empty,
+  Input,
+  PaginationProps,
+  Row,
+  Select,
+  Space,
+  Table,
+  Typography,
+} from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import type { TableProps, ColumnType as AntdColumnType } from "antd/es/table";
 
@@ -71,11 +81,45 @@ export const BaseTable = <RecordType extends object>({
     setList(dataSource);
   }, [dataSource]);
 
+  const onShowSizeChange: PaginationProps["onShowSizeChange"] = (
+    current,
+    pageSize
+  ) => {
+    console.log(current, pageSize);
+  };
+
   return (
-    <div>
-      {filters.length > 0 && (
-        <Row className="mb-4" gutter={16}>
-          {filters.map(
+    <div style={{ marginLeft: "2%", marginRight: "2%", marginTop: 10 }}>
+      {/* Header */}
+      <Row justify="space-between" style={{ marginBottom: 20 }}>
+        <Col>
+          <Space align="center">
+            {title && (
+              <Title ellipsis level={3} style={{ margin: 0 }}>
+                {title}
+              </Title>
+            )}
+          </Space>
+        </Col>
+        <Row>
+          <Col>{addButton}</Col>
+          <Col>{actions}</Col>
+        </Row>
+      </Row>
+
+      {/* Filters and search */}
+      <Row gutter={16} justify="space-between" style={{ marginBottom: 15 }}>
+        {visible && (
+          <Col>
+            <Input.Search
+              placeholder={placeholder ?? "Search..."}
+              onSearch={onSearch}
+              style={{ width: width || 200}}
+            />
+          </Col>
+        )}
+        {filters.length > 0 &&
+          filters.map(
             ({
               placeholder,
               dataIndex,
@@ -104,21 +148,18 @@ export const BaseTable = <RecordType extends object>({
                     mode={multiple ? "multiple" : undefined}
                     showSearch
                     allowClear
-                    style={{ width: width }}
+                    style={{ width: width || 200 }}
                     onClear={() => {
                       setList([...all.current]);
                     }}
                     placeholder={placeholder}
                     options={
-                      options
-                        ? options
-                        : values.map((v, index) => {
-                            return {
-                              label: v,
-                              value: v,
-                              key: `${v}-${index}`,
-                            };
-                          })
+                      options ||
+                      values.map((v, index) => ({
+                        label: v,
+                        value: v,
+                        key: `${v}-${index}`,
+                      }))
                     }
                     onChange={(value) => {
                       if (!value) {
@@ -136,33 +177,9 @@ export const BaseTable = <RecordType extends object>({
               );
             }
           )}
-        </Row>
-      )}
-      <Row justify="space-between">
-        <Col span={12}>
-          {title && (
-            <Title ellipsis level={3}>
-              {title}
-            </Title>
-          )}
-        </Col>
-        <Col span={12}>
-          <Row gutter={8} justify="end">
-            <Col>{addButton}</Col>
-            <Col>
-              {visible && (
-                <Input.Search
-                  className="mb-4"
-                  placeholder={placeholder ?? "Searching..."}
-                  onSearch={onSearch}
-                  style={{ width: width }}
-                />
-              )}
-            </Col>
-            <Col>{actions}</Col>
-          </Row>
-        </Col>
       </Row>
+
+      {/* Table */}
       <Table<RecordType>
         rowKey={rowKey}
         pagination={

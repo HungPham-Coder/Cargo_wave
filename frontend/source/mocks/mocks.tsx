@@ -9,17 +9,17 @@ export const locationDetail = [
 export const locationOverall = ["Hồ Chí Minh", "Hà Nội", "Vinh"];
 
 export const timelineData = [
-  { title: "3", children: ["Event A", "Event B"] },
-  { title: "4", children: ["Event A", "Event B"] },
-  { title: "5", children: ["Event A", "Event B"] },
-  { title: "6", children: ["Event A", "Event B"] },
-  { title: "7", children: ["Event A", "Event B"] },
-  { title: "8", children: ["Event A", "Event B"] },
-  { title: "8", children: ["Event A", "Event B"] },
-  { title: "8", children: ["Event A", "Event B"] },
-  { title: "8", children: ["Event A", "Event B"] },
-  { title: "8", children: ["Event A", "Event B"] },
-  { title: "8", children: ["Event A", "Event B"] },
+  { id: "1", title: "3", children: ["Event A", "Event B"] },
+  { id: "2", title: "4", children: ["Event A", "Event B"] },
+  { id: "3", title: "5", children: ["Event A", "Event B"] },
+  { id: "4", title: "6", children: ["Event A", "Event B"] },
+  { id: "5", title: "7", children: ["Event A", "Event B"] },
+  { id: "6", title: "8", children: ["Event A", "Event B"] },
+  { id: "7", title: "8", children: ["Event A", "Event B"] },
+  { id: "8", title: "8", children: ["Event A", "Event B"] },
+  { id: "9", title: "8", children: ["Event A", "Event B"] },
+  { id: "10", title: "8", children: ["Event A", "Event B"] },
+  { id: "11", title: "8", children: ["Event A", "Event B"] },
 ];
 
 export const userMocks = [

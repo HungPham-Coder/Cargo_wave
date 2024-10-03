@@ -1,33 +1,19 @@
-/* @tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+.ant-btn {
+  background: linear-gradient(135deg, #0d3b66 5%, #00a6fb 100%) !important;
+  color: white !important; /* Change text color to white */
+  border: none; /* Remove border */
+  font-weight: 500;
+  font-size: 16;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+/* Exclude specific buttons */
+.ant-btn.ant-btn-link {
+  background: transparent !important; /* Remove background for link buttons */
+  color: inherit !important; /* Maintain inherited text color */
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+/* Exclude Google logo button */
+.ant-btn[shape="circle"] {
+  background: transparent !important; /* Remove background for the circle button */
+  border: none !important; /* Remove border */
 }
-
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-} */

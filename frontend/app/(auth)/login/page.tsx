@@ -10,7 +10,6 @@ import {
   Row,
   Typography,
 } from "antd";
-// import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { useState } from "react";
@@ -52,7 +51,7 @@ const LoginPage: React.FC = () => {
     setLoading(false);
     if (success) {
       message.success(`Login successful!`);
-      router.push(routes.root)
+      router.push(routes.root);
     } else {
       message.error("Wrong user name or password. Please try again!.");
     }
@@ -77,63 +76,36 @@ const LoginPage: React.FC = () => {
             }}
           >
             <Form.Item
-              name="name"
+              name="email"
               labelAlign="right"
-              // rules={[
-              //   {
-              //     required: true,
-              //     message: "Please input your username!",
-              //   },
-              //   {
-              //     pattern: /^[a-zA-Z0-9]*$/,
-              //     message: "No special characters allowed!",
-              //   },
-              // ]}
+              rules={[{ required: true, message: "Please input your email!" }]}
             >
-              <Input
-                prefix={<UserOutlined />}
-                placeholder="Email..."
-                size="large"
-              />
+              <Input prefix={<UserOutlined />} placeholder="Email..." size="large" />
             </Form.Item>
             <Form.Item name="password">
-              <Input.Password
-                prefix={<LockOutlined />}
-                placeholder="Password..."
-                size="large"
-              />
+              <Input.Password prefix={<LockOutlined />} placeholder="Password..." size="large" />
             </Form.Item>
             <Form.Item>
-              <Button
-                // className="w-full btn-primary app-bg-primary font-semibold"
-                type="primary"
-                size="large"
-                htmlType="submit"
-                style={{ width: "100%" }}
-              >
+              <Button type="primary" size="large" htmlType="submit" style={{ width: "100%" }}>
                 Login
               </Button>
             </Form.Item>
             <Row justify="center">
-              <Button type="link">
+              <Button type="link" className="custom-link">
                 <Link href={routes.register}>Register account</Link>
               </Button>
-              <Button type="link">
+              <Button type="link" className="custom-link">
                 <Link href={routes.forgotPassword}>Forgot password?</Link>
               </Button>
             </Row>
             <Row>
-              <Divider
-                plain
-                variant="solid"
-                style={{ borderColor: "#D4D4D4", color: "#D4D4D4" }}
-              >
+              <Divider plain style={{ borderColor: "#D4D4D4", color: "#D4D4D4" }}>
                 Or login with
               </Divider>
             </Row>
             <Row justify="center">
               <Button shape="circle">
-                <Avatar src={<img src="assets/google_logo_icon.png" />} />
+                <Avatar style={{background: "white"}}  src={<img src="assets/google_logo_icon.png" />} />
               </Button>
             </Row>
           </Form>

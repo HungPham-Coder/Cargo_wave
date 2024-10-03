@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   DownOutlined,
   LeftOutlined,
@@ -6,12 +6,46 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import styled from "styled-components";
-import { Avatar, Dropdown, Space } from "antd";
+import { Avatar, Dropdown } from "antd";
 import Link from "next/link";
 import routes from "../router/routes";
 
 const Container = styled.div`
-  color: white;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem; 
+  border-radius: 200px; 
+  color: white; 
+  transition: background 0.3s ease, box-shadow 0.3s ease; 
+  background: linear-gradient(135deg, #007bb2 0%, #00a2e8 100%); 
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); 
+
+  &:hover {
+    background: linear-gradient(135deg, #090273 30%, #0D03AD 100%); 
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2); 
+  }
+`;
+
+const UserName = styled.span`
+  color: white; /* White text for better visibility */
+  font-size: 20px;
+  font-weight: 600;
+  transition: color 0.3s ease;
+`;
+
+const RoleName = styled.span`
+  color: #e0f7fa; /* Light cyan for role name */
+  font-size: 14px;
+  font-weight: 400;
+  margin-top: -2.5rem;
+`;
+
+const UserInfo = styled.div`
+  display: flex;
+  flex-direction: column; /* Stack items vertically */
+  margin-left: 1.5rem;
+  margin-right: 1.5rem;
+  
 `;
 
 const ProfileBar: React.FC = () => {
@@ -27,61 +61,52 @@ const ProfileBar: React.FC = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("jwt");
-    localStorage.removeItem("user");
+    window.dispatchEvent(new Event("storage"));
   };
 
   const items = [
     {
       key: "PROFILE",
       label: <Link href={routes.profile}>Profile</Link>,
-      // label: <span>Profile</span>,
-      icon: <UserOutlined />,
+      icon: <UserOutlined style={{ color: "white" }} />, // White icon for contrast
     },
     {
       key: "HISTORY",
       label: <Link href={routes.history}>History</Link>,
-      // label: <span>History</span>,
-      icon: <UserOutlined />,
+      icon: <UserOutlined style={{ color: "white" }} />, // White icon for contrast
     },
     {
       key: "LOGOUT",
-      label: <span>Logout</span>,
-      icon: <LogoutOutlined />,
+      label: <span onClick={handleLogout}>Logout</span>,
+      icon: <LogoutOutlined style={{ color: "red" }} />, // Red icon for logout
       danger: true,
-      onClick: handleLogout,
     },
   ];
 
+  const userRole = "Admin"; // Replace with actual user role from your auth state
+  const userName = "admin"; // Replace with actual user name from your auth state
+
   return (
-    <Container>
-      <Space size={24} style={{ margin: "0 0.5rem" }}>
-        <Avatar size="default" icon={<UserOutlined />} />
-        {/* <img width={30} height={30} src={user?.image} /> */}
-      </Space>
-      <Dropdown
-        menu={{
-          items,
-        }}
-      >
+    <Container style={{ height: "60px" }}>
+      <Avatar size="large" icon={<UserOutlined />} />
+
+      <Dropdown menu={{ items }} trigger={["hover"]}>
         <span
-          className="text-[#666] font-semibold"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
+          style={{ display: "flex", alignItems: "center", cursor: "pointer", height: "50px" }}
         >
-          {/* {user?.fullName} */}
-          <span style={{ color: "black", fontSize: 22, marginRight: 5 }}>
-            abc
-          </span>
-
+          <UserInfo>
+            <UserName>{userName}</UserName> {/* Show user name from auth */}
+            <RoleName>{userRole}</RoleName> {/* Show user role here */}
+          </UserInfo>
           {isHovered ? (
             <DownOutlined
-              className="ml-1 top-[0.2rem] bottom-0"
-              style={{ color: "black", cursor: "pointer" }}
+              style={{ color: "white", fontSize: "16px", marginLeft: "8px" }}
             />
           ) : (
             <LeftOutlined
-              className="ml-1 top-[0.2rem] bottom-0"
-              style={{ color: "black", cursor: "pointer" }}
+              style={{ color: "white", fontSize: "16px", marginLeft: "8px" }}
             />
           )}
         </span>
