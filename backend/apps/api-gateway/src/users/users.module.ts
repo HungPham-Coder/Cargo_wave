@@ -6,22 +6,7 @@ import { MicroserviceClientModule } from '../microservice-client/microservice-cl
 
 @Module({
   imports: [
-<<<<<<< HEAD
-    ClientsModule.register([
-      {
-        name: 'HERO_SERVICE',
-        transport: Transport.KAFKA,
-        options: {
-          client: {
-            clientId: 'hero',
-            brokers: ['localhost:9092'],
-          },
-        },
-      },
-    ]),
-=======
     MicroserviceClientModule
->>>>>>> c7c112782f74ac8981d8bb89c4e012e3df9dd4f7
   ],
   providers: [UsersService],
   controllers: [UsersController],
