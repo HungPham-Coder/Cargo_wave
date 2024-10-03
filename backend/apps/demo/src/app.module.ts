@@ -5,17 +5,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { User } from './entities/user.entity';
-import { Crew } from './entities/crew.entity';
-import { Log } from './entities/log.entity';
 import { RefreshToken } from './entities/refreshToken.entity';
 import { Role } from './entities/role.entity';
 import { Route } from './entities/routes.entity';
-import { Ship } from './entities/ship.entity';
 import { Permission } from './entities/permission.entity';
 import { RolesModule } from './roles/roles.module';
 import { PermissionsModule } from './permissions/permissions.module';
-import { VehicleType } from './entities/vehicleType.entity';
 import { ShippingType } from './entities/shippingType.entity';
+import { Location } from './entities/location.entity';
+import { Transport } from './entities/transport.entity';
 
 
 @Module({
@@ -30,23 +28,21 @@ import { ShippingType } from './entities/shippingType.entity';
       database: 'postgres',
       entities: [
         User,
-        Crew,
-        Log,
         RefreshToken,
         Role,
         Permission,
         Route,
-        Ship,
-        VehicleType,
-        ShippingType
+        ShippingType,
+        Location,
+        Transport,
       ],
       synchronize: true,
+      logging: true,
     }),
     AuthModule,
     UsersModule,
     RolesModule,
     PermissionsModule,
-
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -7,9 +7,7 @@ import { MessagePattern } from '@nestjs/microservices';
 @Controller('auth')
 export class AuthController {
     constructor(private authService: AuthService) { }
-
     
-    @HttpCode(HttpStatus.OK)
     // @Post('login')
     @MessagePattern('hero.auth.login')
     signIn(@Body() signInDto: LoginDTO) {
@@ -19,7 +17,6 @@ export class AuthController {
         return this.authService.signIn(signInDto);
     }
 
-    @HttpCode(HttpStatus.OK)
     // @Post('register')
     @MessagePattern('hero.auth.register')
     signUp(@Body(ValidationPipe) signUpDto: CreateUserDTO) {

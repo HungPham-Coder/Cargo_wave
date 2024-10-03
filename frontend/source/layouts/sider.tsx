@@ -107,6 +107,11 @@ const AppSider: React.FC = () => {
           icon: <UserToUserTransmission size={iconSize} fill="#FFF" />,
           key: "permissionManagement",
         },
+        {
+          label: <Link href={routes.locationManagement}>Location</Link>,
+          key: "locationManagement",
+          icon: <Repositioning size={iconSize} fill="#FFF" />,
+        },
       ],
     },
     { type: "divider" },

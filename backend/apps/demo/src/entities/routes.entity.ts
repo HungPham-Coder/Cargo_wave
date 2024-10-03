@@ -1,7 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { User } from './user.entity';
-import { Ship } from './ship.entity';
-import { Log } from './log.entity';
+import { Transport } from './transport.entity';
+import { Location } from './location.entity';
 
 @Entity()
 export class Route {
@@ -12,16 +12,13 @@ export class Route {
   name: string
 
   @Column()
-  port_start: string;
-
-  @Column()
-  port_end: string;
-
-  @Column()
   departure_time: Date;
 
   @Column()
   arrival_time: Date;
+
+  @Column('float')
+  distance: number;
 
   @Column()
   status: number;
@@ -33,10 +30,12 @@ export class Route {
   @JoinColumn({ name: "userID" })
   users: User;
 
-  @ManyToOne(() => Ship, ships => ships.routes)
+  @ManyToOne(() => Transport, transport => transport.routes)
   @JoinColumn({ name: "shipID" })
-  ships: Ship;
+  transport: Transport;
 
-  @OneToMany(() => Log, (logs) => logs.routes)
-  logs: Log[]
+  @ManyToOne(() => Location, locations => locations.routes)
+  @JoinColumn({ name: "locationID" })
+  locations: Location;
+
 }

@@ -1,15 +1,14 @@
 import { Module } from '@nestjs/common';
 import { ApiGatewayController } from './api-gateway.controller';
-import { AuthService } from './auth/auth.service';
 import { AuthModule } from './auth/auth.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { UsersModule} from './users/users.module';
-import { UsersService } from './users/users.service';
+import { UsersModule } from './users/users.module';
 import { ApiGatewayService } from './api-gateway.service';
+import { PermissionsModule } from './permissions/permissions.module';
 
 @Module({
-  imports: [  
-    AuthModule, UsersModule,
+  imports: [
+    AuthModule, UsersModule, PermissionsModule,
     ClientsModule.register([
       {
         name: 'HERO_SERVICE',
@@ -24,10 +23,9 @@ import { ApiGatewayService } from './api-gateway.service';
           }
         }
       }
-
     ]),
   ],
   controllers: [ApiGatewayController],
-  providers: [ ApiGatewayService],
+  providers: [ApiGatewayService],
 })
-export class ApiGatewayModule {}
+export class ApiGatewayModule { }

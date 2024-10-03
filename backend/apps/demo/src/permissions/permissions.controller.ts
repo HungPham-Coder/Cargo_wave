@@ -2,13 +2,15 @@ import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Param, Post
 import { Permissions, PermissionsService } from './permissions.service';
 import { CreatePermissionDTO } from './create-permission-request.dto';
 import { PaginationDTO } from '../users/create-user-request.dto';
+import { MessagePattern } from '@nestjs/microservices';
 
 @Controller('permissions')
 export class PermissionsController {
     constructor(private permissionService: PermissionsService) { }
 
     //Get all data of permissions
-    @Get('findAll')
+    // @Get('findAll')
+    @MessagePattern('hero.permission.findAll')
     async findAll(): Promise<Permissions[]> {
         try {
             return await this.permissionService.findAll();
@@ -18,7 +20,8 @@ export class PermissionsController {
     }
 
     //Get all data of permissions
-    @Get('findPermissionEnabled')
+    // @Get('findPermissionEnabled')
+    @MessagePattern('hero.permission.findPermissionEnabled')
     async findPermissionEnabled(): Promise<Permissions[]> {
         try {
             return await this.permissionService.findPermissionEnabled();
@@ -27,29 +30,33 @@ export class PermissionsController {
         }
     }
     //Get all data of permissions with paging
-    @HttpCode(HttpStatus.OK)
-    @Get('findAllWithPaging')
+    // @HttpCode(HttpStatus.OK)
+    @MessagePattern('hero.permission.findAllWithPaging')
+    // @Get('findAllWithPaging')
     async findAllWithPaging(@Query() paginationDTO: PaginationDTO): Promise<{ data: Permissions[], total: number }> {
         return this.permissionService.findAllWithPaging(paginationDTO);
     }
 
     // Get permissions by name
-    @HttpCode(HttpStatus.OK)
-    @Get(':name')
+    // @HttpCode(HttpStatus.OK)
+    // @Get(':name')
+    @MessagePattern('hero.permission.findOneByName')
     findOneByName(@Param() params: any) {
         return this.permissionService.findOneByName(params.name)
     }
 
     // Create list of permissions
-    @Post('createPermissions')
-    @HttpCode(HttpStatus.CREATED)
+    // @Post('createPermissions')
+    // @HttpCode(HttpStatus.CREATED)
+    @MessagePattern('hero.permission.create')
     async create(@Body() createPermissionDTO: CreatePermissionDTO) {
         return this.permissionService.createPermissions(createPermissionDTO);
     }
 
     // Update the status isDeleted of a permission by ID
-    @Put('updatePermissionStatus/:id/:isDisabled')
-    @HttpCode(HttpStatus.OK)
+    // @Put('updatePermissionStatus/:id/:isDisabled')
+    // @HttpCode(HttpStatus.OK)
+    @MessagePattern('hero.permission.updatePermissionStatus')
     async updatePermissionStatus(
         @Param('id') id: string,
         @Param('isDisabled') isDisabled: string // This will be a string in URL
@@ -69,8 +76,9 @@ export class PermissionsController {
     }
 
     // Update the name of a permission by ID
-    @Put('updatePermissionNameByID/:id/name')
-    @HttpCode(HttpStatus.OK)
+    // @Put('updatePermissionNameByID/:id/name')
+    // @HttpCode(HttpStatus.OK)
+    @MessagePattern('hero.permission.updatePermissionsName')
     async updatePermissionsName(
         @Param('id') id: string,
         @Body('name') newName: string

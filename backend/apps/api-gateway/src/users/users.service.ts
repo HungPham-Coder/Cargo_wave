@@ -3,25 +3,30 @@ import { ClientKafka } from '@nestjs/microservices';
 
 @Injectable()
 export class UsersService {
-    // constructor (@Inject('USER_SERVICE') private readonly client: ClientKafka){};
+    constructor(@Inject('HERO_SERVICE') private readonly client: ClientKafka) { }
 
-    findAll(){
-        return "hello users";
+    async onModuleInit() {
+        this.client.subscribeToResponseOf('hero.user.findAll');
+        await this.client.connect();
+    }
+    findAll() {
+        return this.client.send('hero.user.findAll', {});
     }
 
-    updateUser(){
 
-    }
-
-    findById(){
-
-    }
-
-    findByEmail(){
+    updateUser() {
 
     }
 
-    removeUser(){
-        
+    findById() {
+
+    }
+
+    findByEmail() {
+
+    }
+
+    removeUser() {
+
     }
 }
