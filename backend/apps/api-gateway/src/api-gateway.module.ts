@@ -6,28 +6,15 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { UsersModule} from './users/users.module';
 import { UsersService } from './users/users.service';
 import { ApiGatewayService } from './api-gateway.service';
+import { MicroserviceClientModule } from './microservice-client/microservice-client.module';
 
 @Module({
   imports: [  
     AuthModule, UsersModule,
-    // ClientsModule.register([
-    //   {
-    //     name: 'HERO_SERVICE',
-    //     transport: Transport.KAFKA,
-    //     options: {
-    //       client: {
-    //         clientId: 'hero',
-    //         brokers: ['localhost:9092'],
-    //       },
-    //       consumer: {
-    //         groupId: 'hero-consumer'
-    //       }
-    //     }
-    //   }
-
-    // ]),
+    MicroserviceClientModule,
   ],
   controllers: [ApiGatewayController],
   providers: [ ApiGatewayService],
+  
 })
 export class ApiGatewayModule {}
