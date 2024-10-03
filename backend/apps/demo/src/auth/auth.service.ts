@@ -4,7 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { RolesService } from '../roles/roles.service';
 import { UsersService } from '../users/users.service';
-import { CreateUserDTO } from '../users/create-user-request.dto';
+import { CreateUserDTO, LoginDTO } from '../users/create-user-request.dto';
 import { roles, userStatus } from '../constants/enum';
 
 
@@ -20,13 +20,14 @@ export class AuthService {
     ) { }
 
 
-    async signIn(email: string, pass: string): Promise<any> {
+    async signIn(signInDto: LoginDTO): Promise<any> {
+        const {email, password} = signInDto;
         try {
-            if(!email || !pass){
+            if(!email || !password){
                 throw new UnauthorizedException("Email or password empty!");
             }
             const user = await this.userService.findByEmail(email);
-            const isMatch = await bcrypt.compare(pass, user?.password);
+            const isMatch = await bcrypt.compare(password, user?.password);
 
             if (!isMatch || !user) {
                 throw new UnauthorizedException("Wrong user name or password!");

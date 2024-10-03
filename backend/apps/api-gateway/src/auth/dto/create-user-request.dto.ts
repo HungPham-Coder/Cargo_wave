@@ -13,8 +13,8 @@ export class CreateUserDTO{
     @IsEmail({}, { message: userError.US_04.message })
     email: string;
 
-    @IsNotEmpty(userError.US_05)
-    @IsDate(userError.US_06)
+    // @IsNotEmpty(userError.US_05)
+    // @IsDate(userError.US_06)
     dob: Date;
 
     @IsNotEmpty(userError.US_07)
@@ -29,4 +29,16 @@ export class CreateUserDTO{
     status: number
 
     roles: RoleDTO[];
+}
+
+export class LoginDTO {
+    @IsNotEmpty(userError.US_03)
+    @IsEmail({}, { message: userError.US_04.message })
+    email: string;
+
+    @IsNotEmpty({
+        message: 'Password is required.',
+        context: 'US-08',
+    })
+    password: string;
 }
