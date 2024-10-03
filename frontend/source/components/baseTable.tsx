@@ -114,7 +114,7 @@ export const BaseTable = <RecordType extends object>({
             <Input.Search
               placeholder={placeholder ?? "Search..."}
               onSearch={onSearch}
-              style={{ width: width || 200 }}
+              style={{ width: width || 200}}
             />
           </Col>
         )}

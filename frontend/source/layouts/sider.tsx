@@ -26,7 +26,6 @@ const StyledSider = styled(Sider)<{ $collapsed: boolean }>`
   ); /* Deep sea blue to turquoise gradient */
   padding: 20px;
   box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
-  min-height: 82vh;
   display: flex;
   flex-direction: column;
   justify-content: space-between; /* Distribute space evenly */

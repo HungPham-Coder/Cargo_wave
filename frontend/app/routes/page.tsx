@@ -50,7 +50,7 @@ const RoutesList: React.FC = () => {
         paddingLeft: "2%",
         paddingRight: "2%",
         background: "linear-gradient(135deg, #A0EACD, #82D3F5)", // Sea-like background gradient
-        minHeight: "82vh",
+        minHeight: "90vh",
       }}
     >
       <Row justify="space-between">

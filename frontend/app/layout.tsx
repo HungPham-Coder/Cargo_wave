@@ -16,7 +16,7 @@ const inter = Inter({ subsets: ["latin"] });
 const contentLayout: React.CSSProperties = {
   borderBottom: "1px solid #eee",
   backgroundColor: "#FFFFFF",
-  minHeight: "82vh",
+  minHeight: "90vh",
 };
 
 export default function RootLayout({
@@ -27,6 +27,8 @@ export default function RootLayout({
 
   const pathname = usePathname(); // Get the router instance
   const isLoginPage = pathname === routes.login; // Check if the current route is the login page
+  const isRegisterPage = pathname === routes.register;
+  const isForgotPage = pathname === routes.forgotPassword;
 
   return (
     <html lang="en">
@@ -38,7 +40,7 @@ export default function RootLayout({
           <Layout>
             <AppHeader />
             <Layout>
-              {!isLoginPage && <AppSider />}{" "}
+              {!isLoginPage && !isRegisterPage && !isForgotPage && <AppSider />}{" "}
               <Content style={contentLayout}>{children}</Content>
             </Layout>
             <AppFooter />

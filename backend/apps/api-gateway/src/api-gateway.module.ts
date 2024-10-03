@@ -10,22 +10,22 @@ import { ApiGatewayService } from './api-gateway.service';
 @Module({
   imports: [  
     AuthModule, UsersModule,
-    // ClientsModule.register([
-    //   {
-    //     name: 'HERO_SERVICE',
-    //     transport: Transport.KAFKA,
-    //     options: {
-    //       client: {
-    //         clientId: 'hero',
-    //         brokers: ['localhost:9092'],
-    //       },
-    //       consumer: {
-    //         groupId: 'hero-consumer'
-    //       }
-    //     }
-    //   }
+    ClientsModule.register([
+      {
+        name: 'HERO_SERVICE',
+        transport: Transport.KAFKA,
+        options: {
+          client: {
+            clientId: 'hero',
+            brokers: ['localhost:9092'],
+          },
+          consumer: {
+            groupId: 'hero-consumer'
+          }
+        }
+      }
 
-    // ]),
+    ]),
   ],
   controllers: [ApiGatewayController],
   providers: [ ApiGatewayService],

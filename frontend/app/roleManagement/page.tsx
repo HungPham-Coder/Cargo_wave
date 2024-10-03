@@ -7,15 +7,9 @@ import RolePermissionModal from "@/source/components/modal/rolePermissionModal";
 import RoleUpdateModal from "@/source/components/modal/roleUpdateModal";
 import { PageSize } from "@/source/constants/app";
 import { Forbid, ListAdd, More, Unlock, User } from "@icon-park/react";
-import {
-  Button,
-  Dropdown,
-  MenuProps,
-  message,
-  PaginationProps,
-  Space,
-} from "antd";
+import { Button, Dropdown, MenuProps, message } from "antd";
 import confirm from "antd/es/modal/confirm";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface ColumnType<T> {
@@ -71,6 +65,9 @@ const RoleManagementList: React.FC = () => {
   const [showUpdateRoleNameModal, setShowUpdateRoleNameModal] = useState(false);
   const [assignPermissionModal, setAssignPermissionModal] = useState(false);
   const [selectedRole, setSelectedRole] = useState<SelectedRole | undefined>();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const search = searchParams.get("search") || "";
 
   const getData = async (
     search?: string,
@@ -101,7 +98,7 @@ const RoleManagementList: React.FC = () => {
     setRoleCreating(true);
     try {
       await RoleApi.createRole({ names });
-      getData(searchTerm, currentPage, true);
+      getData(search, currentPage, true);
     } catch (error) {
       message.error("Failed to create roles");
       console.error("Failed to create roles: ", error);
@@ -122,17 +119,18 @@ const RoleManagementList: React.FC = () => {
     }
   };
   const handleSearch = (value: string) => {
-    setSearchTerm(value);
+    setCurrentPage(defaultPage);
+    router.push(`?search=${value}`); 
     getData(value, defaultPage, true);
   };
 
   const onPageChange = (current: number) => {
     setCurrentPage(current);
-    getData(undefined, current, false);
+    getData(search, current, false);
   };
 
   useEffect(() => {
-    getData(undefined, defaultPage, true);
+    getData(search, defaultPage, true);
   }, []);
 
   const columns: ColumnType<{
