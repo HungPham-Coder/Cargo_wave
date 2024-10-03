@@ -10,7 +10,7 @@ import { Forbid, ListAdd, More, Unlock, User } from "@icon-park/react";
 import { Button, Dropdown, MenuProps, message } from "antd";
 import confirm from "antd/es/modal/confirm";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 interface ColumnType<T> {
   title: string;
@@ -271,7 +271,7 @@ const RoleManagementList: React.FC = () => {
   };
 
   return (
-    <div>
+    <Suspense fallback={<div>Loading...</div>}>
       <BaseTable
         rowKey="id"
         title="Role management"
@@ -324,7 +324,7 @@ const RoleManagementList: React.FC = () => {
         open={assignPermissionModal}
         data={selectedRole}
       ></RolePermissionModal>
-    </div>
+    </Suspense>
   );
 };
 

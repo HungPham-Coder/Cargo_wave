@@ -8,7 +8,7 @@ import PermissionUpdateModal from "@/source/components/modal/permissionUpdateMod
 import { PageSize } from "@/source/constants/app";
 import { More, User } from "@icon-park/react";
 import { Button, Dropdown, MenuProps, message } from "antd";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 interface ColumnType<T> {
   title: string;
@@ -168,7 +168,7 @@ const PermissionManagementList: React.FC = () => {
   };
 
   return (
-    <div>
+    <Suspense fallback={<div>Loading...</div>}>
       <BaseTable
         rowKey="id"
         title="Permission list"
@@ -213,7 +213,7 @@ const PermissionManagementList: React.FC = () => {
         open={showItemModal}
         data={undefined}
       />
-    </div>
+    </Suspense>
   );
 };
 
