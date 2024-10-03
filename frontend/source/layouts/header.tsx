@@ -21,7 +21,7 @@ const AppHeader: React.FC = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          backgroundColor: "#F5F5F5", // Navy blue, representing shipping theme
+          backgroundColor: "#F1F1F1", // Navy blue, representing shipping theme
           padding: "0 20px",
           height: "80px", // Set header height to ensure proper centering
         }}
@@ -46,7 +46,7 @@ const AppHeader: React.FC = () => {
 
         {/* Navigation and Authentication Section */}
         <div style={{ display: "flex", justifyContent: "flex-end", flex: 1 }}>
-          {isAuthenticated ? (
+          {!isAuthenticated ? (
             <ProfileBar /> // Render ProfileBar when authenticated
           ) : (
             <Button

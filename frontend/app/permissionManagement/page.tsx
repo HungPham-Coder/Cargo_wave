@@ -48,6 +48,7 @@ const PermissionManagementList: React.FC = () => {
 
   const searchParams = useSearchParams(); // Get search params
   const router = useRouter(); // Get the router for navigation
+  const search = searchParams.get("search") || "";
 
   const getData = async (
     search?: string,
@@ -73,11 +74,11 @@ const PermissionManagementList: React.FC = () => {
     }
   };
 
-  const handleCreatepermissions = async (names: string[]) => {
+  const handleCreatePermissions = async (names: string[]) => {
     setPermissionCreating(true);
     try {
       await PermissionApi.createPermission({ names });
-      getData(searchParams.get("search") || "", currentPage, true); // Use search param from the URL
+      getData(search, currentPage, true); // Use search param from the URL
     } catch (error) {
       message.error("Failed to create permissions");
       console.error("Failed to create permissions: ", error);
@@ -94,11 +95,11 @@ const PermissionManagementList: React.FC = () => {
 
   const onPageChange = (current: number) => {
     setCurrentPage(current);
-    getData(searchParams.get("search") || "", current, false);
+    getData(search, current, false);
   };
 
   useEffect(() => {
-    const search = searchParams.get("search") || "";
+    
     getData(search, defaultPage, true); // Fetch data on component mount
   }, [searchParams]); // Re-fetch data when search params change
 
