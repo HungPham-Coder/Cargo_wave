@@ -13,16 +13,16 @@ import routes from "../router/routes";
 const Container = styled.div`
   display: flex;
   align-items: center;
-  padding: 0.5rem 1rem; /* Increased padding for a more spacious feel */
-  border-radius: 200px; /* Rounded corners */
-  color: white; /* White text for better contrast */
-  transition: background 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
-  background: linear-gradient(135deg, #007bb2 0%, #00a2e8 100%); /* Sea-themed gradient */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow effect */
+  padding: 0.5rem 1rem; 
+  border-radius: 200px; 
+  color: white; 
+  transition: background 0.3s ease, box-shadow 0.3s ease; 
+  background: linear-gradient(135deg, #007bb2 0%, #00a2e8 100%); 
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); 
 
   &:hover {
-    background: linear-gradient(135deg, #090273 30%, #0D03AD 100%); /* Darker gradient on hover */
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2); /* Enhanced shadow on hover */
+    background: linear-gradient(135deg, #090273 30%, #0D03AD 100%); 
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2); 
   }
 `;
 
@@ -87,7 +87,7 @@ const ProfileBar: React.FC = () => {
   const userName = "admin"; // Replace with actual user name from your auth state
 
   return (
-    <Container style={{ height: "50px" }}>
+    <Container style={{ height: "60px" }}>
       <Avatar size="large" icon={<UserOutlined />} />
 
       <Dropdown menu={{ items }} trigger={["hover"]}>

@@ -46,7 +46,7 @@ const AppHeader: React.FC = () => {
 
         {/* Navigation and Authentication Section */}
         <div style={{ display: "flex", justifyContent: "flex-end", flex: 1 }}>
-          {!isAuthenticated ? (
+          {isAuthenticated ? (
             <ProfileBar /> // Render ProfileBar when authenticated
           ) : (
             <Button
