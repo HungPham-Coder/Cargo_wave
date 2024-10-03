@@ -7,6 +7,6 @@ export class UsersController {
 
     @Get()
     findAll(){
-        this.userService.findAll();
+        return this.userService.findAll();
     }
 }
