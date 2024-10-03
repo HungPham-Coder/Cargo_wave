@@ -10,11 +10,13 @@ export class AuthController {
 
     
     @HttpCode(HttpStatus.OK)
-    @Post('login')
+    // @Post('login')
+    @MessagePattern('hero.auth.login')
     signIn(@Body() signInDto: LoginDTO) {
         // Record<K, T> K ở đây là user name còn value là password với bất kì kiểu nào
-        const { email, password } = signInDto;
-        return this.authService.signIn(email, password);
+        // const { email, password } = signInDto;
+        // return this.authService.signIn(email, password);
+        return this.authService.signIn(signInDto);
     }
 
     @HttpCode(HttpStatus.OK)

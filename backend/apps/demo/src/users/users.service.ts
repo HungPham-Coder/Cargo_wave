@@ -28,7 +28,7 @@ export class UsersService {
     return this.usersRepository.findOne({ where: { email }, relations: ['roles'] });
   }
 
-  async remove(id: number): Promise<void> {
+  async removeUser(id: number): Promise<void> {
     await this.usersRepository.delete(id);
   }
 
