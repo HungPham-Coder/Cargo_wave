@@ -1,27 +1,28 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientKafka } from '@nestjs/microservices';
+import { CreateUserDTO } from 'apps/demo/src/users/create-user-request.dto';
 
 @Injectable()
 export class UsersService {
-    // constructor (@Inject('USER_SERVICE') private readonly client: ClientKafka){};
-
+    constructor (@Inject('HERO_SERVICE') private readonly client: ClientKafka){};
+    
     findAll(){
-        return "hello users";
+        return this.client.send ('hero.user.findAll', {});
     }
 
-    updateUser(){
-
+    findById(id: number){
+        return this.client.send ('hero.user.findById', id);
     }
 
-    findById(){
-
+    findByEmail(email: string){
+        return this.client.send ('hero.user.findByEmail', email);
     }
 
-    findByEmail(){
-
+    create (userDto: CreateUserDTO){
+        return this.client.send ('hero.user.createUser', userDto);
     }
 
-    removeUser(){
-        
+    remove(id: number){
+        return this.client.send ('hero.user.removeUser', id);
     }
 }

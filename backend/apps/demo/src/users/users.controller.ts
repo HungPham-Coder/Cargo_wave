@@ -14,17 +14,17 @@ export class UsersController {
         return this.userService.findAll()
     }
 
-    @MessagePattern("hero.user.updateUser")
+    @MessagePattern ("hero.user.createUser")
     create(userDto: CreateUserDTO){
         return this.userService.create(userDto);
     }
 
-    @MessagePattern("hero.user.removeUser")
+    @MessagePattern ("hero.user.removeUser")
     removeUser(id: number){
         return this.userService.removeUser(id);
     }
 
-    @MessagePattern("hero.user.findByEmail")
+    @MessagePattern ("hero.user.findByEmail")
     findByEmail(email: string){
         return this.userService.findByEmail(email);
     }
