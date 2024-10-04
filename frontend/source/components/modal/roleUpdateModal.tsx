@@ -59,7 +59,7 @@ const RoleUpdateModal: React.FC<RoleUpdateModalProps> = ({
         onCancel();
         form.resetFields();
       }}
-      title="Update Role Name"
+      title="Update role name"
       confirmLoading={loading}
       onOk={() => form.submit()}
     >

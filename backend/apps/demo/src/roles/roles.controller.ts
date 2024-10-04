@@ -37,7 +37,6 @@ export class RolesController {
         @Param('id') id: string,
         @Param('isDisabled') isDisabled: string // This will be a string in URL
     ) {
-        // Convert isDisabled to a boolean
         try {
             const isDisabledBool = isDisabled.toLowerCase() === 'true';
             const body = this.roleService.updateRoleStatus(id, isDisabledBool);

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { CreateRoleDTO } from './roles.dto/create-role-request.dto';
@@ -91,23 +91,23 @@ export class RolesService {
   // Method to update the status of a role
   async updateRoleStatus(id: string, isDisabled: boolean): Promise<Role | null> {
     try {
-      // Find the role by ID
       const role = await this.rolesRepository.findOne({ where: { id } });
-
+      console.log("roles: ", role)
       if (!role) {
         console.error(`Role with ID ${id} not found.`);
-        return null;
+        throw new HttpException(`Role with ID ${id} not found.`, HttpStatus.NOT_FOUND);
       }
-      // Set the role's status based on the isDisabled flag
+
+      // Update the role's isDisabled status
       role.isDisabled = isDisabled;
-      // Save the updated role
+
+      // Save the updated role and return the result
       return await this.rolesRepository.save(role);
     } catch (error) {
       console.error('Error updating role status:', error);
-      throw new Error('Error updating role status');
+      throw new HttpException('Error updating role status: ' + error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-
   // Method to update the name of a role by ID
   async updateRoleName(id: string, newName: string): Promise<Role | null> {
     try {

@@ -134,16 +134,16 @@ const PermissionManagementList: React.FC = () => {
       key: "description",
       sorter: (a, b) => a.description.localeCompare(b.description),
     },
-    {
-      title: "Action",
-      dataIndex: "action",
-      key: "action",
-      render: (_, record: any) => (
-        <Dropdown menu={{ items: getActionItems(record) }}>
-          <Button icon={<More />} />
-        </Dropdown>
-      ),
-    },
+    // {
+    //   title: "Action",
+    //   dataIndex: "action",
+    //   key: "action",
+    //   render: (_, record: any) => (
+    //     <Dropdown menu={{ items: getActionItems(record) }}>
+    //       <Button icon={<More />} />
+    //     </Dropdown>
+    //   ),
+    // },
   ];
 
   const getActionItems = (record: {
@@ -190,15 +190,15 @@ const PermissionManagementList: React.FC = () => {
           onSearch: handleSearch,
           width: 300,
         }}
-        addButton={
-          <Button
-            type="primary"
-            className="btn-primary app-bg-primary font-semibold text-white"
-            onClick={() => setShowItemModal(true)}
-          >
-            Create permission
-          </Button>
-        }
+        // addButton={
+        //   <Button
+        //     type="primary"
+        //     className="btn-primary app-bg-primary font-semibold text-white"
+        //     onClick={() => setShowItemModal(true)}
+        //   >
+        //     Create permission
+        //   </Button>
+        // }
       />
       <PermissionUpdateModal
         onCancel={() => setShowUpdatePermissionNameModal(false)}
@@ -216,13 +216,4 @@ const PermissionManagementList: React.FC = () => {
   );
 };
 
-const PermissionManagementPage: React.FC = () => {
-  return (
-    <Suspense fallback={<div>Loading...</div>}> {/* Add Suspense here */}
-      <PermissionManagementList />
-    </Suspense>
-  );
-};
-
-
-export default PermissionManagementPage;
+export default PermissionManagementList;

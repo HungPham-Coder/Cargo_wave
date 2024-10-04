@@ -29,7 +29,7 @@ export class UsersService {
     return this.usersRepository.findOne({ where: { email }, relations: ['roles'] });
   }
 
-  async removeUser(id: number): Promise<void> {
+  async removeUser(id: string): Promise<void> {
     await this.usersRepository.delete(id);
   }
 

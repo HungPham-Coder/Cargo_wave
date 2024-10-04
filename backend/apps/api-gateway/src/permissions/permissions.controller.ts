@@ -1,5 +1,4 @@
 import { Body, Controller, Get, HttpException, HttpStatus, Param, Post, Put, Query } from '@nestjs/common';
-import { CreatePermissionDTO } from './create-permission-request.dto';
 import { PermissionsService } from './permissions.service';
 import { PaginationDTO } from 'apps/demo/src/users/create-user-request.dto';
 import { Permission } from 'apps/demo/src/entities/permission.entity';
@@ -18,4 +17,16 @@ export class PermissionsController {
         }
     }
 
+    //Get all data of permissions with paging
+    @Get('findAllWithPaging')
+    async findAllWithPaging(@Query() paginationDTO: PaginationDTO) {
+        try {
+            console.log('Pagination DTO received:', paginationDTO);
+            const response = this.permissionService.findAllWithPaging(paginationDTO)
+            return response;
+        } catch (error) {
+            console.error('Error fetching permissions with paging:', error);
+            throw new HttpException('Error fetching permissions with paging', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

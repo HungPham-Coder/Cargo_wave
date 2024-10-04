@@ -31,7 +31,7 @@ export const PermissionSelect: React.FC<PermissionSelectProps> = ({
 
   const getPermissions = async () => {
     setLoading(true);
-    const data = await PermissionApi.findPermissionEnabled();
+    const data = await PermissionApi.findAll();
     console.log(data);
     setPermissions(data);
     setLoading(false);

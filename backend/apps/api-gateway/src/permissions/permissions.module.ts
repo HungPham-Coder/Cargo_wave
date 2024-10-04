@@ -1,25 +1,14 @@
 import { Module } from '@nestjs/common';
 import { PermissionsService } from './permissions.service';
 import { PermissionsController } from './permissions.controller';
-import { ClientsModule, Transport } from '@nestjs/microservices';
+import { MicroserviceClientModule } from '../microservice-client/microservice-client.module';
 
 @Module({
   imports: [
-    ClientsModule.register([
-      {
-        name: 'HERO_SERVICE',
-        transport: Transport.KAFKA,
-        options: {
-          client: {
-            clientId: 'hero',
-            brokers: ['localhost:9092'],
-          },
-        },
-      },
-    ]),
+    MicroserviceClientModule
   ],
   providers: [PermissionsService],
   controllers: [PermissionsController],
   exports: [PermissionsService],
 })
-export class PermissionsModule {}
+export class PermissionsModule { }
