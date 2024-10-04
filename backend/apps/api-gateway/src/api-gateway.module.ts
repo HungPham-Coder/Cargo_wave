@@ -7,11 +7,13 @@ import { UsersModule} from './users/users.module';
 import { UsersService } from './users/users.service';
 import { ApiGatewayService } from './api-gateway.service';
 import { MicroserviceClientModule } from './microservice-client/microservice-client.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [  
     AuthModule, UsersModule,
     MicroserviceClientModule,
+    NotificationModule,
 
   ],
   controllers: [ApiGatewayController],

@@ -13,7 +13,7 @@ export class MicroserviceClientService {
         this.client.subscribeToResponseOf('hero.user.findByEmail');
         this.client.subscribeToResponseOf('hero.user.createUser');
         this.client.subscribeToResponseOf('hero.user.removeUser');
-
+        this.client.subscribeToResponseOf('hero.notification');
         await this.client.connect();
     }
 }

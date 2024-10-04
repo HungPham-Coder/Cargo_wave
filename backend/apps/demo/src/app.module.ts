@@ -38,7 +38,8 @@ import { ShippingType } from './entities/shippingType.entity';
         Route,
         Ship,
         VehicleType,
-        ShippingType
+        ShippingType,
+        // UserPreferenceService
       ],
       synchronize: true,
     }),
@@ -46,10 +47,11 @@ import { ShippingType } from './entities/shippingType.entity';
     UsersModule,
     RolesModule,
     PermissionsModule,
+    NotificationModule,
 
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, EmailService, SmsService, PushService, UserPreferenceService, NotificationService],
 })
 export class AppModule { }
 
@@ -60,6 +62,12 @@ export class AppModule { }
 // import { TypeOrmModule } from '@nestjs/typeorm';
 // import { AuthModule } from './auth/auth.module';
 // import { UsersModule } from './users/users.module';
+import { EmailService } from './email/email.service';
+import { SmsService } from './sms/sms.service';
+import { PushService } from './push/push.service';
+import { UserPreferenceService } from './user-preference/user-preference.service';
+import { NotificationService } from './notification/notification.service';
+import { NotificationModule } from './notification/notification.module';
 // import typeorm from './config/typeorm';
 
 // @Module({
