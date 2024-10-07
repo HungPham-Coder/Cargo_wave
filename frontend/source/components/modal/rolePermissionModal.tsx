@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import RoleApi from "../../apis/roles"; // Assuming this is your API handler
 import { Form, Input, message } from "antd";
 import BaseModal from "../baseModal";
-import { PermissionSelect } from "./permissionSelect";
+import PermissionSelect from "./permissionSelect";
 
 interface RolePermissionModalProps {
   data?: { id?: string; name?: string; permissions?: string[] };
@@ -80,7 +80,7 @@ const RolePermissionModal: React.FC<RolePermissionModalProps> = ({
         <Form.Item name="permissions" label="Select Permissions">
           <PermissionSelect
             value={selectedItems} // Set value to selectedItems
-            onChange={(value) => {
+            onChange={(value: any) => {
               console.log("PermissionSelect value: ", value);
               setSelectedItems(value || []); // Update selectedItems when permissions change
             }}

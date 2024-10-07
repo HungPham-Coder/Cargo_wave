@@ -40,3 +40,11 @@ export const userMocks = [
     banStatus: true,
   },
 ];
+
+export const statusMap: {
+  [key: number]: { text: string; color: string; width: string };
+} = {
+  1: { text: "Finished", color: "green", width: "18%" },
+  2: { text: "Cancelled", color: "red", width: "20.5%" },
+  3: { text: "Progress", color: "orange", width: "18.8%" },
+};

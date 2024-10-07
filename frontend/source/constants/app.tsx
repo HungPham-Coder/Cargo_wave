@@ -17,5 +17,5 @@ export const ROLE_MAP = {
 export const PageSize = {
   ROLE_LIST: 10,
   USER_LIST: 15,
-  PERMISSION_LIST: 20,
+  PERMISSION_LIST: 10,
 };

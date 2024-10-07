@@ -114,7 +114,7 @@ export const BaseTable = <RecordType extends object>({
             <Input.Search
               placeholder={placeholder ?? "Search..."}
               onSearch={onSearch}
-              style={{ width: width || 200}}
+              style={{ width: width || 200 }}
             />
           </Col>
         )}
@@ -148,7 +148,7 @@ export const BaseTable = <RecordType extends object>({
                     mode={multiple ? "multiple" : undefined}
                     showSearch
                     allowClear
-                    style={{ width: width || 200 }}
+                    style={{ width: width || 200}}
                     onClear={() => {
                       setList([...all.current]);
                     }}
@@ -179,7 +179,7 @@ export const BaseTable = <RecordType extends object>({
           )}
       </Row>
 
-      {/* Table */}
+      {/* Table with margin */}
       <Table<RecordType>
         rowKey={rowKey}
         pagination={

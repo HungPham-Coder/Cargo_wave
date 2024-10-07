@@ -44,9 +44,6 @@ export class User {
   })
   roles: Role[]
 
-  @OneToMany(() => Route, (routes) => routes.users)
-  routes: Route[]
- 
   @OneToMany(() => RefreshToken, (refreshTokens) => refreshTokens.users)
   refreshTokens: RefreshToken[]
 }

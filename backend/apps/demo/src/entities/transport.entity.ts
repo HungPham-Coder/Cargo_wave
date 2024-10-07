@@ -16,7 +16,7 @@ export class Transport {
     @Column()
     status: number;
 
-    @OneToMany(() => Route, route => route.transport)
+    @OneToMany(() => Route, route => route.transports)
     routes: Route[];
 
     @ManyToOne(() => ShippingType, (shipping) => shipping.transports)

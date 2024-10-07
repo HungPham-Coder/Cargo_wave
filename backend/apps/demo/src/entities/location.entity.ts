@@ -18,7 +18,9 @@ export class Location {
   @Column('float')
   latitude: number;  
 
-  @OneToMany(() => Route, (route) => route.locations) 
-  routes: Route[];
+  @OneToMany(() => Route, (route) => route.arrival) 
+  arrival: Route[];
 
+  @OneToMany(() => Route, (route) => route.departure) 
+  departure: Route[];
 }

@@ -53,16 +53,22 @@ export class PaginationDTO {
     @IsOptional()
     @IsString()
     search?: string;
-  
+
     @IsOptional()
     @Type(() => Number)
     @IsInt()
     @Min(0)
     pageIndex?: number = 0;
-  
+
     @IsOptional()
     @Type(() => Number)
     @IsInt()
     @Min(1)
     pageSize?: number = 10;
-  }
+}
+
+export class SearchDTO {
+    @IsOptional()
+    @IsString()
+    search?: string;
+}

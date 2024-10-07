@@ -7,7 +7,7 @@ import RolePermissionModal from "@/source/components/modal/rolePermissionModal";
 import RoleUpdateModal from "@/source/components/modal/roleUpdateModal";
 import { PageSize } from "@/source/constants/app";
 import { Forbid, ListAdd, More, Unlock, User } from "@icon-park/react";
-import { Button, Dropdown, MenuProps, message } from "antd";
+import { Button, Dropdown, MenuProps, message, Tag, Tooltip } from "antd";
 import confirm from "antd/es/modal/confirm";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
@@ -17,6 +17,7 @@ interface ColumnType<T> {
   dataIndex: keyof T | "index" | "action";
   key: string;
   width?: string;
+  maxwidth?: string;
   render?: (text: any, record: T, index: number) => JSX.Element;
   sorter?: (a: T, b: T) => number;
   filter?: {
@@ -120,7 +121,7 @@ const RoleManagementList: React.FC = () => {
   };
   const handleSearch = (value: string) => {
     setCurrentPage(defaultPage);
-    router.push(`?search=${value}`); 
+    router.push(`?search=${value}`);
     getData(value, defaultPage, true);
   };
 
@@ -155,24 +156,31 @@ const RoleManagementList: React.FC = () => {
       title: "Role name",
       dataIndex: "name",
       key: "name",
-      width: "30%",
+      width: "20%",
       sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
       title: "Permissions",
       dataIndex: "permissions",
       key: "permissions",
+      width: "40%",
       render: (permissions: Permission[]) => (
-        <span>
-          {permissions.map((permission, i) => (
-            <div key={permission.id}>
-              {" "}
-              {i + 1}. {permission.name}
-            </div>
-          ))}
-        </span>
+        <div>
+          {permissions.length > 0 ? (
+            permissions
+              .slice() // Create a shallow copy to avoid mutating the original array
+              .sort((a, b) => a.name.localeCompare(b.name)) // Sort by permission name
+              .map((permission) => (
+                <Tag key={permission.id} color="blue">
+                  {permission.name}
+                </Tag>
+              ))
+          ) : (
+            <span>No permissions assigned</span>
+          )}
+        </div>
       ),
-    },
+    },  
     {
       title: "Status",
       dataIndex: "isDisabled",

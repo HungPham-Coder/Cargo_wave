@@ -23,19 +23,15 @@ export class Route {
   @Column()
   status: number;
 
-  @Column()
-  flag: number;
-
-  @ManyToOne(() => User, user => user.routes)
-  @JoinColumn({ name: "userID" })
-  users: User;
-
   @ManyToOne(() => Transport, transport => transport.routes)
-  @JoinColumn({ name: "shipID" })
-  transport: Transport;
+  @JoinColumn({ name: "transportID" })
+  transports: Transport;
 
-  @ManyToOne(() => Location, locations => locations.routes)
-  @JoinColumn({ name: "locationID" })
-  locations: Location;
+  @ManyToOne(() => Location, departure => departure.departure)
+  @JoinColumn({ name: "departureID" })
+  departure: Location;
 
+  @ManyToOne(() => Location, arrival => arrival.arrival)
+  @JoinColumn({ name: "arrivalID" })
+  arrival: Location;
 }

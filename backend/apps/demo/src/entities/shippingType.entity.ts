@@ -3,7 +3,7 @@ import { Transport } from "./transport.entity";
 
 @Entity()
 export class ShippingType {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn("uuid")
     id: string;
 
     @Column()
