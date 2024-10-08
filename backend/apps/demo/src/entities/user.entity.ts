@@ -11,8 +11,9 @@ export class User {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @Column ()
+  @Column ({ nullable: true })
   deviceToken: string;
+
   @Column()
   name: string;
 

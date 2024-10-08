@@ -17,6 +17,14 @@ import { PermissionsModule } from './permissions/permissions.module';
 import { VehicleType } from './entities/vehicleType.entity';
 import { ShippingType } from './entities/shippingType.entity';
 
+import { EmailService } from './email/email.service';
+import { SmsService } from './sms/sms.service';
+import { PushService } from './push/push.service';
+import { UserPreferenceService } from './user-preference/user-preference.service';
+import { NotificationService } from './notification/notification.service';
+import { NotificationModule } from './notification/notification.module';
+import { UserPreference } from './entities/user-preference.entity';
+import { UserPreferenceModule } from './user-preference/user-preference.module';
 
 @Module({
   imports: [
@@ -39,7 +47,7 @@ import { ShippingType } from './entities/shippingType.entity';
         Ship,
         VehicleType,
         ShippingType,
-        // UserPreferenceService
+        UserPreference
       ],
       synchronize: true,
     }),
@@ -48,10 +56,10 @@ import { ShippingType } from './entities/shippingType.entity';
     RolesModule,
     PermissionsModule,
     NotificationModule,
-
+    UserPreferenceModule,
   ],
   controllers: [AppController],
-  providers: [AppService, EmailService, SmsService, PushService, UserPreferenceService, NotificationService],
+  providers: [AppService],
 })
 export class AppModule { }
 
@@ -62,12 +70,8 @@ export class AppModule { }
 // import { TypeOrmModule } from '@nestjs/typeorm';
 // import { AuthModule } from './auth/auth.module';
 // import { UsersModule } from './users/users.module';
-import { EmailService } from './email/email.service';
-import { SmsService } from './sms/sms.service';
-import { PushService } from './push/push.service';
-import { UserPreferenceService } from './user-preference/user-preference.service';
-import { NotificationService } from './notification/notification.service';
-import { NotificationModule } from './notification/notification.module';
+
+
 // import typeorm from './config/typeorm';
 
 // @Module({

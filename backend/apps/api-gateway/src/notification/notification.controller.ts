@@ -1,4 +1,4 @@
-import { Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 
 @Controller('notification')
@@ -9,4 +9,5 @@ export class NotificationController {
     sendNotification (userId: string, message :string){
         this.notificationService.sendNotification(userId, message);
     }
+
 }
