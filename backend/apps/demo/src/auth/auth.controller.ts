@@ -1,7 +1,8 @@
-import { Post, Body, Controller, HttpCode, HttpStatus, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Request, ValidationPipe, UseGuards, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDTO, LoginDTO } from '../users/create-user-request.dto';
 import { MessagePattern } from '@nestjs/microservices';
+import { GoogleOAuthGuard } from './google_oauth/google_oauth.guard';
 // import { CreateUserDTO, LoginDTO } from 'src/users/create-user-request.dto';
 
 @Controller('auth')
@@ -25,4 +26,15 @@ export class AuthController {
     signUp(@Body(ValidationPipe) signUpDto: CreateUserDTO) {
         return this.authService.signUp(signUpDto)
     }
+
+    @Get ()
+    @UseGuards(GoogleOAuthGuard)
+    async googleAuth (@Request() req){}
+
+    @Get ('google-redirect')
+    @UseGuards(GoogleOAuthGuard)
+    googleAuthRedirect(@Request() req){
+        return this.authService.googleLogin(req);
+    }
+    
 }

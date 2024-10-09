@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import * as sgMail from '@sendgrid/mail';
-import { UsersService } from '../users/users.service';
+import { UserPreferenceService } from '../../../demo/src/user-preference/user-preference.service';
+import { UsersService } from 'apps/demo/src/users/users.service';
 @Injectable()
 export class EmailService {
     constructor(private readonly userService: UsersService){

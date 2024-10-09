@@ -7,6 +7,7 @@ import { MessagePattern } from '@nestjs/microservices';
 export class NotificationController {
     constructor (private readonly notificationService: NotificationService){};
     
+    
     @MessagePattern ('hero.notification')
     notification (userId: string, message: string){
         this.notificationService.sendNotification (userId, message);

@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { UsersService } from 'apps/demo/src/users/users.service';
 import * as admin from 'firebase-admin';
-import { UsersService } from '../users/users.service';
+
 @Injectable()
 export class PushService {
     constructor(private readonly userService: UsersService) {

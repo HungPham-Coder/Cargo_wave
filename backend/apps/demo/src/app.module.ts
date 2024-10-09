@@ -17,11 +17,6 @@ import { PermissionsModule } from './permissions/permissions.module';
 import { VehicleType } from './entities/vehicleType.entity';
 import { ShippingType } from './entities/shippingType.entity';
 
-import { EmailService } from './email/email.service';
-import { SmsService } from './sms/sms.service';
-import { PushService } from './push/push.service';
-import { UserPreferenceService } from './user-preference/user-preference.service';
-import { NotificationService } from './notification/notification.service';
 import { NotificationModule } from './notification/notification.module';
 import { UserPreference } from './entities/user-preference.entity';
 import { UserPreferenceModule } from './user-preference/user-preference.module';
@@ -51,6 +46,7 @@ import { UserPreferenceModule } from './user-preference/user-preference.module';
       ],
       synchronize: true,
     }),
+   
     AuthModule,
     UsersModule,
     RolesModule,

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { UsersService } from 'apps/demo/src/users/users.service';
 import * as Twilio from 'twilio'
-import { UsersService } from '../users/users.service';
 @Injectable()
 export class SmsService {
     private readonly client;

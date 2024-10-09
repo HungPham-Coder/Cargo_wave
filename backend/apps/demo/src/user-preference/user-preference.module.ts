@@ -5,7 +5,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
     imports: [TypeOrmModule.forFeature([UserPreference])],
-    providers: [UserPreference]
+    providers: [UserPreference],
+
 })
 export class UserPreferenceModule {
    

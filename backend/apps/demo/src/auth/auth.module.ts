@@ -5,7 +5,9 @@ import { jwtConstants } from './constants';
 import { JwtModule } from '@nestjs/jwt';
 import { RolesModule } from '../roles/roles.module';
 import { UsersModule } from '../users/users.module';
-
+import { GoogleStrategy } from './google_oauth/google.strategy';
+import { ConfigModule } from '@nestjs/config';
+import { EmailService } from '../email/email.service';
 
 @Module({
   imports : [
@@ -16,9 +18,15 @@ import { UsersModule } from '../users/users.module';
       secret: jwtConstants.secret,
       signOptions: {expiresIn: '60s'}
     }
-    )
+    ),
+    ConfigModule.forRoot(
+      {
+        isGlobal: true,
+      }
+    ),
+    
   ],
-  providers: [AuthService],
+  providers: [AuthService, GoogleStrategy, EmailService],
   controllers: [AuthController],
   exports: [AuthService]
 })

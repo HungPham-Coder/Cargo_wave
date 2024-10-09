@@ -11,7 +11,7 @@ export class UserPreferenceService {
         private userPreferenceRepository: Repository<any>,
     ){};
 
-    async findByUserId (userId: string): Promise<any>{
+    async findById (userId: string): Promise<any>{
         return this.userPreferenceRepository.findOne ({where: {user: {id: userId}}})
     }
 }

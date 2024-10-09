@@ -20,6 +20,10 @@ export class UsersService {
     return await this.usersRepository.save(userDto);
   }
 
+  async createPassword (pass: string): Promise <Users> {
+    return await this.usersRepository.create ({pass});
+  }
+
   findAll(): Promise<Users[]> {
     return this.usersRepository.find({ relations: ['roles'] });
   }
@@ -35,6 +39,10 @@ export class UsersService {
 
   async removeUser(id: number): Promise<void> {
     await this.usersRepository.delete(id);
+  }
+
+  async update (id: string, newUser: CreateUserDTO): Promise<any>{
+    await this.usersRepository.update(id, newUser);
   }
 
 }
