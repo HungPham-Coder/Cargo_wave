@@ -5,13 +5,16 @@ const resource = "roles";
 const findAllWithPaging = async (
   search: string,
   pageIndex: number,
-  pageSize: number
+  pageSize: number,
+  status: boolean
 ): Promise<any> => {
   try {
     const params: any = {
       ...(pageIndex && { pageIndex }),
       ...(pageSize && { pageSize }),
       ...(search && { search }),
+      ...(status && { status }),
+
     };
 
     const response = await BaseApi.get(`/${resource}/findAllWithPaging`, { params });

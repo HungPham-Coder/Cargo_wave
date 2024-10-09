@@ -9,7 +9,7 @@ import {
   Table,
   Typography,
 } from "antd";
-import React, { useEffect, useRef, useState } from "react";
+import React, { Key, useEffect, useRef, useState } from "react";
 import type { TableProps, ColumnType as AntdColumnType } from "antd/es/table";
 
 const { Title, Text } = Typography;
@@ -27,6 +27,7 @@ interface CustomColumnType<RecordType> extends AntdColumnType<RecordType> {
     width?: number | string;
     filterOptions?: FilterOptions[];
   };
+  onFilter?: (value: boolean | Key, record: RecordType) => boolean; // Update this line
 }
 
 interface SearchOptions {
@@ -103,7 +104,7 @@ export const BaseTable = <RecordType extends object>({
         </Col>
         <Row>
           <Col>{addButton}</Col>
-          <Col>{actions}</Col>
+          
         </Row>
       </Row>
 
@@ -177,8 +178,9 @@ export const BaseTable = <RecordType extends object>({
               );
             }
           )}
+          <Col>{actions}</Col>
       </Row>
-
+      
       {/* Table with margin */}
       <Table<RecordType>
         rowKey={rowKey}

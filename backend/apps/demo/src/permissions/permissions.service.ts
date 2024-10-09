@@ -48,13 +48,11 @@ export class PermissionsService {
         query.where('LOWER(permissions.name) LIKE LOWER(:search)', { search: `%${search.toLowerCase()}%` });
       }
       query.orderBy('permissions.isDisabled', 'ASC').addOrderBy('permissions.name', 'ASC');
-      const skipValue = pageIndexNumber * pageSizeNumber;
 
       const [data, total] = await Promise.all([
-        query.skip(skipValue)
+        query.skip(pageIndexNumber * pageSizeNumber)
           .take(pageSizeNumber)
           .getMany(),
-
         query.getCount(),
       ]);
 

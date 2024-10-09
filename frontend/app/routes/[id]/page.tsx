@@ -2,7 +2,17 @@
 
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Row, Col, Form, Input, Breadcrumb, message, Spin } from "antd";
+import {
+  Row,
+  Col,
+  Form,
+  Input,
+  Breadcrumb,
+  message,
+  Spin,
+  Button,
+  DatePicker,
+} from "antd";
 import Link from "next/link";
 import { HomeOutlined } from "@ant-design/icons";
 import routes from "@/source/router/routes";
@@ -14,6 +24,9 @@ const RouteDetailPage: React.FC = () => {
   const { id } = useParams();
   const [routeDetail, setRouteDetail] = useState<any>(null);
   const [form] = Form.useForm();
+  const [isEditing, setIsEditing] = useState(false);
+  const borderColors = "#0d3b66";
+  const weights = 500;
 
   const getData = async (handleLoading?: boolean) => {
     if (handleLoading) {
@@ -22,10 +35,23 @@ const RouteDetailPage: React.FC = () => {
     try {
       const response = await RouteApi.findRouteById(id);
       setRouteDetail(response);
-      console.log("Fetched route detail:", response);
+      form.setFieldsValue({
+        id: response.id,
+        name: response.name,
+        distance: response.distance,
+        status: response.status,
+        departure: response.departure.name,
+        arrival: response.arrival.name,
+        departure_address: response.departure.address,
+        arrival_address: response.arrival.address,
+        departure_time: response.departure_time,
+        arrival_time: response.arrival_time,
+        vehicle_name: response.transport.name,
+        license_plate: response.transport.license_plate,
+        shipping_type: response.transport.shippingType.name,
+      });
     } catch (error) {
       message.error("Failed to fetch route details");
-      console.error("Failed to fetch route details: ", error);
     } finally {
       setLoading(false);
     }
@@ -37,17 +63,20 @@ const RouteDetailPage: React.FC = () => {
 
   if (!routeDetail) {
     return (
-      <Row
-      justify="center"
-      align="middle" // Center vertically
-      style={{
-        minHeight: "60vh", // Full height of the viewport
-      }}
-    >
-      <Spin size="large" />
-    </Row>
+      <Row justify="center" align="middle" style={{ minHeight: "60vh" }}>
+        <Spin size="large" />
+      </Row>
     );
   }
+
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleCancelClick = () => {
+    setIsEditing(false);
+    form.resetFields(); // Reset the form fields to their initial values
+  };
 
   return (
     <div style={{ padding: "20px", background: "#e0f7fa", minHeight: "100vh" }}>
@@ -73,6 +102,21 @@ const RouteDetailPage: React.FC = () => {
       <Form
         form={form}
         layout="vertical"
+        initialValues={{
+          id: routeDetail?.id || "",
+          name: routeDetail?.name || "",
+          distance: routeDetail?.distance || "",
+          status: routeDetail?.status || "",
+          departure: routeDetail?.departure.name || "",
+          arrival: routeDetail?.arrival.name || "",
+          departure_address: routeDetail?.departure.address || "",
+          arrival_address: routeDetail?.arrival.address || "",
+          departure_time: routeDetail?.departure_time || "",
+          arrival_time: routeDetail?.arrival_time || "",
+          vehicle_name: routeDetail?.transport.name || "",
+          license_plate: routeDetail?.transport.license_plate || "",
+          shipping_type: routeDetail?.transport.shippingType.name || "",
+        }}
         style={{
           marginTop: "3%",
           marginBottom: "5%",
@@ -87,127 +131,186 @@ const RouteDetailPage: React.FC = () => {
       >
         <Row gutter={[24, 24]}>
           <Col span={8}>
-            <Form.Item label="Name" style={{ fontWeight: 500 }}>
+            <Col span={24}>
+              <Form.Item name="id" hidden>
+                <Input />
+              </Form.Item>
+            </Col>
+            <Form.Item name="name" label="Name" style={{ fontWeight: weights }}>
               <Input
-                value={routeDetail.name}
-                readOnly
-                style={{ borderColor: "#0d3b66" }}
+                readOnly={!isEditing}
+                style={{ borderColor: borderColors }}
               />
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item label="Distance (km)" style={{ fontWeight: 500 }}>
+            <Form.Item
+              name="distance"
+              label="Distance (km)"
+              style={{ fontWeight: weights }}
+            >
               <Input
-                value={routeDetail.distance}
-                readOnly
-                style={{ borderColor: "#0d3b66" }}
+                readOnly={!isEditing}
+                style={{ borderColor: borderColors }}
               />
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item label="Status" style={{ fontWeight: 500 }}>
+            <Form.Item
+              name="status"
+              label="Status"
+              style={{ fontWeight: weights }}
+            >
               <Input
-                value={routeDetail.status}
-                readOnly
-                style={{ borderColor: "#0d3b66" }}
+                readOnly={!isEditing}
+                style={{ borderColor: borderColors }}
               />
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item label="Departure" style={{ fontWeight: 500 }}>
+            <Form.Item
+              name="departure"
+              label="Departure"
+              style={{ fontWeight: weights }}
+            >
               <Input
-                value={routeDetail.departure.name}
-                readOnly
-                style={{ borderColor: "#0d3b66" }}
+                readOnly={!isEditing}
+                style={{ borderColor: borderColors }}
               />
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item label="Arrival" style={{ fontWeight: 500 }}>
+            <Form.Item
+              name="arrival"
+              label="Arrival"
+              style={{ fontWeight: weights }}
+            >
               <Input
-                value={routeDetail.arrival.name}
-                readOnly
-                style={{ borderColor: "#0d3b66" }}
+                readOnly={!isEditing}
+                style={{ borderColor: borderColors }}
               />
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item label="Departure address" style={{ fontWeight: 500 }}>
+            <Form.Item
+              name="departure_address"
+              label="Departure address"
+              style={{ fontWeight: weights }}
+            >
               <Input
-                value={routeDetail.departure.address}
-                readOnly
-                style={{ borderColor: "#0d3b66" }}
+                readOnly={!isEditing}
+                style={{ borderColor: borderColors }}
               />
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item label="Arrival address" style={{ fontWeight: 500 }}>
+            <Form.Item
+              name="arrival_address"
+              label="Arrival address"
+              style={{ fontWeight: weights }}
+            >
               <Input
-                value={routeDetail.arrival.address}
-                readOnly
-                style={{ borderColor: "#0d3b66" }}
+                readOnly={!isEditing}
+                style={{ borderColor: borderColors }}
               />
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item label="Departure time" style={{ fontWeight: 500 }}>
-              <Input
+            <Form.Item label="Departure time" style={{ fontWeight: weights }}>
+              <DatePicker
+                format="hh:mm A - DD/MM/YYYY"
+                disabled={!isEditing}
                 value={
                   routeDetail.departure_time
-                    ? dayjs(routeDetail.departure_time).format(
-                        "hh:mm A - DD/MM/YYYY"
-                      )
-                    : ""
+                    ? dayjs(routeDetail.departure_time)
+                    : null
                 }
-                readOnly
-                style={{ backgroundColor: "#ffffff", borderColor: "#0d3b66" }}
-                placeholder="Date"
+                style={{
+                  backgroundColor: "#ffffff",
+                  borderColor: borderColors,
+                  width: "100%",
+                }}
               />
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item label="Arrival time" style={{ fontWeight: 500 }}>
-              <Input
+            <Form.Item label="Arrival time" style={{ fontWeight: weights }}>
+              <DatePicker
+                format="hh:mm A - DD/MM/YYYY"
                 value={
                   routeDetail.arrival_time
-                    ? dayjs(routeDetail.arrival_time).format(
-                        "hh:mm A - DD/MM/YYYY"
-                      )
-                    : ""
+                    ? dayjs(routeDetail.arrival_time)
+                    : null
                 }
-                readOnly
-                style={{ backgroundColor: "#ffffff", borderColor: "#0d3b66" }}
-                placeholder="Date"
+                disabled={!isEditing}
+                style={{
+                  backgroundColor: "#ffffff",
+                  borderColor: borderColors,
+                  width: "100%",
+                }}
               />
             </Form.Item>
           </Col>
 
           <Col span={8}>
-            <Form.Item label="Vehicle name" style={{ fontWeight: 500 }}>
+            <Form.Item
+              name="vehicle_name"
+              label="Vehicle name"
+              style={{ fontWeight: weights }}
+            >
               <Input
-                value={routeDetail.transports.name}
-                readOnly
-                style={{ borderColor: "#0d3b66" }}
+                readOnly={!isEditing}
+                style={{ borderColor: borderColors }}
               />
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item label="License plate" style={{ fontWeight: 500 }}>
+            <Form.Item
+              name="license_plate"
+              label="License plate"
+              style={{ fontWeight: weights }}
+            >
               <Input
-                value={routeDetail.transports.license_plate}
-                readOnly
-                style={{ borderColor: "#0d3b66" }}
+                readOnly={!isEditing}
+                style={{ borderColor: borderColors }}
               />
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item label="Shipping type" style={{ fontWeight: 500 }}>
+            <Form.Item
+              name="shipping_type"
+              label="Shipping type"
+              style={{ fontWeight: weights }}
+            >
               <Input
-                value={routeDetail.transports.shippingType.name}
-                readOnly
-                style={{ borderColor: "#0d3b66" }}
+                readOnly={!isEditing}
+                style={{ borderColor: borderColors }}
               />
             </Form.Item>
+          </Col>
+        </Row>
+
+        <Row gutter={[24, 24]}>
+          <Col span={24} style={{ textAlign: "right" }}>
+            {!isEditing ? (
+              <Button
+                type="primary"
+                onClick={handleEditClick}
+              >
+                Edit
+              </Button>
+            ) : (
+              <>
+                <Button
+                  type="default"
+                  onClick={handleCancelClick}
+                  style={{ marginRight: "8px" }}
+                >
+                  Cancel
+                </Button>
+                <Button type="primary">Save</Button>
+              </>
+            )}
           </Col>
         </Row>
       </Form>

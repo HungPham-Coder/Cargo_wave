@@ -24,28 +24,35 @@ export class RolesService {
 
   // Method to find all roles
   async findAllWithPaging(paginationDTO: PaginationDTO): Promise<{ data: Roles[], total: number }> {
-    const { search = '', pageIndex = 0, pageSize = 10 } = paginationDTO;
+    const { search = '', pageIndex = 0, pageSize = 10, status } = paginationDTO;
 
-    // Ensure pageIndex and pageSize are numbers
     const pageIndexNumber = Number(pageIndex);
     const pageSizeNumber = Number(pageSize);
 
     try {
-      // Build query with or without search filter
-      const query = this.rolesRepository.createQueryBuilder('roles').leftJoinAndSelect('roles.permissions', 'permissions');;
+      const query = this.rolesRepository.createQueryBuilder('roles')
+        .leftJoinAndSelect('roles.permissions', 'permissions');
 
+      // Filter by search term if provided
       if (search) {
         query.where('LOWER(roles.name) LIKE LOWER(:search)', { search: `%${search.toLowerCase()}%` });
       }
-      query.orderBy('roles.isDisabled', 'ASC').addOrderBy('roles.name', 'ASC');
-      // Execute queries in parallel: one for data and one for total count
-      const [data, total] = await Promise.all([
-        query.skip(pageIndexNumber * pageSizeNumber)
-          .take(pageSizeNumber)
-          .getMany(),
 
-        query.getCount(),
-      ]);
+      // Apply the status filter if it's defined
+      if (status !== undefined) {
+        query.andWhere('roles.isDisabled = :status', { status });
+      }
+
+      // Count the total number of results after filtering
+      const total = await query.getCount();
+
+      // Apply pagination and get the data
+      const data = await query
+        .skip(pageIndexNumber * pageSizeNumber)
+        .take(pageSizeNumber)
+        .orderBy('roles.isDisabled', 'ASC')
+        .addOrderBy('roles.name', 'ASC')
+        .getMany();
 
       return { data, total };
     } catch (error) {
@@ -53,6 +60,8 @@ export class RolesService {
       throw new Error('Error finding roles');
     }
   }
+
+
   // Method to find a role by name
   async findOneByName(name: string): Promise<Roles> {
     try {

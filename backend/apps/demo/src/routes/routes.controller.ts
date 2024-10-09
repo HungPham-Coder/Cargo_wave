@@ -43,8 +43,9 @@ export class RoutesController {
 
     // @MessagePattern ("hero.routes.create")
     @Post('create')
-    create(routeDto: CreateRouteDto) {
-        return this.routeService.create(routeDto);
+    async create(@Body() createRouteDto: CreateRouteDto) {
+        console.log('Incoming Route DTO:', createRouteDto); // Log the DTO
+        return await this.routeService.create(createRouteDto);
     }
 
     @Put(':id')

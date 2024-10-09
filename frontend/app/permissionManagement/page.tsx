@@ -59,6 +59,11 @@ const PermissionManagementList: React.FC = () => {
       setLoading(true);
     }
     try {
+      console.log("Fetching data with params:", {
+        search,
+        pageIndex,
+        pageSize: PageSize.ROLE_LIST,
+      });
       const response: permissionsResponse =
         await PermissionApi.findAllWithPaging(
           search!,
@@ -66,6 +71,12 @@ const PermissionManagementList: React.FC = () => {
           PageSize.PERMISSION_LIST
         );
       setPermissions(response);
+
+      const url = new URL(window.location.href);
+      url.searchParams.set("search", search!);
+      url.searchParams.set("pageSize", PageSize.PERMISSION_LIST.toString());
+      url.searchParams.set("pageIndex", pageIndex!.toString());
+      router.push(url.toString());
     } catch (error) {
       message.error("Failed to fetch permissions");
       console.error("Failed to fetch permissions: ", error);
@@ -100,7 +111,7 @@ const PermissionManagementList: React.FC = () => {
 
   useEffect(() => {
     getData(search, defaultPage, true); // Fetch data on component mount
-  }, [searchParams]); // Re-fetch data when search params change
+  }, []); // Re-fetch data when search params change
 
   const columns: ColumnType<{
     key: string;

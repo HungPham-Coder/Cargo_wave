@@ -1,6 +1,7 @@
 "use client";
 
 import RouteApi from "@/source/apis/routes";
+import RouteCreateModal from "@/source/components/modal/routeCreateModal";
 import { statusMap } from "@/source/mocks/mocks";
 import {
   ConfigProvider,
@@ -13,6 +14,7 @@ import {
   message,
   Spin,
   Tag,
+  Button,
 } from "antd";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -20,43 +22,44 @@ import { useEffect, useState } from "react";
 const { Title } = Typography;
 
 interface Transport {
-  id: string;
-  name: string;
-  license_plate: string;
-  status: number;
-  shippingType: {
-    id: string;
-    name: string;
-    status: string;
+  id?: string;
+  name?: string;
+  license_plate?: string;
+  status?: number;
+  shippingType?: {
+    id?: string;
+    name?: string;
+    status?: string;
   };
 }
 
 interface Location {
-  id: string;
-  name: string;
-  address: string;
-  longitude: number;
-  latitude: number;
+  id?: string;
+  name?: string;
+  address?: string;
+  longitude?: number;
+  latitude?: number;
 }
 
 interface Route {
-  id: string;
-  name: string;
-  departure_time: string;
-  arrival_time: string;
-  distance: number;
-  status: number;
-  userID: string;
-  transportID: string;
-  locationID: string;
-  transports: Transport;
-  departure: Location;
-  arrival: Location;
+  id?: string;
+  name?: string;
+  departure_time?: string;
+  arrival_time?: string;
+  distance?: number;
+  status?: number;
+  userID?: string;
+  transportID?: string;
+  locationID?: string;
+  transports?: Transport;
+  departure?: Location;
+  arrival?: Location;
 }
 
 const RoutesList: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [routes, setRoutes] = useState<Route[]>([]);
+  const [showItemModal, setShowItemModal] = useState(false);
   const searchParams = useSearchParams();
   const router = useRouter();
   const search = searchParams.get("search") || "";
@@ -82,10 +85,22 @@ const RoutesList: React.FC = () => {
 
   useEffect(() => {
     getData(search);
-  }, [search]); // Add search as a dependency to fetch new data on search change
+  }, [search]);
 
   const handleCardClick = (id: string) => {
     router.push(`/routes/${id}`);
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const hours = date.getHours() % 12 || 12;
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const ampm = date.getHours() >= 12 ? 'PM' : 'AM';
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+
+    return `${hours}:${minutes} ${ampm} - ${day}/${month}/${year}`;
   };
 
   return (
@@ -103,20 +118,31 @@ const RoutesList: React.FC = () => {
         </Title>
       </Row>
 
-      <Input.Search
-        allowClear
-        placeholder="Search routes..."
-        onSearch={handleSearch}
-        style={{
-          width: 400,
-          marginBottom: 20,
-          padding: "5px 7px",
-          borderRadius: "8px",
-          borderColor: "#d9f1f0",
-          backgroundColor: "#e0f7f9",
-          boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-        }}
-      />
+      <Row justify="space-between">
+        <Input.Search
+          allowClear
+          placeholder="Search routes..."
+          onSearch={handleSearch}
+          style={{
+            width: 400,
+            marginBottom: 20,
+            padding: "5px 7px",
+            borderRadius: "8px",
+            borderColor: "#d9f1f0",
+            backgroundColor: "#e0f7f9",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+          }}
+        />
+        <Button
+          style={{
+            marginTop: 5,
+          }}
+          className="btn-primary app-bg-primary font-semibold text-white"
+          onClick={() => setShowItemModal(true)}
+        >
+          Create route
+        </Button>
+      </Row>
 
       {loading ? (
         <Row justify="center" style={{ marginTop: 20 }}>
@@ -137,7 +163,7 @@ const RoutesList: React.FC = () => {
                 md={8}
                 lg={6}
                 style={{ cursor: "pointer" }}
-                onClick={() => handleCardClick(route.id)}
+                onClick={() => handleCardClick(route!.id!)}
               >
                 <div
                   style={{
@@ -185,13 +211,13 @@ const RoutesList: React.FC = () => {
                     </div>
 
                     <Tag
-                      color={statusMap[route.status]?.color || "default"}
+                      color={statusMap[route.status!]?.color || "default"}
                       style={{
-                        width: statusMap[route.status]?.width || "auto",
+                        width: statusMap[route.status!]?.width || "auto",
                         marginBottom: 15,
                       }}
                     >
-                      {statusMap[route.status]?.text || "Unknown"}
+                      {statusMap[route.status!]?.text || "Unknown"}
                     </Tag>
                   </div>
 
@@ -203,32 +229,10 @@ const RoutesList: React.FC = () => {
                   >
                     <Timeline>
                       <Timeline.Item style={{ fontSize: 14, color: "#155263" }}>
-                        {route.departure.name}:{" "}
-                        {new Date(route.departure_time).toLocaleString(
-                          undefined,
-                          {
-                            year: "numeric",
-                            month: "2-digit",
-                            day: "2-digit",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            hour12: true,
-                          }
-                        )}
+                        {route.departure!.name!}: {formatDate(route.departure_time!)}
                       </Timeline.Item>
                       <Timeline.Item style={{ fontSize: 14, color: "#155263" }}>
-                        {route.arrival.name}:{" "}
-                        {new Date(route.arrival_time).toLocaleString(
-                          undefined,
-                          {
-                            year: "numeric",
-                            month: "2-digit",
-                            day: "2-digit",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            hour12: true,
-                          }
-                        )}
+                        {route.arrival!.name!}: {formatDate(route.arrival_time!)}
                       </Timeline.Item>
                     </Timeline>
                   </ConfigProvider>
@@ -247,6 +251,11 @@ const RoutesList: React.FC = () => {
           )}
         </Row>
       )}
+      <RouteCreateModal
+        onCancel={() => setShowItemModal(false)}
+        onSuccess={() => getData(search)}
+        open={showItemModal}
+      ></RouteCreateModal>
     </div>
   );
 };

@@ -6,14 +6,16 @@ import { CreateRouteDto, RouteWithTransportDTO } from './routes.dto/create-route
 import { UpdateRouteDto } from './routes.dto/update-route-request.dto';
 import { PaginationDTO, SearchDTO } from '../users/create-user-request.dto';
 
+export type Routes = any;
+
 @Injectable()
 export class RoutesService {
 
     constructor(@InjectRepository(Route)
-    private routeRepository: Repository<any>
+    private routeRepository: Repository<Routes>
     ) { }
 
-    async findAll(): Promise<Route[]> {
+    async findAll(): Promise<Routes[]> {
         try {
             return await this.routeRepository.find();
         } catch (error) {
@@ -27,7 +29,7 @@ export class RoutesService {
 
         try {
             const query = this.routeRepository.createQueryBuilder('routes')
-                .leftJoinAndSelect('routes.transports', 'transport')
+                .leftJoinAndSelect('routes.transport', 'transport')
                 .leftJoinAndSelect('transport.shippingType', 'shippingType')
                 .leftJoinAndSelect('routes.departure', 'departure')
                 .leftJoinAndSelect('routes.arrival', 'arrival');
@@ -46,10 +48,10 @@ export class RoutesService {
     }
 
 
-    async findRouteByID(id: string): Promise<Route> {
+    async findRouteByID(id: string): Promise<Routes> {
         try {
             const route = await this.routeRepository.createQueryBuilder('routes')
-                .leftJoinAndSelect('routes.transports', 'transport')
+                .leftJoinAndSelect('routes.transport', 'transport') 
                 .leftJoinAndSelect('transport.shippingType', 'shippingType')
                 .leftJoinAndSelect('routes.departure', 'departure')
                 .leftJoinAndSelect('routes.arrival', 'arrival')
@@ -67,8 +69,20 @@ export class RoutesService {
         }
     }
 
-    async create(routeDto: CreateRouteDto): Promise<any> {
-        return await this.routeRepository.save(routeDto);
+    async create(routeDto: CreateRouteDto): Promise<Route> {
+        try {
+            const route = this.routeRepository.create({
+                ...routeDto,
+                transport: routeDto.transportID, // Setting transport relation
+                departure: routeDto.departureID, // Setting departure relation
+                arrival: routeDto.arrivalID, // Setting arrival relation
+            });
+            const savedRoute = await this.routeRepository.save(route);
+            return savedRoute; // Return the saved route
+        } catch (error) {
+            console.error('Error saving route:', error);
+            throw new Error('Failed to create route. Please try again later.');
+        }
     }
 
     async update(id: string, updateRouteDto: UpdateRouteDto): Promise<Route> {

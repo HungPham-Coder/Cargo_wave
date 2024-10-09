@@ -1,33 +1,33 @@
 import { IsString, IsDate, IsNumber, IsUUID } from 'class-validator';
 import { Route } from '../../entities/routes.entity';
+import { Type } from 'class-transformer';
 
 export class CreateRouteDto {
   @IsString()
   name: string;
 
   @IsDate()
+  @Type(() => Date)
   departure_time: Date;
 
   @IsDate()
+  @Type(() => Date)
   arrival_time: Date;
-
-  @IsNumber()
-  distance: number;
 
   @IsNumber()
   status: number;
 
-  @IsNumber()
-  flag: number;
+  @IsNumber({ maxDecimalPlaces: 5 }) 
+  distance: number;
 
   @IsUUID()
-  userID: string;
+  transportID: string;
 
   @IsUUID()
-  shipID: string;
+  departureID: string;
 
   @IsUUID()
-  locationID: string;
+  arrivalID: string;
 }
 
 export class ShippingTypeDTO {
@@ -35,21 +35,6 @@ export class ShippingTypeDTO {
   name: string;
 }
 
-export class TransportDTO {
-  id: string;
-  name: string;
-  license_plate: string;
-  status: number;
-  shippingType: ShippingTypeDTO; // Relation to ShippingType
-}
-
-export class LocationDTO {
-  id: string;
-  name: string;
-  address: string;
-  longitude: number; 
-  latitude: number;
-}
 
 export class RouteWithTransportDTO {
   route: Route; // Route entity

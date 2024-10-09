@@ -19,8 +19,8 @@ export class Location {
   latitude: number;  
 
   @OneToMany(() => Route, (route) => route.arrival) 
-  arrival: Route[];
+  routeArrival: Route[];
 
-  @OneToMany(() => Route, (route) => route.departure) 
-  departure: Route[];
+  @OneToMany(() => Route, (route) => route.transport) 
+  routeDeparture: Route[];
 }

@@ -46,10 +46,7 @@ const findRouteById = async (id: any) => {
 
 const createRoute = async (values: any) => {
   try {
-    const response = await BaseApi.post(
-      `/${resource}/createPermissions`,
-      values
-    );
+    const response = await BaseApi.post(`/${resource}/create`, values);
     return response.data;
   } catch (error) {
     console.log("Error create permission API: ", error);

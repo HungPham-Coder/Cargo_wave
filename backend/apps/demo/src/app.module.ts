@@ -15,6 +15,8 @@ import { ShippingType } from './entities/shippingType.entity';
 import { Location } from './entities/location.entity';
 import { Transport } from './entities/transport.entity';
 import { RoutesModule } from './routes/routes.module';
+import { TransportsModule } from './transports/transports.module';
+import { LocationsModule } from './locations/locations.module';
 
 
 @Module({
@@ -45,6 +47,8 @@ import { RoutesModule } from './routes/routes.module';
     RolesModule,
     PermissionsModule,
     RoutesModule,
+    LocationsModule,
+    TransportsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

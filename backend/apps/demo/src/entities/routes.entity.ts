@@ -2,6 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMan
 import { User } from './user.entity';
 import { Transport } from './transport.entity';
 import { Location } from './location.entity';
+import { Type } from 'class-transformer';
 
 @Entity()
 export class Route {
@@ -25,13 +26,13 @@ export class Route {
 
   @ManyToOne(() => Transport, transport => transport.routes)
   @JoinColumn({ name: "transportID" })
-  transports: Transport;
+  transport: Transport; // Changed to singular
 
-  @ManyToOne(() => Location, departure => departure.departure)
+  @ManyToOne(() => Location, departure => departure.routeDeparture) // Assuming 'departure' has a 'routes' relationship
   @JoinColumn({ name: "departureID" })
   departure: Location;
 
-  @ManyToOne(() => Location, arrival => arrival.arrival)
+  @ManyToOne(() => Location, arrival => arrival.routeArrival) // Assuming 'arrival' has a 'routes' relationship
   @JoinColumn({ name: "arrivalID" })
   arrival: Location;
 }
