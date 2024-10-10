@@ -18,14 +18,3 @@
   border: none !important; /* Remove border */
 }
 
-.custom-datepicker .ant-picker-input {
-  color: black;  /* Change input font color to black */
-}
-
-.custom-datepicker .ant-picker-cell-inner {
-  color: black;  /* Change day font color to black */
-}
-
-.content-background {
-  background-color: #E0F7FA; /* Set the background color here */
-}

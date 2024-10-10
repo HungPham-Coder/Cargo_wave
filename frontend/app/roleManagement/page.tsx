@@ -42,6 +42,7 @@ interface ColumnType<T> {
 interface Permission {
   id: string;
   name: string;
+  description: string;
   isDisabled: boolean;
 }
 

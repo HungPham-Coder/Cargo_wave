@@ -48,7 +48,7 @@ export class RoutesController {
         return await this.routeService.create(createRouteDto);
     }
 
-    @Put(':id')
+    @Put('updateRouteByID/:id')
     update(@Param('id') id: string, @Body() updateRouteDto: UpdateRouteDto) {
         return this.routeService.update(id, updateRouteDto);
     }

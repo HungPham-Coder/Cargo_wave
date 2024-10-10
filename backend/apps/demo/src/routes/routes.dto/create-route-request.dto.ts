@@ -17,9 +17,6 @@ export class CreateRouteDto {
   @IsNumber()
   status: number;
 
-  @IsNumber({ maxDecimalPlaces: 5 }) 
-  distance: number;
-
   @IsUUID()
   transportID: string;
 

@@ -18,21 +18,18 @@ export class Route {
   @Column()
   arrival_time: Date;
 
-  @Column('float')
-  distance: number;
-
   @Column()
   status: number;
 
   @ManyToOne(() => Transport, transport => transport.routes)
   @JoinColumn({ name: "transportID" })
-  transport: Transport; // Changed to singular
+  transport: Transport; 
 
-  @ManyToOne(() => Location, departure => departure.routeDeparture) // Assuming 'departure' has a 'routes' relationship
+  @ManyToOne(() => Location, departure => departure.routeDeparture) 
   @JoinColumn({ name: "departureID" })
   departure: Location;
 
-  @ManyToOne(() => Location, arrival => arrival.routeArrival) // Assuming 'arrival' has a 'routes' relationship
+  @ManyToOne(() => Location, arrival => arrival.routeArrival)   
   @JoinColumn({ name: "arrivalID" })
   arrival: Location;
 }

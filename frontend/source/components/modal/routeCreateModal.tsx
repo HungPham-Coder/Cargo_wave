@@ -102,7 +102,6 @@ const RouteCreateModal: React.FC<RouteCreateModalProps> = ({
       const body = await RouteApi.createRoute({
         ...values,
         status: Number(values.status),
-        distance: Number(values.distance),
       });
       if (body) {
         message.success("Route created successfully");
@@ -180,17 +179,6 @@ const RouteCreateModal: React.FC<RouteCreateModalProps> = ({
               </Select>
             </Form.Item>
           </Col>
-
-          <Col span={24}>
-            <Form.Item
-              label="Distance"
-              name="distance"
-              rules={[{ required: true, message: "Please enter the distance" }]}
-            >
-              <InputNumber placeholder="Enter route distance" min={0} />
-            </Form.Item>
-          </Col>
-
           <Col span={12}>
             <Form.Item
               label="Departure place"

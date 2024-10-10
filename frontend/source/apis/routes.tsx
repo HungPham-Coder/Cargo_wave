@@ -54,11 +54,11 @@ const createRoute = async (values: any) => {
   }
 };
 
-const updateRoleByID = async (id: string, name: any) => {
+const updateRouteByID = async (id: any, values: any) => {
   try {
     const response = await BaseApi.put(
-      `/${resource}/updatePermissionNameByID/${id}/name`,
-      { name }
+      `/${resource}/updateRouteByID/${id}`,
+      values
     );
     return response.data;
   } catch (error) {
@@ -70,7 +70,7 @@ const updateRoleByID = async (id: string, name: any) => {
 const RouteApi = {
   findAll,
   findAllBySearch,
-  updateRoleByID,
+  updateRouteByID,
   createRoute,
   findRouteById,
 };

@@ -46,7 +46,6 @@ interface Route {
   name?: string;
   departure_time?: string;
   arrival_time?: string;
-  distance?: number;
   status?: number;
   userID?: string;
   transportID?: string;

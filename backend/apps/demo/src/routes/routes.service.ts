@@ -51,7 +51,7 @@ export class RoutesService {
     async findRouteByID(id: string): Promise<Routes> {
         try {
             const route = await this.routeRepository.createQueryBuilder('routes')
-                .leftJoinAndSelect('routes.transport', 'transport') 
+                .leftJoinAndSelect('routes.transport', 'transport')
                 .leftJoinAndSelect('transport.shippingType', 'shippingType')
                 .leftJoinAndSelect('routes.departure', 'departure')
                 .leftJoinAndSelect('routes.arrival', 'arrival')
@@ -86,9 +86,20 @@ export class RoutesService {
     }
 
     async update(id: string, updateRouteDto: UpdateRouteDto): Promise<Route> {
-        await this.findRouteByID(id);
-        await this.routeRepository.update(id, updateRouteDto);
-        return this.findRouteByID(id);
+        try {
+            const existingRoute = await this.findRouteByID(id);
+
+            // Create a new route instance with the updated data
+            const updatedRoute = this.routeRepository.create({
+                ...existingRoute, 
+                ...updateRouteDto,
+            });
+            await this.routeRepository.save(updatedRoute);
+            return this.findRouteByID(id);
+        } catch (error) {
+            console.error('Error updating route:', error);
+            throw new Error('Failed to update route.');
+        }
     }
 
     async remove(id: string): Promise<void> {
