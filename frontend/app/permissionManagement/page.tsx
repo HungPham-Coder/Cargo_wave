@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams, useRouter } from "next/navigation"; // Import useSearchParams and useRouter
+import { useSearchParams, useRouter } from "next/navigation";
 import PermissionApi from "@/source/apis/permissions";
 import { BaseTable } from "@/source/components/baseTable";
 import PermissionModal from "@/source/components/modal/permissionModal";
@@ -46,8 +46,8 @@ const PermissionManagementList: React.FC = () => {
     { id?: string; name?: string; description?: string } | undefined
   >();
 
-  const searchParams = useSearchParams(); // Get search params
-  const router = useRouter(); // Get the router for navigation
+  const searchParams = useSearchParams(); 
+  const router = useRouter(); 
   const search = searchParams.get("search") || "";
 
   const getData = async (
@@ -89,7 +89,7 @@ const PermissionManagementList: React.FC = () => {
     setPermissionCreating(true);
     try {
       await PermissionApi.createPermission({ names });
-      getData(search, currentPage, true); // Use search param from the URL
+      getData(search, currentPage, true); 
     } catch (error) {
       message.error("Failed to create permissions");
       console.error("Failed to create permissions: ", error);
@@ -100,8 +100,8 @@ const PermissionManagementList: React.FC = () => {
 
   const handleSearch = (value: string) => {
     setCurrentPage(defaultPage);
-    router.push(`?search=${value}`); // Update URL query parameter with search term
-    getData(value, defaultPage, true); // Fetch data with the new search term
+    router.push(`?search=${value}`);
+    getData(value, defaultPage, true); 
   };
 
   const onPageChange = (current: number) => {
@@ -110,8 +110,8 @@ const PermissionManagementList: React.FC = () => {
   };
 
   useEffect(() => {
-    getData(search, defaultPage, true); // Fetch data on component mount
-  }, []); // Re-fetch data when search params change
+    getData(search, defaultPage, true); 
+  }, []);
 
   const columns: ColumnType<{
     key: string;
@@ -178,52 +178,54 @@ const PermissionManagementList: React.FC = () => {
   };
 
   return (
-    <div>
-      <BaseTable
-        rowKey="id"
-        title="Permission list"
-        loading={loading}
-        dataSource={
-          permissions?.data?.map((permission) => ({
-            key: permission.id,
-            ...permission,
-          })) || []
-        }
-        columns={columns}
-        pagination={{
-          onChange: onPageChange,
-          pageSize: PageSize.PERMISSION_LIST,
-          total: permissions.total,
-        }}
-        searchOptions={{
-          visible: true,
-          placeholder: "Search permissions...",
-          onSearch: handleSearch,
-          width: 300,
-        }}
-        // addButton={
-        //   <Button
-        //     type="primary"
-        //     className="btn-primary app-bg-primary font-semibold text-white"
-        //     onClick={() => setShowItemModal(true)}
-        //   >
-        //     Create permission
-        //   </Button>
-        // }
-      />
-      <PermissionUpdateModal
-        onCancel={() => setShowUpdatePermissionNameModal(false)}
-        onSuccess={() => getData(undefined, defaultPage, true)}
-        open={showUpdatePermissionNameModal}
-        data={selectedpermission}
-      />
-      <PermissionModal
-        onCancel={() => setShowItemModal(false)}
-        onSuccess={() => getData(undefined, defaultPage, true)}
-        open={showItemModal}
-        data={undefined}
-      />
-    </div>
+    <Suspense fallback={<div>Loading...</div>}>
+      <div>
+        <BaseTable
+          rowKey="id"
+          title="Permission list"
+          loading={loading}
+          dataSource={
+            permissions?.data?.map((permission) => ({
+              key: permission.id,
+              ...permission,
+            })) || []
+          }
+          columns={columns}
+          pagination={{
+            onChange: onPageChange,
+            pageSize: PageSize.PERMISSION_LIST,
+            total: permissions.total,
+          }}
+          searchOptions={{
+            visible: true,
+            placeholder: "Search permissions...",
+            onSearch: handleSearch,
+            width: 300,
+          }}
+          // addButton={
+          //   <Button
+          //     type="primary"
+          //     className="btn-primary app-bg-primary font-semibold text-white"
+          //     onClick={() => setShowItemModal(true)}
+          //   >
+          //     Create permission
+          //   </Button>
+          // }
+        />
+        <PermissionUpdateModal
+          onCancel={() => setShowUpdatePermissionNameModal(false)}
+          onSuccess={() => getData(undefined, defaultPage, true)}
+          open={showUpdatePermissionNameModal}
+          data={selectedpermission}
+        />
+        <PermissionModal
+          onCancel={() => setShowItemModal(false)}
+          onSuccess={() => getData(undefined, defaultPage, true)}
+          open={showItemModal}
+          data={undefined}
+        />
+      </div>
+    </Suspense>
   );
 };
 
