@@ -1,6 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany } from 'typeorm';
 import { Role } from './role.entity';
-import { Log } from './log.entity';
 
 @Entity()
 export class Permission {
@@ -10,7 +9,7 @@ export class Permission {
   @Column()
   name: string;
 
-  @Column()
+  @Column({ nullable: true })
   description: string;
 
   @Column({ nullable: true })
@@ -18,7 +17,4 @@ export class Permission {
 
   @ManyToMany(() => Role, (roles) => roles.permissions)
   roles: Role[]
-
-  @OneToMany(() => Log, (logs) => logs.permissions)
-  logs: Log[]
 }

@@ -9,6 +9,7 @@ import { MicroserviceClientModule } from '../microservice-client/microservice-cl
     MicroserviceClientModule
   ],
   providers: [UsersService],
-  controllers: [UsersController]
+  controllers: [UsersController],
+  exports: [UsersService], 
 })
 export class UsersModule {}

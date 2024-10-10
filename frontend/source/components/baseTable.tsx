@@ -9,7 +9,7 @@ import {
   Table,
   Typography,
 } from "antd";
-import React, { useEffect, useRef, useState } from "react";
+import React, { Key, useEffect, useRef, useState } from "react";
 import type { TableProps, ColumnType as AntdColumnType } from "antd/es/table";
 
 const { Title, Text } = Typography;
@@ -27,6 +27,7 @@ interface CustomColumnType<RecordType> extends AntdColumnType<RecordType> {
     width?: number | string;
     filterOptions?: FilterOptions[];
   };
+  onFilter?: (value: boolean | Key, record: RecordType) => boolean; // Update this line
 }
 
 interface SearchOptions {
@@ -90,7 +91,6 @@ export const BaseTable = <RecordType extends object>({
 
   return (
     <div style={{ marginLeft: "2%", marginRight: "2%", marginTop: 10 }}>
-      {/* Header */}
       <Row justify="space-between" style={{ marginBottom: 20 }}>
         <Col>
           <Space align="center">
@@ -103,18 +103,16 @@ export const BaseTable = <RecordType extends object>({
         </Col>
         <Row>
           <Col>{addButton}</Col>
-          <Col>{actions}</Col>
         </Row>
       </Row>
 
-      {/* Filters and search */}
       <Row gutter={16} justify="space-between" style={{ marginBottom: 15 }}>
         {visible && (
           <Col>
             <Input.Search
               placeholder={placeholder ?? "Search..."}
               onSearch={onSearch}
-              style={{ width: width || 200}}
+              style={{ width: width || 200 }}
             />
           </Col>
         )}
@@ -177,10 +175,12 @@ export const BaseTable = <RecordType extends object>({
               );
             }
           )}
+        <Col>{actions}</Col>
       </Row>
 
-      {/* Table */}
+      {/* Table with margin */}
       <Table<RecordType>
+        className="custom-table"
         rowKey={rowKey}
         pagination={
           pagination === false

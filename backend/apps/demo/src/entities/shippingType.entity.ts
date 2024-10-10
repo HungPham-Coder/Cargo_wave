@@ -1,9 +1,9 @@
-import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Ship } from "./ship.entity";
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Transport } from "./transport.entity";
 
 @Entity()
 export class ShippingType {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn("uuid")
     id: string;
 
     @Column()
@@ -12,7 +12,6 @@ export class ShippingType {
     @Column()
     status: string;
 
-    @OneToOne(() => Ship, ship => ship.shipping)
-    @JoinColumn({name: "shipID"})
-    ship: Ship;
+    @OneToMany(() => Transport, (transport) => transport.shippingType)
+    transports: Transport[]
 }

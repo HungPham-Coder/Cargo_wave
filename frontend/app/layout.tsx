@@ -10,6 +10,7 @@ import { Layout } from "antd";
 import AppSider from "@/source/layouts/sider";
 import { usePathname } from "next/navigation";
 import routes from "@/source/router/routes";
+import { Suspense } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,7 +25,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
   const pathname = usePathname(); // Get the router instance
   const isLoginPage = pathname === routes.login; // Check if the current route is the login page
   const isRegisterPage = pathname === routes.register;
@@ -41,7 +41,9 @@ export default function RootLayout({
             <AppHeader />
             <Layout>
               {!isLoginPage && !isRegisterPage && !isForgotPage && <AppSider />}{" "}
-              <Content style={contentLayout}>{children}</Content>
+              <Suspense fallback={<div>Loading...</div>}>
+                <Content style={contentLayout}>{children}</Content>
+              </Suspense>
             </Layout>
             <AppFooter />
           </Layout>

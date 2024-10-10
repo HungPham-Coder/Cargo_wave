@@ -1,7 +1,8 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { User } from './user.entity';
-import { Ship } from './ship.entity';
-import { Log } from './log.entity';
+import { Transport } from './transport.entity';
+import { Location } from './location.entity';
+import { Type } from 'class-transformer';
 
 @Entity()
 export class Route {
@@ -12,12 +13,6 @@ export class Route {
   name: string
 
   @Column()
-  port_start: string;
-
-  @Column()
-  port_end: string;
-
-  @Column()
   departure_time: Date;
 
   @Column()
@@ -26,17 +21,15 @@ export class Route {
   @Column()
   status: number;
 
-  @Column()
-  flag: number;
+  @ManyToOne(() => Transport, transport => transport.routes)
+  @JoinColumn({ name: "transportID" })
+  transport: Transport; 
 
-  @ManyToOne(() => User, user => user.routes)
-  @JoinColumn({ name: "userID" })
-  users: User;
+  @ManyToOne(() => Location, departure => departure.routeDeparture) 
+  @JoinColumn({ name: "departureID" })
+  departure: Location;
 
-  @ManyToOne(() => Ship, ships => ships.routes)
-  @JoinColumn({ name: "shipID" })
-  ships: Ship;
-
-  @OneToMany(() => Log, (logs) => logs.routes)
-  logs: Log[]
+  @ManyToOne(() => Location, arrival => arrival.routeArrival)   
+  @JoinColumn({ name: "arrivalID" })
+  arrival: Location;
 }

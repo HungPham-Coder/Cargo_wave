@@ -1,15 +1,38 @@
-export class CreateRouteDTO{
-    name: string;
+import { IsString, IsDate, IsNumber, IsUUID } from 'class-validator';
+import { Route } from '../../entities/routes.entity';
+import { Type } from 'class-transformer';
 
-    port_start: string;
+export class CreateRouteDto {
+  @IsString()
+  name: string;
 
-    port_end: string;
+  @IsDate()
+  @Type(() => Date)
+  departure_time: Date;
 
-    departure_time: Date;
+  @IsDate()
+  @Type(() => Date)
+  arrival_time: Date;
 
-    arrival_time: Date;
+  @IsNumber()
+  status: number;
 
-    id_user: string;
+  @IsUUID()
+  transportID: string;
 
-    id_ship: string;
+  @IsUUID()
+  departureID: string;
+
+  @IsUUID()
+  arrivalID: string;
+}
+
+export class ShippingTypeDTO {
+  id: string;
+  name: string;
+}
+
+
+export class RouteWithTransportDTO {
+  route: Route; // Route entity
 }

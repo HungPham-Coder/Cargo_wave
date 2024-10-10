@@ -5,13 +5,16 @@ const resource = "roles";
 const findAllWithPaging = async (
   search: string,
   pageIndex: number,
-  pageSize: number
+  pageSize: number,
+  status: boolean
 ): Promise<any> => {
   try {
     const params: any = {
       ...(pageIndex && { pageIndex }),
       ...(pageSize && { pageSize }),
       ...(search && { search }),
+      ...(status && { status }),
+
     };
 
     const response = await BaseApi.get(`/${resource}/findAllWithPaging`, { params });
@@ -83,12 +86,39 @@ const assignPermissionsToRole = async (
   }
 };
 
+
+const getPermissionsByRoleId = async (id: string) => {
+  try {
+    const response = await BaseApi.get(
+      `/${resource}/getPermissionsByRoleId/${id}`
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Error findAll class: ", error);
+    return false;
+  }
+};
+
+const getPermissionsNotAssignedByRoleId = async (id: string) => {
+  try {
+    const response = await BaseApi.get(
+      `/${resource}/getPermissionsNotAssignedByRoleId/${id}`
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Error findAll class: ", error);
+    return false;
+  }
+};
+
 const RoleApi = {
   findAllWithPaging,
   createRole,
   updateRoleNameByID,
   updateRoleStatus,
   assignPermissionsToRole,
+  getPermissionsByRoleId,
+  getPermissionsNotAssignedByRoleId,
 };
 
 export default RoleApi;

@@ -64,7 +64,6 @@ export class PermissionsController {
             return updatedPermissionStatus;
         } catch (error) {
             throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
-
         }
     }
 

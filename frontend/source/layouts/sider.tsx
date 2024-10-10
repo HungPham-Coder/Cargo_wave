@@ -107,6 +107,7 @@ const AppSider: React.FC = () => {
           icon: <UserToUserTransmission size={iconSize} fill="#FFF" />,
           key: "permissionManagement",
         },
+      
       ],
     },
     { type: "divider" },

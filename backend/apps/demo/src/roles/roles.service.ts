@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { CreateRoleDTO } from './roles.dto/create-role-request.dto';
@@ -24,28 +24,35 @@ export class RolesService {
 
   // Method to find all roles
   async findAllWithPaging(paginationDTO: PaginationDTO): Promise<{ data: Roles[], total: number }> {
-    const { search = '', pageIndex = 0, pageSize = 10 } = paginationDTO;
+    const { search = '', pageIndex = 0, pageSize = 10, status } = paginationDTO;
 
-    // Ensure pageIndex and pageSize are numbers
     const pageIndexNumber = Number(pageIndex);
     const pageSizeNumber = Number(pageSize);
 
     try {
-      // Build query with or without search filter
-      const query = this.rolesRepository.createQueryBuilder('roles').leftJoinAndSelect('roles.permissions', 'permissions');;
+      const query = this.rolesRepository.createQueryBuilder('roles')
+        .leftJoinAndSelect('roles.permissions', 'permissions');
 
+      // Filter by search term if provided
       if (search) {
         query.where('LOWER(roles.name) LIKE LOWER(:search)', { search: `%${search.toLowerCase()}%` });
       }
-      query.orderBy('roles.isDisabled', 'ASC').addOrderBy('roles.name', 'ASC');
-      // Execute queries in parallel: one for data and one for total count
-      const [data, total] = await Promise.all([
-        query.skip(pageIndexNumber * pageSizeNumber)
-          .take(pageSizeNumber)
-          .getMany(),
 
-        query.getCount(),
-      ]);
+      // Apply the status filter if it's defined
+      if (status !== undefined) {
+        query.andWhere('roles.isDisabled = :status', { status });
+      }
+
+      // Count the total number of results after filtering
+      const total = await query.getCount();
+
+      // Apply pagination and get the data
+      const data = await query
+        .skip(pageIndexNumber * pageSizeNumber)
+        .take(pageSizeNumber)
+        .orderBy('roles.isDisabled', 'ASC')
+        .addOrderBy('roles.name', 'ASC')
+        .getMany();
 
       return { data, total };
     } catch (error) {
@@ -53,6 +60,8 @@ export class RolesService {
       throw new Error('Error finding roles');
     }
   }
+
+
   // Method to find a role by name
   async findOneByName(name: string): Promise<Roles> {
     try {
@@ -91,23 +100,22 @@ export class RolesService {
   // Method to update the status of a role
   async updateRoleStatus(id: string, isDisabled: boolean): Promise<Role | null> {
     try {
-      // Find the role by ID
       const role = await this.rolesRepository.findOne({ where: { id } });
-
       if (!role) {
         console.error(`Role with ID ${id} not found.`);
-        return null;
+        throw new HttpException(`Role with ID ${id} not found.`, HttpStatus.NOT_FOUND);
       }
-      // Set the role's status based on the isDisabled flag
+
+      // Update the role's isDisabled status
       role.isDisabled = isDisabled;
-      // Save the updated role
+
+      // Save the updated role and return the result
       return await this.rolesRepository.save(role);
     } catch (error) {
       console.error('Error updating role status:', error);
-      throw new Error('Error updating role status');
+      throw new HttpException('Error updating role status: ' + error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-
   // Method to update the name of a role by ID
   async updateRoleName(id: string, newName: string): Promise<Role | null> {
     try {
@@ -174,4 +182,39 @@ export class RolesService {
 
     return await this.rolesRepository.save(role); // Save and return the updated role
   }
+
+  // Method to get permissions assigned to a role by ID
+async getPermissionsByRoleId(roleId: string): Promise<Permission[]> {
+  const role = await this.rolesRepository.findOne({
+    where: { id: roleId },
+    relations: ['permissions'], // Load permissions relation
+  });
+
+  if (!role) {
+    throw new Error('Role not found');
+  }
+
+  return role.permissions; // Return the assigned permissions
+}
+
+// Method to get permissions not assigned to a role by ID
+async getPermissionsNotAssignedByRoleId(roleId: string): Promise<Permission[]> {
+  const role = await this.rolesRepository.findOne({
+    where: { id: roleId },
+    relations: ['permissions'], // Load permissions relation
+  });
+
+  if (!role) {
+    throw new Error('Role not found');
+  }
+
+  // Fetch all permissions from the database
+  const allPermissions = await this.permissionRepository.find();
+
+  // Filter out the permissions that are already assigned to the role
+  const assignedPermissionIds = new Set(role.permissions.map(permission => permission.id));
+  const notAssignedPermissions = allPermissions.filter(permission => !assignedPermissionIds.has(permission.id));
+
+  return notAssignedPermissions; // Return the not assigned permissions
+}
 }

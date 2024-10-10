@@ -1,10 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ApiGatewayController } from './api-gateway.controller';
-import { AuthService } from './auth/auth.service';
 import { AuthModule } from './auth/auth.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { UsersModule} from './users/users.module';
-import { UsersService } from './users/users.service';
+import { UsersModule } from './users/users.module';
 import { ApiGatewayService } from './api-gateway.service';
 import { MicroserviceClientModule } from './microservice-client/microservice-client.module';
 import { NotificationModule } from './notification/notification.module';
@@ -20,4 +18,4 @@ import { NotificationModule } from './notification/notification.module';
   providers: [ ApiGatewayService],
 
 })
-export class ApiGatewayModule {}
+export class ApiGatewayModule { }

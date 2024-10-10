@@ -4,10 +4,10 @@ import { CreateUserDTO } from 'apps/demo/src/users/create-user-request.dto';
 
 @Controller('users')
 export class UsersController {
-    constructor (private readonly userService: UsersService){}
+    constructor(private readonly userService: UsersService) { }
 
-    @Get()
-    findAll(){
+    @Get('findAll')
+    async findAll() {
         return this.userService.findAll();
     }
 

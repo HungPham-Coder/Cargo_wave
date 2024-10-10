@@ -1,8 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToMany, JoinTable, OneToOne } from 'typeorm';
 import { Role } from './role.entity';
 import { Route } from './routes.entity';
-import { Crew } from './crew.entity';
-import { Log } from './log.entity';
 import { RefreshToken } from './refreshToken.entity';
 import { UserPreference } from './user-preference.entity';
 
@@ -48,15 +46,6 @@ export class User {
     name: 'user_role'
   })
   roles: Role[]
-
-  @OneToMany(() => Crew, (crews) => crews.users)
-  crews: Crew[]
-
-  @OneToMany(() => Route, (routes) => routes.users)
-  routes: Route[]
-
-  @OneToMany(() => Log, (logs) => logs.users)
-  logs: Log[]
 
   @OneToMany(() => RefreshToken, (refreshTokens) => refreshTokens.users)
   refreshTokens: RefreshToken[]

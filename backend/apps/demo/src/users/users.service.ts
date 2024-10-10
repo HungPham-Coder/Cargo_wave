@@ -20,8 +20,9 @@ export class UsersService {
     return await this.usersRepository.save(userDto);
   }
 
-  findAll(): Promise<Users[]> {
-    return this.usersRepository.find({ relations: ['roles'] });
+  async findAll(): Promise<Users[]> {
+    const users = await this.usersRepository.find({ relations: ['roles'] });
+    return users; // This should return an array of users
   }
 
   async findByEmail(email: string): Promise<Users | null> {

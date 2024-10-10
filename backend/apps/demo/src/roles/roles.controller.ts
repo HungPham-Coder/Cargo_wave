@@ -4,6 +4,7 @@ import { CreateRoleDTO } from './roles.dto/create-role-request.dto';
 import { AssignPermissionDTO } from './roles.dto/assign-permission-dto';
 import { UpdatePermissionsDTO } from './roles.dto/update-permission-request-dto';
 import { PaginationDTO } from '../users/create-user-request.dto';
+import { Permission } from '../entities/permission.entity';
 
 @Controller('roles')
 export class RolesController {
@@ -37,7 +38,6 @@ export class RolesController {
         @Param('id') id: string,
         @Param('isDisabled') isDisabled: string // This will be a string in URL
     ) {
-        // Convert isDisabled to a boolean
         try {
             const isDisabledBool = isDisabled.toLowerCase() === 'true';
             const body = this.roleService.updateRoleStatus(id, isDisabledBool);
@@ -82,5 +82,20 @@ export class RolesController {
         } catch (error) {
             throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    // Endpoint to get permissions assigned to a role by ID
+    
+    @HttpCode(HttpStatus.OK)
+    @Get('getPermissionsByRoleId/:id')
+    async getPermissions(@Param('id') id: string): Promise<Permission[]> {
+        return this.roleService.getPermissionsByRoleId(id);
+    }
+
+    // Endpoint to get permissions not assigned to a role by ID
+    @HttpCode(HttpStatus.OK)
+    @Get('getPermissionsNotAssignedByRoleId/:id')
+    async getPermissionsNotAssigned(@Param('id') id: string): Promise<Permission[]> {
+        return this.roleService.getPermissionsNotAssignedByRoleId(id);
     }
 }

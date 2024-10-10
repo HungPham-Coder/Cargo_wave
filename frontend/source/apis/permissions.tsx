@@ -16,7 +16,10 @@ const findAll = async () => {
 const findPermissionEnabled = async () => {
   try {
     // Make API request with proper params
-    const response = await BaseApi.get(`/${resource}/findPermissionEnabled`, {});
+    const response = await BaseApi.get(
+      `/${resource}/findPermissionEnabled`,
+      {}
+    );
     console.log("Respone: ", response.data);
     return response.data;
   } catch (error) {
@@ -99,7 +102,6 @@ const updatePermissionStatus = async (
 };
 
 
-
 const PermissionApi = {
   findAll,
   findPermissionEnabled,
@@ -107,6 +109,7 @@ const PermissionApi = {
   updatePermissionByID,
   createPermission,
   updatePermissionStatus,
+  
 };
 
 export default PermissionApi;

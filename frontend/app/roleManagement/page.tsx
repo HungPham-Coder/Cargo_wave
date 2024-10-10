@@ -7,16 +7,26 @@ import RolePermissionModal from "@/source/components/modal/rolePermissionModal";
 import RoleUpdateModal from "@/source/components/modal/roleUpdateModal";
 import { PageSize } from "@/source/constants/app";
 import { Forbid, ListAdd, More, Unlock, User } from "@icon-park/react";
-import { Button, Dropdown, MenuProps, message } from "antd";
+import {
+  Button,
+  Col,
+  Dropdown,
+  MenuProps,
+  message,
+  Select,
+  Tag,
+  Tooltip,
+} from "antd";
 import confirm from "antd/es/modal/confirm";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 interface ColumnType<T> {
   title: string;
   dataIndex: keyof T | "index" | "action";
   key: string;
   width?: string;
+  maxwidth?: string;
   render?: (text: any, record: T, index: number) => JSX.Element;
   sorter?: (a: T, b: T) => number;
   filter?: {
@@ -32,6 +42,7 @@ interface ColumnType<T> {
 interface Permission {
   id: string;
   name: string;
+  description: string;
   isDisabled: boolean;
 }
 
@@ -61,9 +72,9 @@ const RoleManagementList: React.FC = () => {
   const defaultPage = 1;
   const [showItemModal, setShowItemModal] = useState(false);
   const [roleCreating, setRoleCreating] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
   const [showUpdateRoleNameModal, setShowUpdateRoleNameModal] = useState(false);
   const [assignPermissionModal, setAssignPermissionModal] = useState(false);
+  const [isDeleted, setIsDeletedModal] = useState(false);
   const [selectedRole, setSelectedRole] = useState<SelectedRole | undefined>();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -72,18 +83,39 @@ const RoleManagementList: React.FC = () => {
   const getData = async (
     search?: string,
     pageIndex?: number,
-    handleLoading?: boolean
+    handleLoading?: boolean,
+    status?: boolean
   ) => {
     if (handleLoading) {
       setLoading(true);
     }
     try {
+      console.log("Fetching data with params:", {
+        search,
+        pageIndex,
+        pageSize: PageSize.ROLE_LIST,
+        status,
+      });
+
       const response: RolesResponse = await RoleApi.findAllWithPaging(
         search!,
         pageIndex! - 1,
-        PageSize.ROLE_LIST
+        PageSize.ROLE_LIST,
+        status!
       );
       setRoles(response);
+      setIsDeletedModal(status!);
+
+      const url = new URL(window.location.href);
+      url.searchParams.set("search", search!);
+      url.searchParams.set("pageSize", PageSize.ROLE_LIST.toString());
+      url.searchParams.set("pageIndex", pageIndex!.toString());
+      if (status !== undefined) {
+        url.searchParams.set("status", status.toString());
+      } else {
+        url.searchParams.delete("status");
+      }
+      router.push(url.toString());
     } catch (error) {
       message.error("Failed to fetch roles");
       console.error("Failed to fetch roles: ", error);
@@ -91,8 +123,6 @@ const RoleManagementList: React.FC = () => {
       setLoading(false);
     }
   };
-
-  console.log("Roles: ", roles);
 
   const handleCreateRoles = async (names: string[]) => {
     setRoleCreating(true);
@@ -112,7 +142,7 @@ const RoleManagementList: React.FC = () => {
       await RoleApi.updateRoleStatus(roleID, isDisabled);
       message.success("Role status updated successfully");
       // Refresh list with current search term and page
-      getData(searchTerm, currentPage, true);
+      getData(search, currentPage, true);
     } catch (error) {
       message.error("Failed to update role status");
       console.error("Failed to update role status: ", error);
@@ -120,7 +150,7 @@ const RoleManagementList: React.FC = () => {
   };
   const handleSearch = (value: string) => {
     setCurrentPage(defaultPage);
-    router.push(`?search=${value}`); 
+    router.push(`?search=${value}`);
     getData(value, defaultPage, true);
   };
 
@@ -129,8 +159,16 @@ const RoleManagementList: React.FC = () => {
     getData(search, current, false);
   };
 
+  const handleChange = (value: string) => {
+    if (value) {
+      getData(search, defaultPage, true, !value);
+    }
+    console.log("Value", getData(search, defaultPage, true, !value));
+  };
+
   useEffect(() => {
-    getData(search, defaultPage, true);
+    
+    getData(search, defaultPage, true, isDeleted);
   }, []);
 
   const columns: ColumnType<{
@@ -155,22 +193,29 @@ const RoleManagementList: React.FC = () => {
       title: "Role name",
       dataIndex: "name",
       key: "name",
-      width: "30%",
+      width: "20%",
       sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
       title: "Permissions",
       dataIndex: "permissions",
       key: "permissions",
+      width: "40%",
       render: (permissions: Permission[]) => (
-        <span>
-          {permissions.map((permission, i) => (
-            <div key={permission.id}>
-              {" "}
-              {i + 1}. {permission.name}
-            </div>
-          ))}
-        </span>
+        <div>
+          {permissions.length > 0 ? (
+            permissions
+              .slice() // Create a shallow copy to avoid mutating the original array
+              .sort((a, b) => a.name.localeCompare(b.name)) // Sort by permission name
+              .map((permission) => (
+                <Tag key={permission.id} color="blue">
+                  {permission.name}
+                </Tag>
+              ))
+          ) : (
+            <span>No permissions assigned</span>
+          )}
+        </div>
       ),
     },
     {
@@ -187,20 +232,6 @@ const RoleManagementList: React.FC = () => {
           {!isDisabled ? "In use" : "Disabled"}
         </span>
       ),
-      filter: {
-        placeholder: "Role status",
-        label: "Status",
-        filterOptions: [
-          {
-            label: "In use",
-            value: false,
-          },
-          {
-            label: "Disabled",
-            value: true,
-          },
-        ],
-      },
       sorter: (a, b) => Number(a.isDisabled) - Number(b.isDisabled),
     },
     {
@@ -209,7 +240,7 @@ const RoleManagementList: React.FC = () => {
       key: "action",
       render: (_, record: any) => (
         <Dropdown menu={{ items: getActionItems(record) }}>
-          <Button icon={<More />} />
+          <Button icon={<More size={24} />} />
         </Dropdown>
       ),
     },
@@ -305,6 +336,19 @@ const RoleManagementList: React.FC = () => {
             Create role
           </Button>
         }
+        actions={
+          <Col>
+            <span className="mr-2">Status: </span>
+            <Select
+              style={{ width: 120 }}
+              onChange={handleChange}
+              options={[
+                { value: true, label: "In use" },
+                { value: false, label: "Disabled" },
+              ]}
+            />
+          </Col>
+        }
       />
       <RoleUpdateModal
         onCancel={() => setShowUpdateRoleNameModal(false)}
@@ -316,7 +360,6 @@ const RoleManagementList: React.FC = () => {
         onCancel={() => setShowItemModal(false)}
         onSuccess={() => getData(undefined, defaultPage, true)}
         open={showItemModal}
-        data={undefined}
       />
       <RolePermissionModal
         onCancel={() => setAssignPermissionModal(false)}

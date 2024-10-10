@@ -1,5 +1,5 @@
-import { Type } from "class-transformer";
-import { IsDate, IsEmail, IsInt, IsNotEmpty, IsOptional, IsString, Min } from "class-validator";
+import { Transform, Type } from "class-transformer";
+import { IsBoolean, IsDate, IsEmail, IsInt, IsNotEmpty, IsOptional, IsString, Min } from "class-validator";
 import userError from "../constants/errorCode/userError";
 
 export class LoginDTO {
@@ -25,8 +25,8 @@ export class CreateUserDTO {
     @IsEmail({}, { message: userError.US_04.message })
     email: string;
 
-    // @IsNotEmpty(userError.US_05)
-    // @IsDate(userError.US_06)
+    @IsNotEmpty(userError.US_05)
+    @IsDate(userError.US_06)
     dob: Date;
 
     @IsNotEmpty(userError.US_07)
@@ -53,16 +53,26 @@ export class PaginationDTO {
     @IsOptional()
     @IsString()
     search?: string;
-  
+
     @IsOptional()
     @Type(() => Number)
     @IsInt()
     @Min(0)
     pageIndex?: number = 0;
-  
+
     @IsOptional()
     @Type(() => Number)
     @IsInt()
     @Min(1)
     pageSize?: number = 10;
-  }
+
+    @IsOptional()
+    @IsBoolean()
+    status?: boolean;
+}
+
+export class SearchDTO {
+    @IsOptional()
+    @IsString()
+    search?: string;
+}
