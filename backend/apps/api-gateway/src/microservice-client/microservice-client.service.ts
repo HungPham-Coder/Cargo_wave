@@ -16,19 +16,7 @@ export class MicroserviceClientService {
         this.client.subscribeToResponseOf('hero.user.findByEmail');
         this.client.subscribeToResponseOf('hero.user.createUser');
         this.client.subscribeToResponseOf('hero.user.removeUser');
-
-        //permission
-        this.client.subscribeToResponseOf('hero.permission.findAll');
-        this.client.subscribeToResponseOf('hero.permission.findAllWithPaging');
-
-        //roles
-        this.client.subscribeToResponseOf('hero.role.findAllWithPaging');
-        this.client.subscribeToResponseOf('hero.role.findOneByName');
-        this.client.subscribeToResponseOf('hero.role.create');
-        this.client.subscribeToResponseOf('hero.role.updateRoleStatus');
-        this.client.subscribeToResponseOf('hero.role.updateRoleNameByID');
-        this.client.subscribeToResponseOf('hero.role.assignPermissions');
-
+        this.client.subscribeToResponseOf('hero.notification');
         await this.client.connect();
     }
 }
