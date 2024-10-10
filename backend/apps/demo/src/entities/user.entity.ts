@@ -4,7 +4,8 @@ import { Route } from './routes.entity';
 import { Crew } from './crew.entity';
 import { Log } from './log.entity';
 import { RefreshToken } from './refreshToken.entity';
-import { UserPreference } from './user-preference.entity';
+import { UserPreference } from './userPreference.entity';
+
 
 @Entity()
 export class User {

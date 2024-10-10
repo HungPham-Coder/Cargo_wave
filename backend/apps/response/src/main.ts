@@ -1,9 +1,10 @@
 import { NestFactory } from '@nestjs/core';
-import { NotificationModule } from './notification.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { ResponseModule } from './response.module';
+
 
 async function bootstrap() {
-  const app = await NestFactory.createMicroservice <MicroserviceOptions>(NotificationModule, {
+  const app = await NestFactory.createMicroservice <MicroserviceOptions>(ResponseModule, {
     transport: Transport.KAFKA,
     options: {
       client: {

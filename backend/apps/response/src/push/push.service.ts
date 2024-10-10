@@ -1,10 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { UsersService } from 'apps/demo/src/users/users.service';
+import { UserPreferenceService } from 'apps/demo/src/user-preference/user-preference.service';
 import * as admin from 'firebase-admin';
-
 @Injectable()
 export class PushService {
-    constructor(private readonly userService: UsersService) {
+    constructor(private readonly userService: UserPreferenceService) {
         admin.initializeApp({
             credential: admin.credential.cert({
                 projectId: process.env.FIREBASE_PROJECT_ID,

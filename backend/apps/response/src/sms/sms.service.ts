@@ -1,11 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { UsersService } from 'apps/demo/src/users/users.service';
+import { UserPreferenceService } from 'apps/demo/src/user-preference/user-preference.service';
 import * as Twilio from 'twilio'
+
 @Injectable()
 export class SmsService {
     private readonly client;
 
-    constructor(private readonly userService: UsersService){
+    constructor(private readonly userService: UserPreferenceService){
         this.client = Twilio (process.env.TWILIO_ACCCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
     }
 
@@ -16,7 +17,7 @@ export class SmsService {
         }
 
         try {
-            const response =  await this.client.create (
+            const response =  await this.client.message.create (
                 {
                     body: message,
                     from: process.env.TWILIO_PHONE_NUMBER,

@@ -18,8 +18,11 @@ import { VehicleType } from './entities/vehicleType.entity';
 import { ShippingType } from './entities/shippingType.entity';
 
 import { NotificationModule } from './notification/notification.module';
-import { UserPreference } from './entities/user-preference.entity';
+import { UserPreferenceService } from './user-preference/user-preference.service';
 import { UserPreferenceModule } from './user-preference/user-preference.module';
+import { UserPreference } from './entities/userPreference.entity';
+
+
 
 @Module({
   imports: [
@@ -66,6 +69,7 @@ export class AppModule { }
 // import { TypeOrmModule } from '@nestjs/typeorm';
 // import { AuthModule } from './auth/auth.module';
 // import { UsersModule } from './users/users.module';
+
 
 
 // import typeorm from './config/typeorm';

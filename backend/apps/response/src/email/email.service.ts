@@ -1,10 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+
 import * as sgMail from '@sendgrid/mail';
-import { UserPreferenceService } from '../../../demo/src/user-preference/user-preference.service';
-import { UsersService } from 'apps/demo/src/users/users.service';
+import { UserPreferenceService } from 'apps/demo/src/user-preference/user-preference.service';
+
+
 @Injectable()
 export class EmailService {
-    constructor(private readonly userService: UsersService){
+    constructor(private readonly userService: UserPreferenceService){
         sgMail.setApiKey(process.env.SENDGRID_API_KEY);
     }
 

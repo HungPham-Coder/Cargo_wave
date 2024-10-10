@@ -1,13 +1,11 @@
 import { Module } from '@nestjs/common';
-import { UserPreference } from '../entities/user-preference.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-
+import { UserPreference } from '../entities/userPreference.entity';
+import { UserPreferenceService } from './user-preference.service';
 
 @Module({
     imports: [TypeOrmModule.forFeature([UserPreference])],
-    providers: [UserPreference],
-
+    providers: [UserPreferenceService],
+    exports: [UserPreferenceService]
 })
-export class UserPreferenceModule {
-   
-}
+export class UserPreferenceModule {}
