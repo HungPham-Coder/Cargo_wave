@@ -178,7 +178,6 @@ const PermissionManagementList: React.FC = () => {
   };
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
       <div>
         <BaseTable
           rowKey="id"
@@ -225,7 +224,6 @@ const PermissionManagementList: React.FC = () => {
           data={undefined}
         />
       </div>
-    </Suspense>
   );
 };
 

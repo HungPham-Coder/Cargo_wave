@@ -304,7 +304,7 @@ const RoleManagementList: React.FC = () => {
   };
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <div>
       <BaseTable
         rowKey="id"
         title="Role management"
@@ -369,7 +369,7 @@ const RoleManagementList: React.FC = () => {
         open={assignPermissionModal}
         data={selectedRole}
       ></RolePermissionModal>
-    </Suspense>
+    </div>
   );
 };
 
