@@ -72,7 +72,6 @@ const RoleManagementList: React.FC = () => {
   const defaultPage = 1;
   const [showItemModal, setShowItemModal] = useState(false);
   const [roleCreating, setRoleCreating] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
   const [showUpdateRoleNameModal, setShowUpdateRoleNameModal] = useState(false);
   const [assignPermissionModal, setAssignPermissionModal] = useState(false);
   const [isDeleted, setIsDeletedModal] = useState(false);
@@ -125,8 +124,6 @@ const RoleManagementList: React.FC = () => {
     }
   };
 
-  console.log("Roles: ", roles);
-
   const handleCreateRoles = async (names: string[]) => {
     setRoleCreating(true);
     try {
@@ -145,7 +142,7 @@ const RoleManagementList: React.FC = () => {
       await RoleApi.updateRoleStatus(roleID, isDisabled);
       message.success("Role status updated successfully");
       // Refresh list with current search term and page
-      getData(searchTerm, currentPage, true);
+      getData(search, currentPage, true);
     } catch (error) {
       message.error("Failed to update role status");
       console.error("Failed to update role status: ", error);
@@ -170,6 +167,7 @@ const RoleManagementList: React.FC = () => {
   };
 
   useEffect(() => {
+    
     getData(search, defaultPage, true, isDeleted);
   }, []);
 

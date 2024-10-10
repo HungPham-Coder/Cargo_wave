@@ -21,9 +21,9 @@ const AppHeader: React.FC = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          backgroundColor: "#FFFFFF", // Navy blue, representing shipping theme
+          backgroundColor: "#e0f7fa", 
           padding: "0 20px",
-          height: "80px", // Set header height to ensure proper centering
+          height: "80px",
         }}
       >
         {/* Empty div to balance the layout */}

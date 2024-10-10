@@ -101,7 +101,6 @@ export class RolesService {
   async updateRoleStatus(id: string, isDisabled: boolean): Promise<Role | null> {
     try {
       const role = await this.rolesRepository.findOne({ where: { id } });
-      console.log("roles: ", role)
       if (!role) {
         console.error(`Role with ID ${id} not found.`);
         throw new HttpException(`Role with ID ${id} not found.`, HttpStatus.NOT_FOUND);
@@ -183,4 +182,39 @@ export class RolesService {
 
     return await this.rolesRepository.save(role); // Save and return the updated role
   }
+
+  // Method to get permissions assigned to a role by ID
+async getPermissionsByRoleId(roleId: string): Promise<Permission[]> {
+  const role = await this.rolesRepository.findOne({
+    where: { id: roleId },
+    relations: ['permissions'], // Load permissions relation
+  });
+
+  if (!role) {
+    throw new Error('Role not found');
+  }
+
+  return role.permissions; // Return the assigned permissions
+}
+
+// Method to get permissions not assigned to a role by ID
+async getPermissionsNotAssignedByRoleId(roleId: string): Promise<Permission[]> {
+  const role = await this.rolesRepository.findOne({
+    where: { id: roleId },
+    relations: ['permissions'], // Load permissions relation
+  });
+
+  if (!role) {
+    throw new Error('Role not found');
+  }
+
+  // Fetch all permissions from the database
+  const allPermissions = await this.permissionRepository.find();
+
+  // Filter out the permissions that are already assigned to the role
+  const assignedPermissionIds = new Set(role.permissions.map(permission => permission.id));
+  const notAssignedPermissions = allPermissions.filter(permission => !assignedPermissionIds.has(permission.id));
+
+  return notAssignedPermissions; // Return the not assigned permissions
+}
 }

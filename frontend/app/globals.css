@@ -18,3 +18,12 @@
   border: none !important; /* Remove border */
 }
 
+
+.custom-table .ant-table-tbody > tr:nth-child(even) > td {
+  background-color: #eafcff; /* Child row background color */
+}
+
+.custom-table .ant-table-thead > tr > th {
+  background-color: #008afb !important;
+  color: white; /* Optional: Change header text color */
+}

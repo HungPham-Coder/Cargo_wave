@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from "react";
 import RoleApi from "../../apis/roles"; // Assuming this is your API handler
-import { Form, Input, message, Transfer, TransferProps } from "antd";
+import { Form, message, Transfer, TransferProps } from "antd";
 import BaseModal from "../baseModal";
-import PermissionSelect from "./permissionSelect";
-import PermissionApi from "@/source/apis/permissions";
 import { PageSize } from "@/source/constants/app";
-import { useRouter, useSearchParams } from "next/navigation";
 
 interface RolePermissionModalProps {
   data?: { id?: string; name?: string; permissions?: string[] };
@@ -13,15 +10,12 @@ interface RolePermissionModalProps {
   onSuccess: () => void;
   open: boolean;
 }
+
 interface Permission {
   id: string;
   name: string;
   description: string;
-}
-
-interface PermissionsResponse {
-  data: Permission[];
-  total: number;
+  isDisabled: boolean | null; // Assuming isDisabled can be true, false or null
 }
 
 const RolePermissionModal: React.FC<RolePermissionModalProps> = ({
@@ -32,84 +26,69 @@ const RolePermissionModal: React.FC<RolePermissionModalProps> = ({
 }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [selectedItems, setSelectedItems] = useState<string[]>([]);
-  const [targetKeys, setTargetKeys] = useState<TransferProps["targetKeys"]>([]);
-  const [permissions, setPermissions] = useState<PermissionsResponse>({
-    data: [],
-    total: 0,
-  });
-  const [currentPage, setCurrentPage] = useState(1);
-  const searchParams = useSearchParams(); 
-  const router = useRouter(); 
-  const search = searchParams.get("search") || "";
+  const [targetKeys, setTargetKeys] = useState<string[]>([]);
+  const [permissions, setPermissions] = useState<Permission[]>([]); // Assigned permissions
+  const [permissionsNotAssigned, setPermissionsNotAssigned] = useState<Permission[]>([]); // Permissions not assigned
 
-  const getData = async (
-    search?: string,
-    pageIndex?: number,
-    handleLoading?: boolean
-  ) => {
+  // Fetch assigned permissions by role ID
+  const getPermissionsByRoleId = async (handleLoading?: boolean) => {
+    if (handleLoading) {
+      setLoading(true);
+    }
+
+    console.log("Fetching permissions for role ID:", data?.id);
+
+    try {
+      const response: Permission[] = await RoleApi.getPermissionsByRoleId(data?.id!);
+      console.log("Fetched permissions:", response);
+      setPermissions(response);
+      setTargetKeys(response.map((permission) => permission.id));
+    } catch (error) {
+      message.error("Failed to fetch assigned permissions");
+      console.error("Error fetching permissions:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch permissions not assigned by role ID
+  const getPermissionsNotAssignedByRoleId = async (handleLoading?: boolean) => {
     if (handleLoading) {
       setLoading(true);
     }
     try {
-      console.log("Fetching data with params:", {
-        search,
-        pageIndex,
-        pageSize: PageSize.ROLE_LIST,
-      });
-      const response: PermissionsResponse =
-        await PermissionApi.findAllWithPaging(
-          search!,
-          pageIndex! - 1,
-          PageSize.PERMISSION_LIST
-        );
-      setPermissions(response);
-      console.log("Permissions: ", response.data)
-
-      const url = new URL(window.location.href);
-      url.searchParams.set("search", search!);
-      url.searchParams.set("pageSize", PageSize.PERMISSION_LIST.toString());
-      url.searchParams.set("pageIndex", pageIndex!.toString());
-      router.push(url.toString());
+      const response: Permission[] = await RoleApi.getPermissionsNotAssignedByRoleId(data?.id!);
+      setPermissionsNotAssigned(Array.isArray(response) ? response : []);
     } catch (error) {
-      message.error("Failed to fetch permissions");
-      console.error("Failed to fetch permissions: ", error);
+      message.error("Failed to fetch unassigned permissions");
+      console.error("Error fetching unassigned permissions:", error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    console.log("Data received in useEffect:", data); // Check if permissions are available
-    if (data && open && data.permissions) {
-      setSelectedItems(data.permissions || []);
-      form.setFieldsValue({
-        id: data.id,
-        name: data.name,
-        permissions: data.permissions || [],
-      });
+    if (data?.id) {
+      getPermissionsByRoleId();
+      getPermissionsNotAssignedByRoleId();
     }
-    getData();
-  }, [data, open, form]);
+  }, [data?.id]);
 
-  const handleAssignPermissionToRole = async (values: any) => {
+  const handleAssignPermissionToRole = async () => {
     setLoading(true);
-    const roleId = values.id; // Explicitly get roleId from form values
-    const permissionIDs = selectedItems; // Selected permission IDs (array of strings)
-    console.log("permissionIDs: ", permissionIDs);
+    const roleId = data?.id!;
+    const permissionIDs = targetKeys;
 
     try {
-      // Here, pass both roleId and permissionIDs as separate arguments
-      const body = await RoleApi.assignPermissionsToRole(roleId, permissionIDs);
-      if (body) {
-        message.success(`Assigned permissions successfully`);
-        form.resetFields();
+      const response = await RoleApi.assignPermissionsToRole(roleId, permissionIDs);
+      if (response) {
+        message.success("Assigned permissions successfully");
         onSuccess();
       } else {
-        message.error(`Failed to update role permissions`);
+        message.error("Failed to update role permissions");
       }
     } catch (error) {
-      message.error(`An error occurred while updating the role`);
+      message.error("An error occurred while updating the role");
       console.error("Error updating role permissions:", error);
     } finally {
       setLoading(false);
@@ -118,13 +97,21 @@ const RolePermissionModal: React.FC<RolePermissionModalProps> = ({
   };
 
   const handleChange: TransferProps["onChange"] = (newTargetKeys) => {
-    setTargetKeys(newTargetKeys);
+    setTargetKeys(newTargetKeys.map((key) => String(key)));
   };
 
-  const onPageChange = (current: number) => {
-    setCurrentPage(current);
-    getData(search, current, false);
-  };
+  const transferData = [
+    ...permissionsNotAssigned.map((permission) => ({
+      key: permission.id,
+      title: permission.name,
+      description: permission.description,
+    })),
+    ...permissions.map((permission) => ({
+      key: permission.id,
+      title: permission.name,
+      description: permission.description,
+    })),
+  ];
 
   return (
     <BaseModal
@@ -133,37 +120,17 @@ const RolePermissionModal: React.FC<RolePermissionModalProps> = ({
         onCancel();
         form.resetFields();
       }}
-      title="Assign permission to role"
+      title={`Assign Permission to Role ${data?.name}`}
       confirmLoading={loading}
-      onOk={() => form.submit()}
+      onOk={handleAssignPermissionToRole}
     >
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={handleAssignPermissionToRole}
-      >
-        <Form.Item name="id" hidden>
-          <Input />
-        </Form.Item>
-        <Form.Item name="permissions" label="Select Permissions">
-          <PermissionSelect
-            value={selectedItems} // Set value to selectedItems
-            onChange={(value: any) => {
-              console.log("PermissionSelect value: ", value);
-              setSelectedItems(value || []); // Update selectedItems when permissions change
-            }}
-          />
-        </Form.Item>
-      </Form>
       <Transfer
-        dataSource={permissions.data}
-        onChange={handleChange}
-        render={(item) => item.name}
-        pagination={{
-          pageSize: PageSize.ROLE_LIST,
-        }}
+        titles={["Not Assigned", "Assigned"]}
+        dataSource={transferData}
         targetKeys={targetKeys}
-  
+        onChange={handleChange}
+        render={(item) => item.title}
+        listStyle={{width: "100%"}}
       />
     </BaseModal>
   );

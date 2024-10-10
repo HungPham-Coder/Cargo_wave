@@ -279,7 +279,7 @@ const RouteDetailPage: React.FC = () => {
       <Spin size="large" />
     </Row>
   ) : (
-    <div style={{ padding: 20, background: "#e0f7fa", minHeight: "100vh" }}>
+    <div style={{ padding: 20, background: "#FFFFFF", minHeight: "100vh" }}>
       <Breadcrumb style={{ margin: "16px 0", fontSize: 16 }}>
         <Breadcrumb.Item>
           <Link href={routes.root}>
