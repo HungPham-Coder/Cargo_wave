@@ -130,6 +130,7 @@ const RouteDetailPage: React.FC = () => {
   const handleCancelClick = () => {
     setIsEditing(false);
     form.resetFields();
+    setDistance("");
   };
 
   useEffect(() => {
@@ -312,7 +313,7 @@ const RouteDetailPage: React.FC = () => {
             : null,
           license_plate: routeDetail?.transport.license_plate || "",
           shipping_type: routeDetail?.transport.shippingType.name || "",
-          distance: "distance"
+          distance: distance
         }}
         style={{
           margin: "3% auto 5%",

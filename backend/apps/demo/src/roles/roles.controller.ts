@@ -3,8 +3,8 @@ import { Roles, RolesService } from './roles.service';
 import { CreateRoleDTO } from './roles.dto/create-role-request.dto';
 import { AssignPermissionDTO } from './roles.dto/assign-permission-dto';
 import { UpdatePermissionsDTO } from './roles.dto/update-permission-request-dto';
-import { PaginationDTO } from '../users/create-user-request.dto';
 import { Permission } from '../entities/permission.entity';
+import { PaginationDTO } from '../users/users.dto/create-user-request.dto';
 
 @Controller('roles')
 export class RolesController {

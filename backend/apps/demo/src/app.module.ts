@@ -49,11 +49,9 @@ import { LocationsModule } from './locations/locations.module';
     RoutesModule,
     LocationsModule,
     TransportsModule,
-    NotificationModule,
-
   ],
   controllers: [AppController],
-  providers: [AppService, EmailService, SmsService, PushService, UserPreferenceService, NotificationService],
+  providers: [AppService],
 })
 export class AppModule { }
 
@@ -64,12 +62,6 @@ export class AppModule { }
 // import { TypeOrmModule } from '@nestjs/typeorm';
 // import { AuthModule } from './auth/auth.module';
 // import { UsersModule } from './users/users.module';
-import { EmailService } from './email/email.service';
-import { SmsService } from './sms/sms.service';
-import { PushService } from './push/push.service';
-import { UserPreferenceService } from './user-preference/user-preference.service';
-import { NotificationService } from './notification/notification.service';
-import { NotificationModule } from './notification/notification.module';
 // import typeorm from './config/typeorm';
 
 // @Module({

@@ -61,7 +61,7 @@ interface RolesResponse {
 interface SelectedRole {
   id?: string;
   name?: string;
-  permissions?: string[]; // Make sure to define permissions here
+  permissions?: string[]; 
   isDeleted?: boolean;
 }
 
@@ -167,7 +167,6 @@ const RoleManagementList: React.FC = () => {
   };
 
   useEffect(() => {
-    
     getData(search, defaultPage, true, isDeleted);
   }, []);
 

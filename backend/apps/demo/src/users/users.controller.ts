@@ -1,7 +1,10 @@
-import { Controller, Get, HttpCode, HttpStatus, Put } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, NotFoundException, Param, Patch, Put, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { CreateUserDTO } from './create-user-request.dto';
+import { User } from '../entities/user.entity';
+import { CreateUserDTO, PaginationDTO } from './users.dto/create-user-request.dto';
+import { AssignRoleDTO } from './users.dto/assign-role-dto';
+import { Role } from '../entities/role.entity';
 
 @Controller('users')
 export class UsersController {
@@ -15,6 +18,13 @@ export class UsersController {
     return this.userService.findAll();
   }
 
+  //Get all data of permissions with paging
+  @HttpCode(HttpStatus.OK)
+  @Get('findAllWithPaging')
+  async findAllWithPaging(@Query() paginationDTO: PaginationDTO): Promise<{ data: User[], total: number }> {
+    return this.userService.findAllWithPaging(paginationDTO);
+  }
+
   // @MessagePattern("hero.user.createUser")
   @HttpCode(HttpStatus.OK)
   @Get('create')
@@ -22,15 +32,61 @@ export class UsersController {
     return this.userService.create(userDto);
   }
 
-  // @MessagePattern("hero.user.removeUser")
-  @Put('removeUser/:id')
   @HttpCode(HttpStatus.OK)
-  removeUser(id: string) {
-    return this.userService.removeUser(id);
+  @Get('findById/:id')
+  async findById(@Param('id') id: string): Promise<User> {
+    const user = await this.userService.findById(id);
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+    return user;
   }
 
   @MessagePattern("hero.user.findByEmail")
   findByEmail(email: string) {
     return this.userService.findByEmail(email);
+  }
+
+  @Put('updateUser/:id')
+  async updateUser(@Param('id') id: string, @Body() userDto: CreateUserDTO) {
+    return this.userService.update(id, userDto);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Patch('assignRoles')
+  async assignRole(@Body() assignRoleDTO: AssignRoleDTO) {
+    try {
+      const body = this.userService.assignRole(assignRoleDTO);
+      if (!body) {
+        throw new HttpException(`Assign permissions not found`, HttpStatus.NOT_FOUND);
+      }
+      return body;
+
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Put('banUser/:id')
+  async banUser(@Param('id') id: string) {
+    return this.userService.banUser(id);
+  }
+
+  @Put('unbanUser/:id')
+  async unbanUser(@Param('id') id: string) {
+    return this.userService.unbanUser(id);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Get('getRolesByUserId/:id')
+  async getPermissions(@Param('id') id: string): Promise<Role[]> {
+      return this.userService.getRolesByUserId(id);
+  }
+
+  // Endpoint to get permissions not assigned to a role by ID
+  @HttpCode(HttpStatus.OK)
+  @Get('getRolesNotAssignedByUserId/:id')
+  async getPermissionsNotAssigned(@Param('id') id: string): Promise<Role[]> {
+      return this.userService.getRolesNotAssignedByUserId(id);
   }
 }

@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreatePermissionDTO } from './create-permission-request.dto';
 import { Permission } from '../entities/permission.entity';
-import { PaginationDTO } from '../users/create-user-request.dto';
+import { PaginationDTO } from '../users/users.dto/create-user-request.dto';
 
 export type Permissions = any;
 

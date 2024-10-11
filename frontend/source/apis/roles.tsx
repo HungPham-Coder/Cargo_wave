@@ -14,10 +14,11 @@ const findAllWithPaging = async (
       ...(pageSize && { pageSize }),
       ...(search && { search }),
       ...(status && { status }),
-
     };
 
-    const response = await BaseApi.get(`/${resource}/findAllWithPaging`, { params });
+    const response = await BaseApi.get(`/${resource}/findAllWithPaging`, {
+      params,
+    });
     console.log("Response: ", response.data);
     return response.data;
   } catch (error) {
@@ -64,7 +65,6 @@ const updateRoleStatus = async (
   }
 };
 
-
 const assignPermissionsToRole = async (
   roleId: string,
   permissionIDs: string[]
@@ -72,20 +72,16 @@ const assignPermissionsToRole = async (
   try {
     console.log("Payload sent to the server:", { roleId, permissionIDs });
 
-    const response = await BaseApi.patch(
-      `/${resource}/assignPermissions/`, 
-      {
-        roleId,
-        permissionIDs
-      }
-    );
+    const response = await BaseApi.patch(`/${resource}/assignPermissions/`, {
+      roleId,
+      permissionIDs,
+    });
     return response.data;
   } catch (error) {
     console.log("Error update permission status class: ", error);
     return false;
   }
 };
-
 
 const getPermissionsByRoleId = async (id: string) => {
   try {

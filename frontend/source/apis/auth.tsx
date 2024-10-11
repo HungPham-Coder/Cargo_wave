@@ -9,6 +9,11 @@ interface RegisterPayload {
   password: string;
 }
 
+interface RefreshResponse {
+  jwtAccessToken: string;
+  jwtAccessExpire: string;
+}
+
 const login = async (email: string, password: string): Promise<boolean> => {
   try {
     const response = await BaseApi.post("auth/login", {
@@ -17,11 +22,12 @@ const login = async (email: string, password: string): Promise<boolean> => {
     });
     console.log("data: ", response.data);
 
-    if (response.status === 200) {
-      const { access_token } = response.data;
-      localStorage.setItem("jwt", access_token);
-      // localStorage.setItem("user", JSON.stringify(user));
-      window.dispatchEvent(new Event('storage'));
+    if (response.status === 201) {
+      localStorage.setItem("jwtAccessToken", response.data.accessToken);
+      localStorage.setItem("jwt", response.data.refreshToken);
+      localStorage.setItem("jwtAccessExpire", response.data.accessExpire);
+      localStorage.setItem("jwtRefreshExpire", response.data.refreshExpire);
+      window.dispatchEvent(new Event("storage"));
       return true;
     }
     return false;
@@ -58,10 +64,21 @@ const register = async (payload: RegisterPayload): Promise<boolean> => {
   }
 };
 
+const refresh = async (refreshToken: string): Promise<any | undefined> => {
+  try {
+    const response = await BaseApi.post("auth/refresh", { refreshToken });
+    return response;
+  } catch (error) {
+    console.error("Error during token refresh:", error);
+    return { error: "Error refreshing token" };
+  }
+};
+
 const AuthApi = {
   login,
   authorize,
   register,
+  refresh,
 };
 
 export default AuthApi;

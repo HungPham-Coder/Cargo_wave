@@ -45,7 +45,7 @@ export default function RootLayout({
                 <Content style={contentLayout}>{children}</Content>
               </Suspense>
             </Layout>
-            <AppFooter />
+            {!isLoginPage && !isRegisterPage && !isForgotPage &&<AppFooter />}{" "}
           </Layout>
         </StyledComponentsRegistry>
       </body>

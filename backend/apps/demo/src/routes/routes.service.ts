@@ -4,7 +4,7 @@ import { Route } from '../entities/routes.entity';
 import { Repository } from 'typeorm';
 import { CreateRouteDto, RouteWithTransportDTO } from './routes.dto/create-route-request.dto';
 import { UpdateRouteDto } from './routes.dto/update-route-request.dto';
-import { PaginationDTO, SearchDTO } from '../users/create-user-request.dto';
+import { SearchDTO } from '../users/users.dto/create-user-request.dto';
 
 export type Routes = any;
 
