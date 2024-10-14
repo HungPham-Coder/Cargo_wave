@@ -5,6 +5,7 @@ import { jwtConstants } from './constants';
 import { JwtModule } from '@nestjs/jwt';
 import { RolesModule } from '../roles/roles.module';
 import { UsersModule } from '../users/users.module';
+import { GoogleStrategy } from './google-oauth/google.strategy';
 
 
 @Module({
@@ -18,7 +19,7 @@ import { UsersModule } from '../users/users.module';
     }
     )
   ],
-  providers: [AuthService],
+  providers: [AuthService, GoogleStrategy],
   controllers: [AuthController],
   exports: [AuthService]
 })

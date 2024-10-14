@@ -6,8 +6,10 @@ import { RolesService } from '../roles/roles.service';
 import { UsersService } from '../users/users.service';
 import { CreateUserDTO, LoginDTO } from '../users/create-user-request.dto';
 import { roles, userStatus } from '../constants/enum';
+import { config } from 'dotenv';
+import { response } from 'express';
 
-
+config()
 
 @Injectable()
 export class AuthService {
@@ -21,9 +23,9 @@ export class AuthService {
 
 
     async signIn(signInDto: LoginDTO): Promise<any> {
-        const {email, password} = signInDto;
+        const { email, password } = signInDto;
         try {
-            if(!email || !password){
+            if (!email || !password) {
                 throw new UnauthorizedException("Email or password empty!");
             }
             const user = await this.userService.findByEmail(email);
@@ -66,11 +68,41 @@ export class AuthService {
             };
             // console.log("role: ", role);
             console.log('SignUp data:', data);
-            const user = await this.userService.create(data);
+            const user = await this.userService.save(data);
             return user;
         } catch (error) {
             console.error('Error during SignUp:', error.message);
             throw error;
+        }
+    }
+
+    googleLogin(req) {
+        if (!req.user) {
+            return 'No user from google'
+        }
+        else {
+            fetch('http://localhost:3001/users/redirect', {
+                method: 'POST',
+                headers: {
+                    'Content_Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    "name": req.user.name,
+                    "email": req.user.email,
+                    "phone_number": 0
+                })
+            })
+                .then(response => response.json())
+                .then(data => console.log(data))
+                .catch(error => {
+                    console.error('Error: ', error);
+                    throw new Error('Something went wrong while fething data.')
+                })
+        }
+
+        return {
+            message: 'User information from google',
+            user: req.user
         }
     }
 }

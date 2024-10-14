@@ -1,4 +1,4 @@
-import { Controller, Get, HttpCode, HttpStatus, Put } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Put } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { CreateUserDTO } from './create-user-request.dto';
@@ -15,11 +15,17 @@ export class UsersController {
     return this.userService.findAll();
   }
 
+  @HttpCode(HttpStatus.OK)
+  @Post ('redirect')
+  redirect(@Body() name:string, email:string){
+    return this.userService.create(name, email);
+  }
+
   // @MessagePattern("hero.user.createUser")
   @HttpCode(HttpStatus.OK)
   @Get('create')
   create(userDto: CreateUserDTO) {
-    return this.userService.create(userDto);
+    return this.userService.save(userDto);
   }
 
   // @MessagePattern("hero.user.removeUser")

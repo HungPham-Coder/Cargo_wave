@@ -14,7 +14,11 @@ export class UsersService {
     private usersRepository: Repository<Users>,
   ) { }
 
-  async create(userDto: CreateUserDTO): Promise<Users> {
+  async create (name: string, email: string): Promise <Users>{
+    const user =  await this.usersRepository.create ({name, email});
+    return await this.usersRepository.save(user);
+  }
+  async save(userDto: CreateUserDTO): Promise<Users> {
     // const user = await this.usersRepository.create(userDto);
     // userDto.role = userDto.roleID
     return await this.usersRepository.save(userDto);
@@ -29,12 +33,12 @@ export class UsersService {
     return this.usersRepository.findOne({ where: { email }, relations: ['roles'] });
   }
 
-  async findById (userId: string): Promise <Users>{
-    return this.usersRepository.findBy ({where: {user: {id: userId}}});
+  async findById (id: string): Promise <Users>{
+    return this.usersRepository.findOneBy({id});
    
   }
 
-  async removeUser(id: number): Promise<void> {
+  async removeUser(id: string): Promise<void> {
     await this.usersRepository.delete(id);
   }
 

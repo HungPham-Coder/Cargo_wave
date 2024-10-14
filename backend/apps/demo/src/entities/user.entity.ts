@@ -2,15 +2,14 @@ import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToMany, JoinTabl
 import { Role } from './role.entity';
 import { Route } from './routes.entity';
 import { RefreshToken } from './refreshToken.entity';
-import { UserPreference } from './user-preference.entity';
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @Column ()
-  deviceToken: string;
+  // @Column ()
+  // deviceToken: string;
   @Column()
   name: string;
 
@@ -50,6 +49,6 @@ export class User {
   @OneToMany(() => RefreshToken, (refreshTokens) => refreshTokens.users)
   refreshTokens: RefreshToken[]
 
-  @OneToOne (() => UserPreference, (userPreference) => userPreference.user)
-  userPreference: UserPreference
+  // @OneToOne (() => UserPreference, (userPreference) => userPreference.user)
+  // userPreference: UserPreference
 }
