@@ -17,7 +17,7 @@ import { Transport } from './entities/transport.entity';
 import { RoutesModule } from './routes/routes.module';
 import { TransportsModule } from './transports/transports.module';
 import { LocationsModule } from './locations/locations.module';
-
+import { KafkaClientModule } from './kafka-client/kafka-client.module';
 
 @Module({
   imports: [
@@ -49,10 +49,12 @@ import { LocationsModule } from './locations/locations.module';
     RoutesModule,
     LocationsModule,
     TransportsModule,
+    KafkaClientModule,
+    MailsModule,
 
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, MailsController],
+  providers: [AppService, MailsService],
 })
 export class AppModule { }
 
@@ -63,6 +65,10 @@ export class AppModule { }
 // import { TypeOrmModule } from '@nestjs/typeorm';
 // import { AuthModule } from './auth/auth.module';
 // import { UsersModule } from './users/users.module';
+import { MailsService } from './mails/mails.service';
+import { MailsController } from './mails/mails.controller';
+import { MailsModule } from './mails/mails.module';
+
 // import typeorm from './config/typeorm';
 
 // @Module({

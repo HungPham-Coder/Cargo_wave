@@ -17,7 +17,8 @@ export class UsersController {
 
   @HttpCode(HttpStatus.OK)
   @Post ('redirect')
-  redirect(@Body() name:string, email:string){
+  redirect(@Body() body: {name:string, email:string}){
+    const { name, email } = body;
     return this.userService.create(name, email);
   }
 

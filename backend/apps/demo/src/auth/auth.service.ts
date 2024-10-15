@@ -76,29 +76,62 @@ export class AuthService {
         }
     }
 
-    googleLogin(req) {
+    async googleLogin(req) {
+        const {name, email} = req.user;
+        const existingUser = await this.userService.findByEmail (email);
         if (!req.user) {
             return 'No user from google'
         }
-        else {
+
+        if (!existingUser){
             fetch('http://localhost:3001/users/redirect', {
-                method: 'POST',
-                headers: {
-                    'Content_Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    "name": req.user.name,
-                    "email": req.user.email,
-                    "phone_number": 0
-                })
-            })
-                .then(response => response.json())
-                .then(data => console.log(data))
-                .catch(error => {
-                    console.error('Error: ', error);
-                    throw new Error('Something went wrong while fething data.')
-                })
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            name: req.user.name,
+                            email: req.user.email
+                        })
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => console.log("Information user: ", data))
+                        .catch(error => {
+                            console.error('Error: ', error);
+                            throw new Error('Something went wrong while fething data.')
+                        })
+        }else{
+            console.log('User is existed');
         }
+        // else {
+        //     fetch('http://localhost:3001/users/redirect', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content_Type': 'application/json'
+        //         },
+        //         body: JSON.stringify({
+        //             "name": '${req.user.name}',
+        //             "email": '${req.user.email}',
+        //             "phone_number": '0'
+        //         })
+        //     })
+        //         .then(response => {
+        //             if (!response.ok) {
+        //                 throw new Error('Network response was not ok');
+        //             }
+        //             return response.json();
+        //         })
+        //         .then(data => console.log("Information user: ", data))
+        //         .catch(error => {
+        //             console.error('Error: ', error);
+        //             throw new Error('Something went wrong while fething data.')
+        //         })
+        // }
 
         return {
             message: 'User information from google',

@@ -13,22 +13,22 @@ export class User {
   @Column()
   name: string;
 
-  @Column()
+  @Column({ nullable: true })
   phone_number: number;
 
   @Column()
   email: string;
 
-  @Column()
+  @Column({ nullable: true })
   dob: Date;
 
-  @Column()
+  @Column({ nullable: true })
   gender: number
 
   @Column({ nullable: true })
   image: string
 
-  @Column()
+  @Column({ nullable: true })
   password: string;
 
   @Column({ nullable: true })
@@ -37,7 +37,7 @@ export class User {
   @Column({ nullable: true })
   verify_token_expires: Date;
 
-  @Column()
+  @Column({ nullable: true })
   status: number
 
   @ManyToMany(() => Role, (role) => role.users)
