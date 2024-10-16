@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { KafkaClientModule } from '../kafka-client/kafka-client.module';
-import { MailService } from '@sendgrid/mail';
 import { MailsController } from './mails.controller';
+import { MailsService } from './mails.service';
 
 @Module({
     imports: [KafkaClientModule],
-    // controllers: [MailsController],
-    providers: [MailService]
+    providers: [MailsService],
+    exports: [MailsService],
+    controllers: [MailsController]
 })
 export class MailsModule {}
