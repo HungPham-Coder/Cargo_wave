@@ -80,10 +80,16 @@ const UserManagementList: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<SelectedUser | undefined>();
 
   const getColorById = (id: string): string => {
-    const hashCode = Array.from(id).reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const hashCode = Array.from(id).reduce(
+      (acc, char) => acc + char.charCodeAt(0),
+      0
+    );
     const color = `hsl(${hashCode % 360}, 50%, 50%)`; // Using HSL for color generation
     return color;
   };
+
+  console.log("Total users:", users.total);
+  console.log("Data length:", users.data.length);
 
   const getData = async (
     search?: string,
@@ -102,13 +108,13 @@ const UserManagementList: React.FC = () => {
       const response: UsersResponse = await UserApi.findAllWithPaging(
         search!,
         pageIndex! - 1,
-        PageSize.PERMISSION_LIST
+        PageSize.USER_LIST
       );
       setUsers(response);
-
+      console.log("response", response);
       const url = new URL(window.location.href);
       url.searchParams.set("search", search!);
-      url.searchParams.set("pageSize", PageSize.PERMISSION_LIST.toString());
+      url.searchParams.set("pageSize", PageSize.USER_LIST.toString());
       url.searchParams.set("pageIndex", pageIndex!.toString());
       router.push(url.toString());
     } catch (error) {
@@ -198,7 +204,11 @@ const UserManagementList: React.FC = () => {
               .slice()
               .sort((a, b) => a.name.localeCompare(b.name))
               .map((role) => (
-                <Tag key={role.id} color={getColorById(role.id)} style={{fontWeight: 700}}>
+                <Tag
+                  key={role.id}
+                  color={getColorById(role.id)}
+                  style={{ fontWeight: 700 }}
+                >
                   {role.name}
                 </Tag>
               ))
@@ -368,4 +378,4 @@ const UserManagementList: React.FC = () => {
   );
 };
 
-export default withPermission(UserManagementList, 'user_view');
+export default withPermission(UserManagementList, "user_view");
