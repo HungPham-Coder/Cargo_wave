@@ -66,6 +66,7 @@ export class PaginationDTO {
     @Min(1)
     pageSize?: number = 10;
 
+    statusNumb?: number;
     // @IsOptional()
     // @IsBoolean()
     status?: boolean;

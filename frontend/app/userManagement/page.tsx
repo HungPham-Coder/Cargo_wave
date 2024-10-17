@@ -14,7 +14,7 @@ import {
   Unlock,
   User as Users,
 } from "@icon-park/react";
-import { Button, Dropdown, MenuProps, message, Modal, Tag } from "antd";
+import { Button, Col, Dropdown, MenuProps, message, Modal, Select, Tag } from "antd";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -78,6 +78,7 @@ const UserManagementList: React.FC = () => {
   const router = useRouter();
   const search = searchParams.get("search") || "";
   const [selectedUser, setSelectedUser] = useState<SelectedUser | undefined>();
+  const [status, setIsStatus] = useState<number | undefined>(undefined);
 
   const getColorById = (id: string): string => {
     const hashCode = Array.from(id).reduce(
@@ -88,12 +89,10 @@ const UserManagementList: React.FC = () => {
     return color;
   };
 
-  console.log("Total users:", users.total);
-  console.log("Data length:", users.data.length);
-
   const getData = async (
     search?: string,
     pageIndex?: number,
+    status?: number,
     handleLoading?: boolean
   ) => {
     if (handleLoading) {
@@ -104,11 +103,13 @@ const UserManagementList: React.FC = () => {
         search,
         pageIndex,
         pageSize: PageSize.USER_LIST,
+        status
       });
       const response: UsersResponse = await UserApi.findAllWithPaging(
         search!,
         pageIndex! - 1,
-        PageSize.USER_LIST
+        PageSize.USER_LIST,
+        status!
       );
       setUsers(response);
       console.log("response", response);
@@ -116,6 +117,11 @@ const UserManagementList: React.FC = () => {
       url.searchParams.set("search", search!);
       url.searchParams.set("pageSize", PageSize.USER_LIST.toString());
       url.searchParams.set("pageIndex", pageIndex!.toString());
+      if (status !== undefined) {
+        url.searchParams.set("status", status.toString());
+      } else {
+        url.searchParams.delete("status");
+      }
       router.push(url.toString());
     } catch (error) {
       message.error("Failed to fetch user");
@@ -128,20 +134,26 @@ const UserManagementList: React.FC = () => {
   const handleSearch = (value: string) => {
     setCurrentPage(defaultPage);
     router.push(`?search=${value}`);
-    getData(value, defaultPage, true);
+    getData(value, defaultPage, status, true);
   };
 
   const onPageChange = (current: number) => {
     setCurrentPage(current);
-    getData(search, current, false);
+    getData(search, current, status, false);
   };
+
+  const handleChange = (value: number) => {
+    setIsStatus(value);
+    getData(search, 1, value);
+  };
+
 
   const updateUserStatus = async (userID: string, status: number) => {
     try {
       await UserApi.updateUserStatus(userID, status);
       message.success("Role status updated successfully");
       // Refresh list with current search term and page
-      getData(search, currentPage, true);
+      getData(search, currentPage, status, true);
     } catch (error) {
       message.error("Failed to update role status");
       console.error("Failed to update role status: ", error);
@@ -149,7 +161,7 @@ const UserManagementList: React.FC = () => {
   };
 
   useEffect(() => {
-    getData(search, defaultPage, true);
+    getData(search, defaultPage, status, true);
   }, []);
 
   const roleColors: { [key in "Admin" | "Manager" | "Employee"]: string } = {
@@ -309,7 +321,7 @@ const UserManagementList: React.FC = () => {
                   updateUserStatus(id, 2);
                 }
                 message.success("Account status updated successfully.");
-                getData(search, currentPage, true); // Refresh the user list
+                getData(search, currentPage, status, true); // Refresh the user list
               } catch (error) {
                 message.error("Failed to update account status.");
                 console.error("Failed to update account status: ", error);
@@ -367,10 +379,24 @@ const UserManagementList: React.FC = () => {
           onSearch: handleSearch,
           width: 300,
         }}
+        actions={
+          <Col>
+            <span className="mr-2">Status: </span>
+            <Select
+              allowClear
+              style={{ width: 120 }}
+              onChange={handleChange}
+              options={[
+                { value: "1", label: "In use" },
+                { value: "2", label: "Disabled" },
+              ]}
+            />
+          </Col>
+        }
       />
       <UserRoleModal
         onCancel={() => setAssignRoleModal(false)}
-        onSuccess={() => getData("", currentPage, true)}
+        onSuccess={() => getData("", currentPage, status, true)}
         open={assignRoleModal}
         data={selectedUser}
       ></UserRoleModal>

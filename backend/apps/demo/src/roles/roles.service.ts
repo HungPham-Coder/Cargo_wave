@@ -42,9 +42,6 @@ export class RolesService {
         query.andWhere('roles.isDisabled = :status', { status });
       }
 
-      console.log("SQL Query:", query.getSql());
-      console.log("Parameters:", query.getParameters());
-
       // Count the total number of results after filtering
       const total = await query.getCount();
       const effectivePageIndex = Math.min(pageIndexNumber, Math.floor(total / pageSizeNumber)); // Ensure pageIndex doesn't exceed total pages

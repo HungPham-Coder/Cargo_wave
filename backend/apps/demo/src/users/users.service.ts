@@ -30,7 +30,7 @@ export class UsersService {
   }
 
   async findAllWithPaging(paginationDTO: PaginationDTO): Promise<{ data: User[], total: number }> {
-    const { search = '', pageIndex = 0, pageSize = 10 } = paginationDTO;
+    const { search = '', pageIndex = 0, pageSize = 10, statusNumb } = paginationDTO;
 
     const pageIndexNumber = Number(pageIndex);
     const pageSizeNumber = Number(pageSize);
@@ -41,19 +41,22 @@ export class UsersService {
 
       if (search) {
         query.where(
-          'LOWER(users.name) LIKE LOWER(:search) ' +
-          'OR LOWER(users.email) LIKE LOWER(:search) ' +
-          'OR LOWER(users.phone_number::text) LIKE LOWER(:search)',
+          'LOWER(users.name) LIKE LOWER(:search) ',
           { search: `%${search.toLowerCase()}%` }
         );
       }
 
-      const [data, total] = await Promise.all([
-        query.skip(pageIndexNumber * pageSizeNumber)
+      if (statusNumb !== undefined) {
+        query.andWhere('users.status = :statusNumb', { statusNumb: Number(statusNumb) });
+      }
+
+      const total = await query.getCount();
+      const effectivePageIndex = Math.min(pageIndexNumber, Math.floor(total / pageSizeNumber));
+
+      const data = await
+        query.skip(effectivePageIndex * pageSizeNumber)
           .take(pageSizeNumber)
-          .getMany(),
-        query.getCount(),
-      ]);
+          .getMany();
 
       return { data, total };
     } catch (error) {

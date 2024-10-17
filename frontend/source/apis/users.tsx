@@ -15,7 +15,8 @@ const findAll = async () => {
 const findAllWithPaging = async (
   search: string,
   pageIndex: number,
-  pageSize: number
+  pageSize: number,
+  status: number,
 ) => {
   try {
     let params: any = {};
@@ -26,10 +27,11 @@ const findAllWithPaging = async (
     if (pageSize) {
       params.pageSize = pageSize;
     }
-
     if (search) {
-      // Add search query to params if search is present
       params.search = search;
+    }
+    if (status) {
+      params.statusNumb = status;
     }
 
     // Make API request with proper params
