@@ -6,9 +6,10 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import styled from "styled-components";
-import { Avatar, Dropdown } from "antd";
+import { Avatar, Dropdown, message } from "antd";
 import Link from "next/link";
 import routes from "../router/routes";
+import UserApi from "../apis/users";
 
 const Container = styled.div`
   display: flex;
@@ -47,9 +48,31 @@ const UserInfo = styled.div`
   margin-right: 1.5rem;
 `;
 
+interface User {
+  id: string;
+  name: string;
+}
+
 const ProfileBar: React.FC = () => {
   const [isHovered, setIsHovered] = useState(false);
-  const [userName, setUserName] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [userId, setUserId] = useState("");
+  const [users, setUsers] = useState<User | undefined>(undefined);
+
+  const getData = async () => {
+    setLoading(true);
+    try {
+      console.log("userId", userId);
+      const response = await UserApi.findById(userId);
+      console.log("response", response);
+      setUsers(response);
+    } catch (error) {
+      message.error("Failed to fetch roles");
+      console.error("Failed to fetch roles: ", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleMouseEnter = () => {
     setIsHovered(true);
@@ -72,18 +95,12 @@ const ProfileBar: React.FC = () => {
 
   useEffect(() => {
     // Retrieve user and roles from localStorage
-    const storedUser = localStorage.getItem("user");
-  
-    // Parse only if the data is present and valid
-    if (storedUser) {
-      try {
-        const user = JSON.parse(storedUser);
-        setUserName(user.name || "Unknown User");
-      } catch (error) {
-        console.error("Error parsing user data:", error);
-      }
-    }
-  }, []);
+    const userData = localStorage.getItem("user");
+    const user = JSON.parse(userData!);
+    const userId = user.id;
+    setUserId(userId);
+    getData();
+  }, [userId]);
 
   const items = [
     {
@@ -115,7 +132,7 @@ const ProfileBar: React.FC = () => {
           }}
         >
           <UserInfo>
-            <UserName>{userName}</UserName> {/* Display the user name */}
+            <UserName>{users?.name}</UserName> {/* Display the user name */}
           </UserInfo>
           {isHovered ? (
             <DownOutlined

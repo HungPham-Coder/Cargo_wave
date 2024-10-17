@@ -168,30 +168,30 @@ const RoleManagementList: React.FC = () => {
       title: "Role name",
       dataIndex: "name",
       key: "name",
-      width: "20%",
+      width: "40%",
       sorter: (a, b) => a.name.localeCompare(b.name),
     },
-    {
-      title: "Permissions",
-      dataIndex: "permissions",
-      key: "permissions",
-      width: "40%",
-      render: (permissions: Permission[]) => (
-        <div>
-          {permissions.length > 0 ? (
-            permissions
-              .sort((a, b) => a.name.localeCompare(b.name))
-              .map((permission) => (
-                <Tag key={permission.id} color="blue" style={{ margin: 5 }}>
-                  {permission.name}
-                </Tag>
-              ))
-          ) : (
-            <span>No permissions assigned</span>
-          )}
-        </div>
-      ),
-    },
+    // {
+    //   title: "Permissions",
+    //   dataIndex: "permissions",
+    //   key: "permissions",
+    //   width: "40%",
+    //   render: (permissions: Permission[]) => (
+    //     <div>
+    //       {permissions.length > 0 ? (
+    //         permissions
+    //           .sort((a, b) => a.name.localeCompare(b.name))
+    //           .map((permission) => (
+    //             <Tag key={permission.id} color="blue" style={{ margin: 5 }}>
+    //               {permission.name}
+    //             </Tag>
+    //           ))
+    //       ) : (
+    //         <span>No permissions assigned</span>
+    //       )}
+    //     </div>
+    //   ),
+    // },
     {
       title: "Status",
       dataIndex: "isDisabled",
