@@ -1,5 +1,5 @@
 import userError from "apps/demo/src/constants/errorCode/userError";
-import { RoleDTO } from "apps/demo/src/users/create-user-request.dto";
+import { RoleDTO } from "apps/demo/src/users/users.dto/create-user-request.dto";
 import { IsNotEmpty, IsEmail, IsDate } from "class-validator";
 
 export class CreateUserDTO{
@@ -7,7 +7,7 @@ export class CreateUserDTO{
     name: string;
 
     @IsNotEmpty(userError.US_02)
-    phone_number: number;
+    phone_number: string;
 
     @IsNotEmpty(userError.US_03)
     @IsEmail({}, { message: userError.US_04.message })

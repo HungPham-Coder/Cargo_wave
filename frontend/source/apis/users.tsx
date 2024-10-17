@@ -81,7 +81,6 @@ const assignRoleToUser = async (userId: string, roleIds: string[]) => {
   }
 };
 
-
 const updateUserStatus = async (id: string, status: number): Promise<any> => {
   try {
     const response = await BaseApi.patch(
@@ -98,9 +97,9 @@ const updateUserStatus = async (id: string, status: number): Promise<any> => {
   }
 };
 
-const updateUser = async (values: any): Promise<any> => {
+const updateUser = async (id: string, values: any): Promise<any> => {
   try {
-    const response = await BaseApi.put(`/${resource}/updateUser`, values);
+    const response = await BaseApi.put(`/${resource}/updateUser/${id}`, values);
     return response.data;
   } catch (error) {
     console.log("Error updateUser: ", error);
@@ -110,20 +109,17 @@ const updateUser = async (values: any): Promise<any> => {
 
 const findById = async (id: string) => {
   try {
-    const response = await BaseApi.get(
-      `/${resource}/findById/${id}`
-    );
+    const response = await BaseApi.get(`/${resource}/findById/${id}`);
     return response.data;
   } catch (error) {
     console.log("Error findById class: ", error);
     return false;
   }
 };
+
 const getTotalUsersByRole = async () => {
   try {
-    const response = await BaseApi.get(
-      `/${resource}/getTotalUsersByRole`
-    );
+    const response = await BaseApi.get(`/${resource}/getTotalUsersByRole`);
     return response.data;
   } catch (error) {
     console.log("Error getTotalUsersByRole class: ", error);

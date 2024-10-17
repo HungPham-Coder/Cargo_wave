@@ -5,6 +5,7 @@ import { User } from '../entities/user.entity';
 import { CreateUserDTO, PaginationDTO } from './users.dto/create-user-request.dto';
 import { AssignRoleDTO } from './users.dto/assign-role-dto';
 import { Role } from '../entities/role.entity';
+import { UpdateUserDTO } from './users.dto/update-route-request.dto';
 
 @Controller('users')
 export class UsersController {
@@ -48,7 +49,7 @@ export class UsersController {
   }
 
   @Put('updateUser/:id')
-  async updateUser(@Param('id') id: string, @Body() userDto: CreateUserDTO) {
+  async updateUser(@Param('id') id: string, @Body() userDto: UpdateUserDTO) {
     return this.userService.update(id, userDto);
   }
 

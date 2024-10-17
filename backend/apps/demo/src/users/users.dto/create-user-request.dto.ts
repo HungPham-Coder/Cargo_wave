@@ -19,7 +19,7 @@ export class CreateUserDTO {
     name: string;
 
     @IsNotEmpty(userError.US_02)
-    phone_number: number;
+    phone_number: string;
 
     @IsNotEmpty(userError.US_03)
     @IsEmail({}, { message: userError.US_04.message })

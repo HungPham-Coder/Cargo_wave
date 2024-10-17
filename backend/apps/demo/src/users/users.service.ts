@@ -5,6 +5,7 @@ import { User } from '../entities/user.entity';
 import { Role } from '../entities/role.entity';
 import { CreateUserDTO, PaginationDTO } from './users.dto/create-user-request.dto';
 import { AssignRoleDTO } from './users.dto/assign-role-dto';
+import { UpdateUserDTO } from './users.dto/update-route-request.dto';
 
 export type Users = any;
 export type Roles = any;
@@ -84,7 +85,8 @@ export class UsersService {
     }
   }
 
-  async update(id: string, userDto: CreateUserDTO): Promise<Users> {
+  async update(id: string, userDto: UpdateUserDTO): Promise<Users> {
+    console.log("Update User DTO: ", userDto); // Log incoming data
     const user = await this.findById(id);
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
@@ -92,7 +94,6 @@ export class UsersService {
     await this.usersRepository.update(id, userDto);
     return this.findById(id); // Return the updated user
   }
-
   async updateUserStatus(id: string, status: number): Promise<Users> {
     const user = await this.findById(id);
     if (!user) {
@@ -170,7 +171,7 @@ export class UsersService {
       const roles = await this.rolesRepository.find({
         where: { isDisabled: false }, // Get only roles that are not disabled
       });
-  
+
       const totalUsersByRole = await Promise.all(
         roles.map(async (role) => {
           const total = await this.usersRepository.count({
@@ -185,7 +186,7 @@ export class UsersService {
           return { role: role.name, total }; // Return role name and total count
         }),
       );
-  
+
       return totalUsersByRole.filter((result) => result.total > 0); // Optionally filter out roles with zero users
     } catch (error) {
       console.error('Error getting total users by role:', error);
