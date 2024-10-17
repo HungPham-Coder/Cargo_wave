@@ -50,7 +50,7 @@ export class MailService {
     console.log(token);
     // user.verify_token = token;
 
-    const url = `localhost:3001/auth/reset-password?token=${token}`;
+    const url = `http://localhost:3001/auth/reset-password?token=${token}`;
     console.log (url);
 
     
