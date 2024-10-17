@@ -7,7 +7,8 @@ export class KafkaClientService {
 
     async onModuleInit() {
         this.client.subscribeToResponseOf('hero.mails.confirm');
-        this.client.subscribeToResponseOf('hero.mails.resetPass');
+        this.client.subscribeToResponseOf('hero.mails.resetPassword');
+        this.client.subscribeToResponseOf('hero.mails.resEmail');
         await this.client.connect();
     }
 }

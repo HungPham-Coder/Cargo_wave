@@ -50,7 +50,7 @@ import { MailsModule } from './mails/mails.module';
     LocationsModule,
     TransportsModule,
     MailsModule,
-
+    KafkaClientModule
   ],
   controllers: [AppController],
   providers: [AppService],

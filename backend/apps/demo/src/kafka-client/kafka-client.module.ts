@@ -14,7 +14,7 @@ import { KafkaClientService } from './kafka-client.service';
                 brokers: ['localhost:9092'],
               },
               consumer: {
-                groupId: 'hero-consumer'
+                groupId: 'hero-mails'
               }
             }
           }
