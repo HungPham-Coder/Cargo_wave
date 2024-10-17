@@ -1,10 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { AppModule } from 'apps/demo/src/app.module';
+import { NotificationsModule } from './notifications.module';
 
 async function bootstrap() {
-  const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
+  const app = await NestFactory.createMicroservice<MicroserviceOptions>(NotificationsModule, {
     transport: Transport.KAFKA,
     options: {
       client: {
@@ -13,7 +13,7 @@ async function bootstrap() {
       },
 
       consumer: {
-        groupId: 'hero-consumer'
+        groupId: 'hero-mails'
       },
     }
   });
