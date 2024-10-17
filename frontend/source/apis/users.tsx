@@ -81,12 +81,66 @@ const assignRoleToUser = async (userId: string, roleIds: string[]) => {
   }
 };
 
+
+const updateUserStatus = async (id: string, status: number): Promise<any> => {
+  try {
+    const response = await BaseApi.patch(
+      `/${resource}/updateUserStatus/${id}/status`,
+      {
+        id,
+        status,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Error updateUserStatus: ", error);
+    return false;
+  }
+};
+
+const updateUser = async (values: any): Promise<any> => {
+  try {
+    const response = await BaseApi.put(`/${resource}/updateUser`, values);
+    return response.data;
+  } catch (error) {
+    console.log("Error updateUser: ", error);
+    return false;
+  }
+};
+
+const findById = async (id: string) => {
+  try {
+    const response = await BaseApi.get(
+      `/${resource}/findById/${id}`
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Error findById class: ", error);
+    return false;
+  }
+};
+const getTotalUsersByRole = async () => {
+  try {
+    const response = await BaseApi.get(
+      `/${resource}/getTotalUsersByRole`
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Error getTotalUsersByRole class: ", error);
+    return false;
+  }
+};
+
 const UserApi = {
   findAll,
   findAllWithPaging,
   getRolesByUserId,
   getRolesNotAssignedByUserId,
-  assignPermissionsToRole: assignRoleToUser,
+  assignRoleToUser,
+  updateUserStatus,
+  updateUser,
+  findById,
+  getTotalUsersByRole,
 };
 
 export default UserApi;

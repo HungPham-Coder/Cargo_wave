@@ -17,6 +17,7 @@ import { Transport } from './entities/transport.entity';
 import { RoutesModule } from './routes/routes.module';
 import { TransportsModule } from './transports/transports.module';
 import { LocationsModule } from './locations/locations.module';
+import { SeedService } from './seed/seed.service';
 
 
 @Module({
@@ -51,7 +52,7 @@ import { LocationsModule } from './locations/locations.module';
     TransportsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, SeedService],
 })
 export class AppModule { }
 

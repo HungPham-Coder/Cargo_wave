@@ -47,8 +47,6 @@ export class UsersService {
         );
       }
 
-      query.orderBy('users.status', 'ASC').addOrderBy('users.name', 'ASC');
-
       const [data, total] = await Promise.all([
         query.skip(pageIndexNumber * pageSizeNumber)
           .take(pageSizeNumber)
@@ -64,13 +62,14 @@ export class UsersService {
   }
 
   async findByEmail(email: string): Promise<Users | null> {
-    return this.usersRepository.findOne({ where: { email }, relations: ['roles'] });
+    return this.usersRepository.findOne({ where: { email }, relations: ['roles', 'roles.permissions'], });
   }
 
   async findById(userId: string): Promise<Users | null> {
     try {
       const user = await this.usersRepository.createQueryBuilder('user')
         .leftJoinAndSelect('user.roles', 'roles')
+        .leftJoinAndSelect('roles.permissions', 'permissions')
         .where('user.id = :userId', { userId })
         .getOne();
 
@@ -85,81 +84,112 @@ export class UsersService {
     }
   }
 
-  async update(userId: string, userDto: CreateUserDTO): Promise<Users> {
-    await this.usersRepository.update(userId, userDto);
-    return this.findById(userId); // Return the updated user
+  async update(id: string, userDto: CreateUserDTO): Promise<Users> {
+    const user = await this.findById(id);
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+    await this.usersRepository.update(id, userDto);
+    return this.findById(id); // Return the updated user
   }
-  async banUser(userId: string): Promise<Users> {
-    const user = await this.findById(userId);
-    user.status = 2; // Assuming 0 is for banned users
-    return this.usersRepository.save(user);
 
-  }
-  async unbanUser(userId: string): Promise<Users> {
-    const user = await this.findById(userId);
-    user.status = 1; // Assuming 1 is for active users
+  async updateUserStatus(id: string, status: number): Promise<Users> {
+    const user = await this.findById(id);
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+
+    user.status = status;
     return this.usersRepository.save(user);
   }
 
   async assignRole(assignRoleDTO: AssignRoleDTO): Promise<User> {
     const { userId, roleIds } = assignRoleDTO;
 
-    const user = await this.rolesRepository.findOne({
+    // Find the user using the usersRepository instead of rolesRepository
+    const user = await this.usersRepository.findOne({
       where: { id: userId },
       relations: ['roles'],
     });
+
     if (!user) {
-      throw new Error('Role not found');
+      throw new Error('User not found');
     }
+
     const rolesToAdd = await this.rolesRepository.findBy({
       id: In(roleIds),
     });
 
-    if (!user) {
-      throw new NotFoundException(`Role with ID ${roleIds} not found`);
-    }
-
     const existingRoleIDs = new Set(user.roles.map((p: { id: any; }) => p.id));
-    // Add new permissions
-    const newRoles = rolesToAdd.filter(p => !existingRoleIDs.has(p.id));
+
+    const newRoles = rolesToAdd.filter((p) => !existingRoleIDs.has(p.id));
     user.roles = [...user.roles, ...newRoles];
-    // Remove permissions that are not included in the new list
-    user.roles = user.roles.filter(p => roleIds.includes(p.id) || newRoles.includes(p));
-    // Save the updated role
-    return this.usersRepository.save(user); // Save the user with the new role
+    user.roles = user.roles.filter((p: { id: string; }) => roleIds.includes(p.id) || newRoles.includes(p));
+    return this.usersRepository.save(user);
   }
+
 
   async getRolesByUserId(userId: string): Promise<Role[]> {
     const user = await this.usersRepository.findOne({
       where: { id: userId },
-      relations: ['roles'], // Load permissions relation
+      relations: ['roles'],
     });
-  
+
     if (!user) {
       throw new Error('User not found');
     }
-  
-    return user.roles; // Return the assigned permissions
+
+    return user.roles.filter((role: { isDisabled: any; }) => !role.isDisabled);
   }
-  
+
   // Method to get permissions not assigned to a role by ID
   async getRolesNotAssignedByUserId(userId: string): Promise<Role[]> {
     const user = await this.usersRepository.findOne({
       where: { id: userId },
       relations: ['roles'], // Load permissions relation
     });
-  
+
     if (!user) {
       throw new Error('User not found');
     }
-  
+
     // Fetch all permissions from the database
-    const allRoles = await this.rolesRepository.find();
-  
+    const allRoles = await this.rolesRepository.find({
+      where: { isDisabled: false },
+    });
+
     // Filter out the permissions that are already assigned to the role
-    const assignedRoleIds = new Set(user.roles.map(role => role.id));
+    const assignedRoleIds = new Set(user.roles.map((role: { id: any; }) => role.id));
     const notAssignedRoles = allRoles.filter(role => !assignedRoleIds.has(role.id));
-  
+
     return notAssignedRoles; // Return the not assigned permissions
+  }
+
+  async getTotalUsersByRole(): Promise<{ role: string; total: number }[]> {
+    try {
+      const roles = await this.rolesRepository.find({
+        where: { isDisabled: false }, // Get only roles that are not disabled
+      });
+  
+      const totalUsersByRole = await Promise.all(
+        roles.map(async (role) => {
+          const total = await this.usersRepository.count({
+            relations: ['roles'],
+            where: {
+              status: 1, // Only count active users
+              roles: {
+                id: role.id, // Filter by role id
+              },
+            },
+          });
+          return { role: role.name, total }; // Return role name and total count
+        }),
+      );
+  
+      return totalUsersByRole.filter((result) => result.total > 0); // Optionally filter out roles with zero users
+    } catch (error) {
+      console.error('Error getting total users by role:', error);
+      throw new Error('Error getting total users by role');
+    }
   }
 }

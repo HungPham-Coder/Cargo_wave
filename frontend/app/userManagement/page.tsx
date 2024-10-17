@@ -3,6 +3,7 @@
 import UserApi from "@/source/apis/users";
 import { BaseTable } from "@/source/components/baseTable";
 import UserRoleModal from "@/source/components/modal/userRoleModal";
+import withPermission from "@/source/components/withPermission";
 import { PageSize } from "@/source/constants/app";
 import {
   Edit,
@@ -13,7 +14,7 @@ import {
   Unlock,
   User as Users,
 } from "@icon-park/react";
-import { Button, Dropdown, MenuProps, message, Tag } from "antd";
+import { Button, Dropdown, MenuProps, message, Modal, Tag } from "antd";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -78,6 +79,12 @@ const UserManagementList: React.FC = () => {
   const search = searchParams.get("search") || "";
   const [selectedUser, setSelectedUser] = useState<SelectedUser | undefined>();
 
+  const getColorById = (id: string): string => {
+    const hashCode = Array.from(id).reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const color = `hsl(${hashCode % 360}, 50%, 50%)`; // Using HSL for color generation
+    return color;
+  };
+
   const getData = async (
     search?: string,
     pageIndex?: number,
@@ -105,12 +112,13 @@ const UserManagementList: React.FC = () => {
       url.searchParams.set("pageIndex", pageIndex!.toString());
       router.push(url.toString());
     } catch (error) {
-      message.error("Failed to fetch permissions");
-      console.error("Failed to fetch permissions: ", error);
+      message.error("Failed to fetch user");
+      console.error("Failed to fetch user: ", error);
     } finally {
       setLoading(false);
     }
   };
+
   const handleSearch = (value: string) => {
     setCurrentPage(defaultPage);
     router.push(`?search=${value}`);
@@ -120,6 +128,18 @@ const UserManagementList: React.FC = () => {
   const onPageChange = (current: number) => {
     setCurrentPage(current);
     getData(search, current, false);
+  };
+
+  const updateUserStatus = async (userID: string, status: number) => {
+    try {
+      await UserApi.updateUserStatus(userID, status);
+      message.success("Role status updated successfully");
+      // Refresh list with current search term and page
+      getData(search, currentPage, true);
+    } catch (error) {
+      message.error("Failed to update role status");
+      console.error("Failed to update role status: ", error);
+    }
   };
 
   useEffect(() => {
@@ -178,7 +198,7 @@ const UserManagementList: React.FC = () => {
               .slice()
               .sort((a, b) => a.name.localeCompare(b.name))
               .map((role) => (
-                <Tag key={role.id} color="blue">
+                <Tag key={role.id} color={getColorById(role.id)} style={{fontWeight: 700}}>
                   {role.name}
                 </Tag>
               ))
@@ -200,7 +220,7 @@ const UserManagementList: React.FC = () => {
           statusLabel = "In Use";
           statusColor = "#29CB00"; // Green
         } else if (status === 2) {
-          statusLabel = "Disabled";
+          statusLabel = "Banned";
           statusColor = "#FF0000"; // Red
         } else {
           statusLabel = "Unknown"; // Fallback label
@@ -213,20 +233,6 @@ const UserManagementList: React.FC = () => {
           </span>
         );
       },
-      // filter: {
-      //   placeholder: "Status",
-      //   label: "Status",
-      //   filterOptions: [
-      //     {
-      //       label: "In Use",
-      //       value: 1,
-      //     },
-      //     {
-      //       label: "Disabled",
-      //       value: 2,
-      //     },
-      //   ],
-      // },
       sorter: (a, b) => a.status - b.status,
     },
     {
@@ -248,7 +254,7 @@ const UserManagementList: React.FC = () => {
     roles: Roles[];
   }): MenuProps["items"] => {
     const { status, id, roles, name } = record;
-    console.log("ID", record.id);
+    console.log("status", record.status);
     return [
       // {
       //   key: "UPDATE_USER",
@@ -261,14 +267,6 @@ const UserManagementList: React.FC = () => {
       //   },
       // },
       // {
-      //   key: "UPDATE_PHONE",
-      //   label: "Update phone number",
-      //   icon: <Phone />,
-      //   onClick: () => {
-      //     // userRef.current = record;
-      //     // setShowPhoneModal(true);
-      //   },
-      // },
       {
         key: "ASSIGN_PERMISSION",
         label: roles.length === 0 ? "Assign permissions" : "Update permissions",
@@ -286,14 +284,31 @@ const UserManagementList: React.FC = () => {
         key: "BAN_ACCOUNT",
         label: status === 1 ? "Ban account" : "Unban account",
         icon: status === 1 ? <Forbid /> : <Unlock />,
+        danger: status === 1,
         onClick: () => {
-          if (status === 1) {
-            // Call your unban function here
-            console.log(`Banning user with ID: ${id}`);
-          } else {
-            // Call your ban function here
-            console.log(`Unbanning user with ID: ${id}`);
-          }
+          Modal.confirm({
+            title: status === 1 ? "Confirm Ban" : "Confirm Unban",
+            content: `Are you sure you want to ${
+              status === 1 ? "ban" : "unban"
+            } this account?`,
+            onOk: async () => {
+              try {
+                if (status === 2) {
+                  updateUserStatus(id, 1);
+                } else {
+                  updateUserStatus(id, 2);
+                }
+                message.success("Account status updated successfully.");
+                getData(search, currentPage, true); // Refresh the user list
+              } catch (error) {
+                message.error("Failed to update account status.");
+                console.error("Failed to update account status: ", error);
+              }
+            },
+            onCancel() {
+              console.log("Cancelled");
+            },
+          });
         },
       },
     ];
@@ -345,7 +360,7 @@ const UserManagementList: React.FC = () => {
       />
       <UserRoleModal
         onCancel={() => setAssignRoleModal(false)}
-        onSuccess={() => getData(undefined, defaultPage, true)}
+        onSuccess={() => getData("", currentPage, true)}
         open={assignRoleModal}
         data={selectedUser}
       ></UserRoleModal>
@@ -353,4 +368,4 @@ const UserManagementList: React.FC = () => {
   );
 };
 
-export default UserManagementList;
+export default withPermission(UserManagementList, 'user_view');

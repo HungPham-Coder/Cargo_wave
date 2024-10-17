@@ -46,18 +46,18 @@ const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleLogin = async (
-    email: string,
-    password: string
-  ): Promise<void> => {
+  const handleLogin = async (email: string, password: string): Promise<void> => {
     setLoading(true);
     const success = await AuthApi.login(email, password);
     setLoading(false);
     if (success) {
       message.success(`Login successful!`);
-      router.push(routes.root);
+      // router.push(routes.root); // Navigate to root route
+      setTimeout(() => {
+        window.location.href = routes.root; // Set timeout to reload to home page
+      }, 0);
     } else {
-      message.error("Wrong user name or password. Please try again!.");
+      message.error("Wrong username or password. Please try again!");
     }
   };
 

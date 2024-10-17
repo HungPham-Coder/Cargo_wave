@@ -42,16 +42,22 @@ export class RolesService {
         query.andWhere('roles.isDisabled = :status', { status });
       }
 
+      console.log("SQL Query:", query.getSql());
+      console.log("Parameters:", query.getParameters());
+
       // Count the total number of results after filtering
       const total = await query.getCount();
+      const effectivePageIndex = Math.min(pageIndexNumber, Math.floor(total / pageSizeNumber)); // Ensure pageIndex doesn't exceed total pages
 
       // Apply pagination and get the data
       const data = await query
-        .skip(pageIndexNumber * pageSizeNumber)
+        .skip(effectivePageIndex * pageSizeNumber)
         .take(pageSizeNumber)
         .orderBy('roles.isDisabled', 'ASC')
         .addOrderBy('roles.name', 'ASC')
         .getMany();
+
+      console.log("Fetched Data:", data);
 
       return { data, total };
     } catch (error) {
@@ -215,5 +221,18 @@ export class RolesService {
     const notAssignedPermissions = allPermissions.filter(permission => !assignedPermissionIds.has(permission.id));
 
     return notAssignedPermissions; // Return the not assigned permissions
+  }
+
+  async getTotalActiveRoles(): Promise<number> {
+    try {
+      const total = await this.rolesRepository.count({
+        where: { isDisabled: false },
+      });
+
+      return total;
+    } catch (error) {
+      console.error('Error counting active roles:', error);
+      throw new Error('Error getting total active roles');
+    }
   }
 }

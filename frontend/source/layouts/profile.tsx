@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   DownOutlined,
   LeftOutlined,
@@ -13,16 +13,16 @@ import routes from "../router/routes";
 const Container = styled.div`
   display: flex;
   align-items: center;
-  padding: 0.5rem 1rem; 
-  border-radius: 200px; 
-  color: white; 
-  transition: background 0.3s ease, box-shadow 0.3s ease; 
-  background: linear-gradient(135deg, #007bb2 0%, #00a2e8 100%); 
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); 
+  padding: 0.5rem 1rem;
+  border-radius: 200px;
+  color: white;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+  background: linear-gradient(135deg, #007bb2 0%, #00a2e8 100%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
   &:hover {
-    background: linear-gradient(135deg, #090273 30%, #0D03AD 100%); 
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2); 
+    background: linear-gradient(135deg, #090273 30%, #0d03ad 100%);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   }
 `;
 
@@ -45,11 +45,11 @@ const UserInfo = styled.div`
   flex-direction: column; /* Stack items vertically */
   margin-left: 1.5rem;
   margin-right: 1.5rem;
-  
 `;
 
 const ProfileBar: React.FC = () => {
   const [isHovered, setIsHovered] = useState(false);
+  const [userName, setUserName] = useState<string | null>(null);
 
   const handleMouseEnter = () => {
     setIsHovered(true);
@@ -61,18 +61,34 @@ const ProfileBar: React.FC = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("jwt");
+    localStorage.removeItem("jwtAccessToken");
+    localStorage.removeItem("jwtAccessExpire");
+    localStorage.removeItem("jwtRefreshExpire");
+    localStorage.removeItem("user");
+    localStorage.removeItem("permissions");
+    window.location.reload();
     window.dispatchEvent(new Event("storage"));
   };
+
+  useEffect(() => {
+    // Retrieve user and roles from localStorage
+    const storedUser = localStorage.getItem("user");
+  
+    // Parse only if the data is present and valid
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        setUserName(user.name || "Unknown User");
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+      }
+    }
+  }, []);
 
   const items = [
     {
       key: "PROFILE",
       label: <Link href={routes.profile}>Profile</Link>,
-      icon: <UserOutlined style={{ color: "white" }} />, // White icon for contrast
-    },
-    {
-      key: "HISTORY",
-      label: <Link href={routes.history}>History</Link>,
       icon: <UserOutlined style={{ color: "white" }} />, // White icon for contrast
     },
     {
@@ -83,9 +99,6 @@ const ProfileBar: React.FC = () => {
     },
   ];
 
-  const userRole = "Admin"; // Replace with actual user role from your auth state
-  const userName = "admin"; // Replace with actual user name from your auth state
-
   return (
     <Container style={{ height: "60px" }}>
       <Avatar size="large" icon={<UserOutlined />} />
@@ -94,11 +107,15 @@ const ProfileBar: React.FC = () => {
         <span
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
-          style={{ display: "flex", alignItems: "center", cursor: "pointer", height: "50px" }}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            cursor: "pointer",
+            height: "50px",
+          }}
         >
           <UserInfo>
-            <UserName>{userName}</UserName> {/* Show user name from auth */}
-            <RoleName>{userRole}</RoleName> {/* Show user role here */}
+            <UserName>{userName}</UserName> {/* Display the user name */}
           </UserInfo>
           {isHovered ? (
             <DownOutlined

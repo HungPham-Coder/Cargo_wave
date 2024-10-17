@@ -5,6 +5,7 @@ import { RolesService } from '../roles/roles.service';
 import { UsersService } from '../users/users.service';
 import { roles, userStatus } from '../constants/enum';
 import { CreateUserDTO, LoginDTO } from '../users/users.dto/create-user-request.dto';
+import { Permission } from '../entities/permission.entity';
 
 @Injectable()
 export class AuthService {
@@ -39,17 +40,38 @@ export class AuthService {
             });
             const accessExpire = new Date(Date.now() + 5 * 1000); // 1 day from now
             const refreshExpire = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+            
+            const uniquePermissions = this.getUniquePermissions(user.roles || []);
+            const { password: _, roles: __,...userInfo } = user;
 
             return {
                 accessToken,
                 refreshToken,
                 accessExpire: accessExpire.toISOString(), // Return in ISO format
                 refreshExpire: refreshExpire.toISOString(),
+                user: userInfo,
+                permissions: uniquePermissions
             }
         } catch (error) {
             console.error('Error during SignIn:', error.message);
             throw error;
         }
+    }
+
+    private getUniquePermissions(roles: any[]): Permission[] {
+        const permissionsMap = new Map<string, Permission>();
+
+        roles.forEach((role) => {
+            if (!role.isDisabled) {
+                role.permissions.forEach((permission: Permission) => {
+                    if (!permissionsMap.has(permission.name)) {
+                        permissionsMap.set(permission.name, permission);
+                    }
+                });
+            }
+        });
+
+        return Array.from(permissionsMap.values());
     }
 
     async signUp(payload: CreateUserDTO) {

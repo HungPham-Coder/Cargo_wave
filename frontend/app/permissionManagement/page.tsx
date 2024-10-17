@@ -9,6 +9,7 @@ import { PageSize } from "@/source/constants/app";
 import { More, User } from "@icon-park/react";
 import { Button, Dropdown, MenuProps, message } from "antd";
 import { Suspense, useEffect, useState } from "react";
+import withPermission from "@/source/components/withPermission";
 
 interface ColumnType<T> {
   title: string;
@@ -227,4 +228,4 @@ const PermissionManagementList: React.FC = () => {
   );
 };
 
-export default PermissionManagementList;
+export default withPermission(PermissionManagementList, 'permission_view');

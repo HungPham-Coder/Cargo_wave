@@ -67,26 +67,43 @@ export class UsersController {
     }
   }
 
-  @Put('banUser/:id')
-  async banUser(@Param('id') id: string) {
-    return this.userService.banUser(id);
-  }
-
-  @Put('unbanUser/:id')
-  async unbanUser(@Param('id') id: string) {
-    return this.userService.unbanUser(id);
+  @HttpCode(HttpStatus.OK)
+  @Patch('updateUserStatus/:id/status')
+  async updateUserStatus(
+    @Param('id') id: string,
+    @Body('status') status: number
+  ): Promise<User> {
+    return this.userService.updateUserStatus(id, status);
   }
 
   @HttpCode(HttpStatus.OK)
   @Get('getRolesByUserId/:id')
   async getPermissions(@Param('id') id: string): Promise<Role[]> {
-      return this.userService.getRolesByUserId(id);
+    return this.userService.getRolesByUserId(id);
   }
 
   // Endpoint to get permissions not assigned to a role by ID
   @HttpCode(HttpStatus.OK)
   @Get('getRolesNotAssignedByUserId/:id')
   async getPermissionsNotAssigned(@Param('id') id: string): Promise<Role[]> {
-      return this.userService.getRolesNotAssignedByUserId(id);
+    return this.userService.getRolesNotAssignedByUserId(id);
   }
+
+  @HttpCode(HttpStatus.OK)
+  @Get('getTotalUsersByRole')
+  async getTotalUsersByRole() {
+    try {
+      const result = await this.userService.getTotalUsersByRole();
+      return {
+        data: result,
+      };
+    } catch (error) {
+      console.error('Error getting total users by role:', error);
+      return {
+        success: false,
+        message: 'Error getting total users by role',
+      };
+    }
+  }
+
 }

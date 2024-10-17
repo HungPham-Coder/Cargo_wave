@@ -76,7 +76,7 @@ const UserRoleModal: React.FC<UserRoleModalProps> = ({
     const permissionIDs = targetKeys;
 
     try {
-      const response = await UserApi.assignPermissionsToRole(roleId, permissionIDs);
+      const response = await UserApi.assignRoleToUser(roleId, permissionIDs);
       if (response) {
         message.success("Assigned permissions successfully");
         onSuccess();

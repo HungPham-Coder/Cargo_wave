@@ -85,7 +85,7 @@ export class RolesController {
     }
 
     // Endpoint to get permissions assigned to a role by ID
-    
+
     @HttpCode(HttpStatus.OK)
     @Get('getPermissionsByRoleId/:id')
     async getPermissions(@Param('id') id: string): Promise<Permission[]> {
@@ -97,5 +97,11 @@ export class RolesController {
     @Get('getPermissionsNotAssignedByRoleId/:id')
     async getPermissionsNotAssigned(@Param('id') id: string): Promise<Permission[]> {
         return this.roleService.getPermissionsNotAssignedByRoleId(id);
+    }
+
+    @HttpCode(HttpStatus.OK)
+    @Get('getTotalActiveRoles')
+    async getTotalActiveRoles() {
+        return this.roleService.getTotalActiveRoles();
     }
 }
