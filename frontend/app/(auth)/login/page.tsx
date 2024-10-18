@@ -52,6 +52,7 @@ const LoginPage: React.FC = () => {
     setLoading(false);
     if (success) {
       message.success(`Login successful!`);
+      
       // router.push(routes.root); // Navigate to root route
       setTimeout(() => {
         window.location.href = routes.root; // Set timeout to reload to home page
