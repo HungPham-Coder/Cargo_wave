@@ -108,6 +108,7 @@ export class UsersService {
     await this.usersRepository.update(id, userDto);
     return this.findById(id); // Return the updated user
   }
+  
   async updateUserStatus(id: string, status: number): Promise<Users> {
     const user = await this.findById(id);
     if (!user) {
