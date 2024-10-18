@@ -2,9 +2,20 @@
 
 import UserApi from "@/source/apis/users";
 import { BaseTable } from "@/source/components/baseTable";
-
-import { Edit, Forbid, More, Phone, Unlock, User } from "@icon-park/react";
-import { Button, Dropdown } from "antd";
+import UserRoleModal from "@/source/components/modal/userRoleModal";
+import withPermission from "@/source/components/withPermission";
+import { PageSize } from "@/source/constants/app";
+import {
+  Edit,
+  Forbid,
+  ListAdd,
+  More,
+  Phone,
+  Unlock,
+  User as Users,
+} from "@icon-park/react";
+import { Button, Col, Dropdown, MenuProps, message, Modal, Select, Tag } from "antd";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface ColumnType<T> {
@@ -24,35 +35,142 @@ interface ColumnType<T> {
   };
 }
 
+interface Roles {
+  id: string;
+  name: string;
+  isDisabled: boolean;
+}
+
+interface Users {
+  id: string;
+  name: string;
+  email: string;
+  phone_number: string;
+  gender: number;
+  dob: Date;
+  image: string;
+  roles: Roles[];
+  status: number;
+  description: string;
+}
+
+interface UsersResponse {
+  data: Users[];
+  total: number;
+}
+
+interface SelectedUser {
+  id: string;
+  name: string;
+  roles: string[];
+}
+
 const UserManagementList: React.FC = () => {
   const [loading, setLoading] = useState(false);
-  const [user, setUsers] = useState([]);
+  const [users, setUsers] = useState<UsersResponse>({
+    data: [],
+    total: 0,
+  });
+  const [assignRoleModal, setAssignRoleModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const defaultPage = 1;
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const search = searchParams.get("search") || "";
+  const [selectedUser, setSelectedUser] = useState<SelectedUser | undefined>();
+  const [status, setIsStatus] = useState<number | undefined>(undefined);
 
-  const getData = async () => {
-    setLoading(true);
-    const response = await UserApi.findAll();
-    console.log(response);
-    setUsers(response);
-    setLoading(false);
+  const getColorById = (id: string): string => {
+    const hashCode = Array.from(id).reduce(
+      (acc, char) => acc + char.charCodeAt(0),
+      0
+    );
+    const color = `hsl(${hashCode % 360}, 50%, 50%)`; // Using HSL for color generation
+    return color;
+  };
+
+  const getData = async (
+    search?: string,
+    pageIndex?: number,
+    status?: number,
+    handleLoading?: boolean
+  ) => {
+    if (handleLoading) {
+      setLoading(true);
+    }
+    try {
+      console.log("Fetching data with params:", {
+        search,
+        pageIndex,
+        pageSize: PageSize.USER_LIST,
+        status
+      });
+      const response: UsersResponse = await UserApi.findAllWithPaging(
+        search!,
+        pageIndex! - 1,
+        PageSize.USER_LIST,
+        status!
+      );
+      setUsers(response);
+      console.log("response", response);
+      const url = new URL(window.location.href);
+      url.searchParams.set("search", search!);
+      url.searchParams.set("pageSize", PageSize.USER_LIST.toString());
+      url.searchParams.set("pageIndex", pageIndex!.toString());
+      if (status !== undefined) {
+        url.searchParams.set("status", status.toString());
+      } else {
+        url.searchParams.delete("status");
+      }
+      router.push(url.toString());
+    } catch (error) {
+      message.error("Failed to fetch user");
+      console.error("Failed to fetch user: ", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = (value: string) => {
+    setCurrentPage(defaultPage);
+    router.push(`?search=${value}`);
+    getData(value, defaultPage, status, true);
+  };
+
+  const onPageChange = (current: number) => {
+    setCurrentPage(current);
+    getData(search, current, status, false);
+  };
+
+  const handleChange = (value: number) => {
+    setIsStatus(value);
+    getData(search, 1, value);
+  };
+
+
+  const updateUserStatus = async (userID: string, status: number) => {
+    try {
+      await UserApi.updateUserStatus(userID, status);
+      message.success("Role status updated successfully");
+      // Refresh list with current search term and page
+      getData(search, currentPage, status, true);
+    } catch (error) {
+      message.error("Failed to update role status");
+      console.error("Failed to update role status: ", error);
+    }
   };
 
   useEffect(() => {
-    getData();
+    getData(search, defaultPage, status, true);
   }, []);
 
-  const roleColors: { [key in "Admin" | "Manager" | "Employee"]: string } = {
-    Admin: "#FF7777",
-    Manager: "#4ECA69",
-    Employee: "#59A7DE",
-  };
   const columns: ColumnType<{
     key: string;
     name: string;
     email: string;
     phone_number: string;
-    roles: { id: number; name: string }[];
-    status: boolean;
+    roles: Roles[];
+    status: number;
   }>[] = [
     {
       title: "#",
@@ -86,57 +204,58 @@ const UserManagementList: React.FC = () => {
       title: "Role",
       dataIndex: "roles",
       key: "roles",
-      render: (roles: { id: number; name: string }[]) => (
-        <span>
-          {roles.map((role) => (
-            <span
-              key={role.id}
-              style={{
-                backgroundColor:
-                  roleColors[role.name as "Admin" | "Manager" | "Employee"] ||
-                  "#ccc", // Use colors based on role name
-                color: "#fff",
-                padding: "2px 8px",
-                borderRadius: "4px",
-                marginRight: "5px",
-                fontWeight: "bold",
-              }}
-            >
-              {role.name ? role.name : "-"}
-            </span>
-          ))}
-        </span>
+      render: (roles: Roles[]) => (
+        <div>
+          {roles.length > 0 ? (
+            roles
+              .slice()
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map((role) => (
+                <Tag
+                  key={role.id}
+                  color={getColorById(role.id)}
+                  style={{ fontWeight: 700 }}
+                >
+                  {role.name}
+                </Tag>
+              ))
+          ) : (
+            <span>No roles assigned</span>
+          )}
+        </div>
       ),
+      sorter: (a, b) => {
+        const roleNameA = a.roles.length > 0 ? a.roles[0].name : "";
+        const roleNameB = b.roles.length > 0 ? b.roles[0].name : "";
+        return roleNameA.localeCompare(roleNameB);
+      },
     },
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
-      render: (status: number) => (
-        <span
-          style={{
-            color: status ? "#29CB00" : "#FF0000",
-            fontWeight: "bold",
-          }}
-        >
-          {status ? "In use" : "Banned"}
-        </span>
-      ),
-      filter: {
-        placeholder: "Status",
-        label: "Status",
-        filterOptions: [
-          {
-            label: "In use",
-            value: false,
-          },
-          {
-            label: "Banned",
-            value: true,
-          },
-        ],
+      render: (status: number) => {
+        let statusLabel: string;
+        let statusColor: string;
+
+        if (status === 1) {
+          statusLabel = "In Use";
+          statusColor = "#29CB00"; // Green
+        } else if (status === 2) {
+          statusLabel = "Banned";
+          statusColor = "#FF0000"; // Red
+        } else {
+          statusLabel = "Unknown"; // Fallback label
+          statusColor = "#000"; // Default color
+        }
+
+        return (
+          <span style={{ color: statusColor, fontWeight: "bold" }}>
+            {statusLabel}
+          </span>
+        );
       },
-      sorter: (a, b) => Number(a.status) - Number(b.status),
+      sorter: (a, b) => a.status - b.status,
     },
     {
       title: "Action",
@@ -150,50 +269,68 @@ const UserManagementList: React.FC = () => {
     },
   ];
 
-  const getActionItems = (record: { banStatus: any; id: any; role: any }) => {
-    const { banStatus, id, role } = record;
-
+  const getActionItems = (record: {
+    status: number;
+    id: string;
+    name: string;
+    roles: Roles[];
+  }): MenuProps["items"] => {
+    const { status, id, roles, name } = record;
+    console.log("status", record.status);
     return [
+      // {
+      //   key: "UPDATE_USER",
+      //   label: "Update user information",
+      //   icon: <Edit />,
+      //   // disabled: role === roles.ADMIN,
+      //   onClick: () => {
+      //     // userRef.current = record;
+      //     // setShowUserModal(true);
+      //   },
+      // },
+      // {
       {
-        key: "UPDATE_USER",
-        label: "Update user information",
-        icon: <Edit />,
-        // disabled: role === roles.ADMIN,
+        key: "ASSIGN_PERMISSION",
+        label: roles.length === 0 ? "Assign permissions" : "Update permissions",
+        icon: <ListAdd size="16" />,
         onClick: () => {
-          // userRef.current = record;
-          // setShowUserModal(true);
+          setSelectedUser({
+            id: record.id,
+            name,
+            roles: roles.map((role) => role.id),
+          });
+          setAssignRoleModal(true);
         },
       },
       {
-        key: "UPDATE_PHONE",
-        label: "Update phone number",
-        icon: <Phone />,
+        key: "BAN_ACCOUNT",
+        label: status === 1 ? "Ban account" : "Unban account",
+        icon: status === 1 ? <Forbid /> : <Unlock />,
+        danger: status === 1,
         onClick: () => {
-          // userRef.current = record;
-          // setShowPhoneModal(true);
-        },
-      },
-      {
-        key: "UPDATE_ROLE",
-        label: "Update role",
-        icon: <User />,
-        // disabled: role === roles.ADMIN,
-        onClick: () => {
-          // userRef.current = record;
-          // setShowModal(true);
-        },
-      },
-      {
-        key: "SET_STATUS",
-        title: banStatus ? "Unban account" : "Ban account",
-        danger: !banStatus,
-        icon: !banStatus ? <Forbid /> : <Unlock />,
-        onClick: () => {
-          if (banStatus) {
-            // unbanUser(id);
-          } else {
-            // banUser(id);
-          }
+          Modal.confirm({
+            title: status === 1 ? "Confirm Ban" : "Confirm Unban",
+            content: `Are you sure you want to ${
+              status === 1 ? "ban" : "unban"
+            } this account?`,
+            onOk: async () => {
+              try {
+                if (status === 2) {
+                  updateUserStatus(id, 1);
+                } else {
+                  updateUserStatus(id, 2);
+                }
+                message.success("Account status updated successfully.");
+                getData(search, currentPage, status, true); // Refresh the user list
+              } catch (error) {
+                message.error("Failed to update account status.");
+                console.error("Failed to update account status: ", error);
+              }
+            },
+            onCancel() {
+              console.log("Cancelled");
+            },
+          });
         },
       },
     ];
@@ -205,24 +342,66 @@ const UserManagementList: React.FC = () => {
         rowKey="id"
         title="User management"
         loading={loading}
-        dataSource={user}
-        columns={columns}
-        pagination={
-          {
-            // onChange: onPageChange,
-            // pageSize: PageSize.EMPLOYEES_LIST,
-            // total: user?.total,
-          }
+        dataSource={
+          users.data?.map(
+            (user: {
+              id: any;
+              name: any;
+              email: any;
+              phone_number: any;
+              roles: Roles[];
+              status: number;
+            }) => ({
+              key: user.id,
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              phone_number: user.phone_number,
+              roles:
+                user.roles?.map((r: { id: any; name: any }) => ({
+                  id: String(r.id),
+                  name: r.name,
+                  isDisabled: false,
+                })) || [],
+              status: user.status,
+            })
+          ) || []
         }
+        columns={columns}
+        pagination={{
+          onChange: onPageChange,
+          pageSize: PageSize.USER_LIST,
+          total: users.total,
+        }}
         searchOptions={{
           visible: true,
-          placeholder: "Search account...",
-          // onSearch: handleSearch,
+          placeholder: "Search users...",
+          onSearch: handleSearch,
           width: 300,
         }}
+        actions={
+          <Col>
+            <span className="mr-2">Status: </span>
+            <Select
+              allowClear
+              style={{ width: 120 }}
+              onChange={handleChange}
+              options={[
+                { value: "1", label: "In use" },
+                { value: "2", label: "Disabled" },
+              ]}
+            />
+          </Col>
+        }
       />
+      <UserRoleModal
+        onCancel={() => setAssignRoleModal(false)}
+        onSuccess={() => getData("", currentPage, status, true)}
+        open={assignRoleModal}
+        data={selectedUser}
+      ></UserRoleModal>
     </div>
   );
 };
 
-export default UserManagementList;
+export default withPermission(UserManagementList, "user_view");

@@ -3,8 +3,8 @@ import { Roles, RolesService } from './roles.service';
 import { CreateRoleDTO } from './roles.dto/create-role-request.dto';
 import { AssignPermissionDTO } from './roles.dto/assign-permission-dto';
 import { UpdatePermissionsDTO } from './roles.dto/update-permission-request-dto';
-import { PaginationDTO } from '../users/create-user-request.dto';
 import { Permission } from '../entities/permission.entity';
+import { PaginationDTO } from '../users/users.dto/create-user-request.dto';
 
 @Controller('roles')
 export class RolesController {
@@ -85,7 +85,7 @@ export class RolesController {
     }
 
     // Endpoint to get permissions assigned to a role by ID
-    
+
     @HttpCode(HttpStatus.OK)
     @Get('getPermissionsByRoleId/:id')
     async getPermissions(@Param('id') id: string): Promise<Permission[]> {
@@ -97,5 +97,11 @@ export class RolesController {
     @Get('getPermissionsNotAssignedByRoleId/:id')
     async getPermissionsNotAssigned(@Param('id') id: string): Promise<Permission[]> {
         return this.roleService.getPermissionsNotAssignedByRoleId(id);
+    }
+
+    @HttpCode(HttpStatus.OK)
+    @Get('getTotalActiveRoles')
+    async getTotalActiveRoles() {
+        return this.roleService.getTotalActiveRoles();
     }
 }

@@ -1,6 +1,6 @@
 import { Controller, Get, HttpCode, HttpStatus, Query } from '@nestjs/common';
 import { Locations, LocationsService } from './locations.service';
-import { SearchDTO } from '../users/create-user-request.dto';
+import { SearchDTO } from '../users/users.dto/create-user-request.dto';
 
 @Controller('locations')
 export class LocationsController {

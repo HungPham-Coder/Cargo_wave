@@ -1,7 +1,7 @@
 import { Controller, Get, HttpCode, HttpStatus, Query } from '@nestjs/common';
-import { SearchDTO } from '../users/create-user-request.dto';
 import { TransportWithShippingDTO } from './transports.dto/transport-request.dto';
 import { TransportsService } from './transports.service';
+import { SearchDTO } from '../users/users.dto/create-user-request.dto';
 
 @Controller('transports')
 export class TransportsController {

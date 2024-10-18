@@ -14,9 +14,11 @@ import {
   UserPositioning,
   UserToUserTransmission,
   Repositioning,
+  ChartLine,
 } from "@icon-park/react";
 import styled from "styled-components";
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
+import { usePermission } from "../contexts/PermissionContext";
 
 const StyledSider = styled(Sider)<{ $collapsed: boolean }>`
   background: linear-gradient(
@@ -75,6 +77,12 @@ const AppSider: React.FC = () => {
   const [current, setCurrent] = useState<string>("home");
   const [openKeys, setOpenKeys] = useState<string[]>(["Administration"]);
   const pathname = usePathname();
+  const { hasPermission } = usePermission();
+
+  const canAccessAdministration =
+    hasPermission("user_view") ||
+    hasPermission("role_view") ||
+    hasPermission("permission_view");
 
   const toggleCollapsed = () => {
     setCollapsed(!collapsed); // Toggle the collapsed state
@@ -87,35 +95,62 @@ const AppSider: React.FC = () => {
       icon: <Home size={iconSize} fill="#FFF" />,
     },
     { type: "divider" },
-    {
-      label: "Administration",
-      key: "Administration",
-      icon: <CategoryManagement size={iconSize} fill="#FFF" />,
-      children: [
-        {
-          label: <Link href={routes.userManagement}>User</Link>,
-          icon: <User size={iconSize} fill="#FFF" />,
-          key: "userManagement",
-        },
-        {
-          label: <Link href={routes.roleManagement}>Role</Link>,
-          icon: <UserPositioning size={iconSize} fill="#FFF" />,
-          key: "roleManagement",
-        },
-        {
-          label: <Link href={routes.permissionManagement}>Permission</Link>,
-          icon: <UserToUserTransmission size={iconSize} fill="#FFF" />,
-          key: "permissionManagement",
-        },
-      
-      ],
-    },
+    ...(hasPermission("dashboard_view") // Check permission for Dashboard
+      ? [
+          {
+            label: <Link href={routes.dashboard}>Dashboard</Link>,
+            key: "dashboard",
+            icon: <ChartLine size={iconSize} fill="#FFF" />,
+          },
+        ]
+      : []),
     { type: "divider" },
-    {
-      label: <Link href={routes.route}>Route</Link>,
-      key: "routes",
-      icon: <Repositioning size={iconSize} fill="#FFF" />,
-    },
+    ...(canAccessAdministration
+      ? [
+          {
+            label: "Administration",
+            key: "Administration",
+            icon: <CategoryManagement size={iconSize} fill="#FFF" />,
+            children: [
+              hasPermission("user_view")
+                ? {
+                    label: <Link href={routes.userManagement}>User</Link>,
+                    icon: <User size={iconSize} fill="#FFF" />,
+                    key: "userManagement",
+                  }
+                : null,
+              hasPermission("role_view")
+                ? {
+                    label: <Link href={routes.roleManagement}>Role</Link>,
+                    icon: <UserPositioning size={iconSize} fill="#FFF" />,
+                    key: "roleManagement",
+                  }
+                : null,
+              hasPermission("permission_view")
+                ? {
+                    label: (
+                      <Link href={routes.permissionManagement}>Permission</Link>
+                    ),
+                    icon: (
+                      <UserToUserTransmission size={iconSize} fill="#FFF" />
+                    ),
+                    key: "permissionManagement",
+                  }
+                : null,
+            ].filter((item): item is NonNullable<typeof item> => item !== null), // Filter out null values
+          },
+        ]
+      : []),
+    { type: "divider" },
+    ...(hasPermission("route_view") // Check permission for Routes
+      ? [
+          {
+            label: <Link href={routes.route}>Route</Link>,
+            key: "routes",
+            icon: <Repositioning size={iconSize} fill="#FFF" />,
+          },
+        ]
+      : []),
   ];
 
   const onClick: MenuProps["onClick"] = (e) => {

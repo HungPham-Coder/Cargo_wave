@@ -4,7 +4,7 @@ import { Route } from '../entities/routes.entity';
 import { Repository } from 'typeorm';
 import { CreateRouteDto, RouteWithTransportDTO } from './routes.dto/create-route-request.dto';
 import { UpdateRouteDto } from './routes.dto/update-route-request.dto';
-import { PaginationDTO, SearchDTO } from '../users/create-user-request.dto';
+import { SearchDTO } from '../users/users.dto/create-user-request.dto';
 
 export type Routes = any;
 
@@ -25,7 +25,7 @@ export class RoutesService {
     }
 
     async findAllBySearch(searchDTO: SearchDTO): Promise<RouteWithTransportDTO[]> {
-        const { search = '' } = searchDTO;
+        const { search = '', status } = searchDTO;
 
         try {
             const query = this.routeRepository.createQueryBuilder('routes')
@@ -36,6 +36,10 @@ export class RoutesService {
 
             if (search) {
                 query.where('LOWER(routes.name) LIKE LOWER(:search)', { search: `%${search.toLowerCase()}%` });
+            }
+
+            if (status !== undefined) {
+                query.andWhere('routes.status = :status', { status });
             }
 
             const data = await query.orderBy('routes.name', 'ASC').getMany();

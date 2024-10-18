@@ -1,6 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToMany, JoinTable, OneToOne } from 'typeorm';
 import { Role } from './role.entity';
-import { Route } from './routes.entity';
 import { RefreshToken } from './refreshToken.entity';
 
 @Entity()
@@ -14,7 +13,7 @@ export class User {
   name: string;
 
   @Column({ nullable: true })
-  phone_number: number;
+  phone_number: string;
 
   @Column()
   email: string;
@@ -48,7 +47,4 @@ export class User {
 
   @OneToMany(() => RefreshToken, (refreshTokens) => refreshTokens.users)
   refreshTokens: RefreshToken[]
-
-  // @OneToOne (() => UserPreference, (userPreference) => userPreference.user)
-  // userPreference: UserPreference
 }

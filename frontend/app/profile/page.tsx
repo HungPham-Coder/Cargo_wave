@@ -1,5 +1,8 @@
 "use client";
-
+import UserApi from "@/source/apis/users";
+import withPermission from "@/source/components/withPermission";
+import { UserContext } from "@/source/contexts/UserContext";
+import routes from "@/source/router/routes";
 import {
   CameraOutlined,
   HomeOutlined,
@@ -16,68 +19,113 @@ import {
   Form,
   Input,
   message,
+  Radio,
+  RadioChangeEvent,
   Select,
+  SelectProps,
   Tag,
   Typography,
   Upload,
 } from "antd";
 import { RcFile, UploadChangeParam } from "antd/es/upload";
 import dayjs from "dayjs";
-import { useState } from "react";
-import type { SelectProps } from "antd";
-import { useRouter } from "next/navigation";
-import routes from "@/source/router/routes";
+import {
+  CldImage,
+  CldUploadWidget,
+  CloudinaryUploadWidgetInfo,
+} from "next-cloudinary";
 import Link from "next/link";
+import { useContext, useEffect, useState } from "react";
 
 const { Title } = Typography;
-
-const roleColors: { [key: string]: string } = {
-  admin: "red",
-  user: "blue",
-  moderator: "green",
-};
-
-// Define tagRender function
-const tagRender: SelectProps["tagRender"] = (props) => {
-  const { label, value, closable, onClose } = props;
-  const onPreventMouseDown = (event: React.MouseEvent<HTMLSpanElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-  };
-  return (
-    <Tag
-      color={roleColors[value]}
-      onMouseDown={onPreventMouseDown}
-      closable={closable}
-      onClose={onClose}
-      style={{ marginInlineEnd: 4 }}
-    >
-      {label}
-    </Tag>
-  );
-};
 
 const ProfilePage: React.FC = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
-  const router = useRouter(); // Get the router instance
+  const [avatarUrl, setAvatarUrl] = useState<string>("");
+  const [value, setValue] = useState(1);
+  const [users, setUsers] = useState();
+  const [userId, setUserId] = useState("");
+  const [resource, setResource] = useState<
+    string | CloudinaryUploadWidgetInfo | undefined
+  >(undefined);
+  const { user, setUser, setSavedUser} = useContext(UserContext);
 
-  const onFinish = (values: any) => {
+  console.log("avatarUrl", avatarUrl);
+
+  const getData = async () => {
     setLoading(true);
-    console.log("Received values: ", values);
-    setTimeout(() => {
+    try {
+      const response = await UserApi.findById(userId);
+      console.log("response", response);
+      setUsers(response);
+      form.setFieldsValue({
+        name: response.name,
+        phone_number: response.phone_number,
+        email: response.email,
+        gender: response.gender,
+        image: response.image,
+        dob: dayjs(response.dob),
+      });
+      setAvatarUrl(response.image);
+    } catch (error) {
+      message.error("Failed to fetch roles");
+      console.error("Failed to fetch roles: ", error);
+    } finally {
       setLoading(false);
-      message.success("Profile updated successfully!");
-    }, 1000);
+    }
   };
 
-  const handleUpload = (info: UploadChangeParam) => {
-    if (info.file.status === "done") {
-      // Set the uploaded image as the avatar preview
-      setImageUrl(URL.createObjectURL(info.file.originFileObj as RcFile));
-      message.success(`${info.file.name} file uploaded successfully.`);
+  const handleUpdateUserProfile = async (id: string, values: any) => {
+    setLoading(true);
+    try {
+      const updatedValues = {
+        ...values,
+        image: avatarUrl, // Include the image URL in the payload
+      };
+
+      const body = await UserApi.updateUser(id, updatedValues);
+
+      if (body) {
+        message.success(`Profile updated successfully`);
+        localStorage.setItem("user", JSON.stringify(body));
+        const savedUser = localStorage.getItem("user");
+        if (savedUser && setSavedUser) {
+          setSavedUser(JSON.parse(savedUser));
+        }
+        console.log("body", body);
+      } else {
+        message.error(`Failed to update profile`);
+      }
+    } catch (error) {
+      message.error(`An error occurred while updating profile`);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    if (resource && typeof resource !== "string") {
+      setAvatarUrl(resource.url); // Set avatar URL when resource is updated
+    }
+  }, [resource]);
+
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    const user = JSON.parse(userData!);
+    const userId = user.id;
+    setUserId(userId);
+    getData();
+  }, [userId]);
+
+  const onFinish = (values: any) => {
+    console.log("Received values: ", values);
+    handleUpdateUserProfile(userId, values);
+  };
+
+  const onChangeRadio = (e: RadioChangeEvent) => {
+    console.log("radio checked", e.target.value);
+    setValue(e.target.value);
   };
 
   return (
@@ -91,7 +139,6 @@ const ProfilePage: React.FC = () => {
         <Breadcrumb.Item>
           <Link href={routes.profile}>Profile</Link>
         </Breadcrumb.Item>
-        {/* <Breadcrumb.Item>{id}</Breadcrumb.Item> */}
       </Breadcrumb>
       <Title ellipsis level={3} style={{ marginLeft: 16 }}>
         Profile management
@@ -112,91 +159,140 @@ const ProfilePage: React.FC = () => {
             marginBottom: "20px",
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              marginBottom: "20px",
-              position: "relative",
-            }}
-          >
-            <Avatar size={100} src={imageUrl} icon={<UserOutlined />} />
-
-            {/* Camera icon in bottom-right of the avatar */}
-            <Upload
-              name="avatar"
-              showUploadList={false}
-              action="/upload" // Simulated upload URL
-              onChange={handleUpload}
-            >
+          <Form form={form} layout="vertical" onFinish={onFinish}>
+            <Form.Item name="image">
               <div
                 style={{
-                  position: "absolute",
-                  bottom: -10, // Adjust for positioning below avatar
-                  right: "41%", // Adjust for positioning to the right of avatar
-                  backgroundColor: "#fff",
-                  borderRadius: "50%",
-                  padding: "4px",
-                  border: "1px solid #ddd",
-                  cursor: "pointer",
                   display: "flex",
                   justifyContent: "center",
-                  alignItems: "center",
+                  marginBottom: "20px",
+                  position: "relative",
                 }}
               >
-                <CameraOutlined style={{ fontSize: 20 }} />
-              </div>
-            </Upload>
-          </div>
+                <Avatar size={100} src={avatarUrl} icon={<UserOutlined />} />
 
-          <Form
-            form={form}
-            layout="vertical"
-            onFinish={onFinish}
-            initialValues={{
-              name: "John Doe",
-              email: "johndoe@example.com",
-              phone: "123-456-7890",
-              dob: dayjs("1990-01-01"),
-              gender: "male",
-              roles: ["user"],
-            }}
-          >
-            <Form.Item
-              label="Name"
-              name="name"
-              rules={[{ required: true, message: "Please input your name!" }]}
-            >
-              <Input prefix={<UserOutlined />} placeholder="Name" />
+                <CldUploadWidget
+                  uploadPreset="cargo_wave_upload"
+                  onSuccess={(result, { widget }) => {
+                    setResource(result?.info);
+                  }}
+                  onQueuesEnd={(result, { widget }) => {
+                    widget.close();
+                  }}
+                >
+                  {({ open }) => (
+                    <div
+                      style={{
+                        position: "absolute",
+                        bottom: -10,
+                        right: "41%",
+                        backgroundColor: "#fff",
+                        borderRadius: "50%",
+                        padding: "4px",
+                        border: "1px solid #ddd",
+                        cursor: "pointer",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                      onClick={() => open()}
+                    >
+                      <CameraOutlined style={{ fontSize: 20 }} />
+                    </div>
+                  )}
+                </CldUploadWidget>
+              </div>
             </Form.Item>
 
             <Form.Item
-              label="Email"
+              name="name"
+              labelAlign="left"
+              label="Full name"
+              hasFeedback
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your username!",
+                },
+                {
+                  pattern: /^[a-zA-Z\s]*$/,
+                  message: "No special characters allowed!",
+                },
+              ]}
+            >
+              <Input placeholder="Input your full name..." size="large" />
+            </Form.Item>
+
+            <Form.Item
+              name="phone_number"
+              labelAlign="left"
+              label="Phone number"
+              hasFeedback
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your phone number!",
+                },
+                {
+                  pattern: /^[0-9]{10}$/,
+                  message:
+                    "Phone number must be 10 digits long and contain only numbers!",
+                },
+              ]}
+            >
+              <Input placeholder="Input your phone number..." size="large" />
+            </Form.Item>
+
+            <Form.Item
               name="email"
+              label="Email"
+              labelAlign="left"
+              hasFeedback
               rules={[
                 {
                   required: true,
                   message: "Please input your email!",
+                },
+                {
                   type: "email",
+                  message: "The input is not a valid email!",
                 },
               ]}
             >
-              <Input prefix={<MailOutlined />} placeholder="Email" />
+              <Input placeholder="Input your email..." size="large" />
             </Form.Item>
 
             <Form.Item
-              label="Phone Number"
-              name="phone"
+              name="gender"
+              label="Gender"
+              labelAlign="left"
+              hasFeedback
               rules={[
-                { required: true, message: "Please input your phone number!" },
+                {
+                  required: true,
+                  message: "Please select your gender!",
+                },
               ]}
             >
-              <Input prefix={<PhoneOutlined />} placeholder="Phone Number" />
+              <Radio.Group
+                onChange={onChangeRadio}
+                value={value}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-evenly", // Centers the radio group horizontally
+                }}
+              >
+                <Radio value={1}>Male</Radio>
+                <Radio value={2}>Female</Radio>
+                <Radio value={3}>Other</Radio>
+              </Radio.Group>
             </Form.Item>
 
             <Form.Item
-              label="Date of Birth"
               name="dob"
+              label="Date of birth"
+              labelAlign="left"
+              hasFeedback
               rules={[
                 {
                   required: true,
@@ -204,40 +300,17 @@ const ProfilePage: React.FC = () => {
                 },
               ]}
             >
-              <DatePicker style={{ width: "100%" }} />
-            </Form.Item>
-
-            <Form.Item
-              label="Gender"
-              name="gender"
-              rules={[
-                { required: true, message: "Please select your gender!" },
-              ]}
-            >
-              <Select placeholder="Select Gender">
-                <Select.Option value="male">Male</Select.Option>
-                <Select.Option value="female">Female</Select.Option>
-                <Select.Option value="other">Other</Select.Option>
-              </Select>
-            </Form.Item>
-
-            <Form.Item
-              label="Roles"
-              name="roles"
-              rules={[
-                { required: true, message: "Please select at least one role!" },
-              ]}
-            >
-              <Select
-                mode="multiple"
-                tagRender={tagRender}
-                placeholder="Select Roles"
+              <DatePicker
                 style={{ width: "100%" }}
-              >
-                <Select.Option value="admin">Admin</Select.Option>
-                <Select.Option value="user">User</Select.Option>
-                <Select.Option value="moderator">Moderator</Select.Option>
-              </Select>
+                size="large"
+                format={{
+                  format: "DD-MM-YYYY",
+                  type: "mask",
+                }}
+                disabledDate={(current) =>
+                  current && current > dayjs().endOf("day")
+                }
+              />
             </Form.Item>
 
             <Form.Item>
@@ -245,12 +318,9 @@ const ProfilePage: React.FC = () => {
                 htmlType="submit"
                 block
                 loading={loading}
-                style={{
-                  padding: "20px 20px", 
-                  fontSize: "16px",
-                }}
+                style={{ padding: "20px 20px", fontSize: "16px" }}
               >
-                Update Profile
+                Update profile
               </Button>
             </Form.Item>
           </Form>
@@ -260,4 +330,4 @@ const ProfilePage: React.FC = () => {
   );
 };
 
-export default ProfilePage;
+export default withPermission(ProfilePage, "user_update");
