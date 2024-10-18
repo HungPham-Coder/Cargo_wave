@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { RolesService } from '../roles/roles.service';
@@ -6,6 +6,12 @@ import { UsersService } from '../users/users.service';
 import { roles, userStatus } from '../constants/enum';
 import { CreateUserDTO, LoginDTO } from '../users/users.dto/create-user-request.dto';
 import { Permission } from '../entities/permission.entity';
+import { config } from 'dotenv';
+import { lastValueFrom } from 'rxjs';
+import { MailsService } from '../mails/mails.service';
+
+
+config()
 
 @Injectable()
 export class AuthService {
@@ -14,9 +20,25 @@ export class AuthService {
     constructor(
         private userService: UsersService,
         private jwtService: JwtService,
-        private roleService: RolesService
+        private roleService: RolesService,
+        private mailService: MailsService
     ) { }
 
+    async verifyAccessToken(token: string): Promise<any> {
+        const decode = await this.jwtService.decode(token);
+        const verify = await this.jwtService.verifyAsync(token);
+        if (verify) {
+            const url = `https://oauth2.googleapis.com/tokeninfo?access_token=${decode.token}`;
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error('Token không hợp lệ');
+            }
+            const data = await response.json();
+            if (data){
+                return decode;
+            };
+        }
+    }
 
     async signIn(signInDto: LoginDTO): Promise<any> {
         const { email, password } = signInDto;
@@ -98,7 +120,7 @@ export class AuthService {
             };
             // console.log("role: ", role);
             console.log('SignUp data:', data);
-            const user = await this.userService.create(data);
+            const user = await this.userService.createUser(data);
             return user;
         } catch (error) {
             console.error('Error during SignUp:', error.message);
@@ -136,5 +158,106 @@ export class AuthService {
             console.error('Error during refreshToken:', error.message);
             throw error;
         }
+    }
+
+    async googleLogin(req) {
+        const { accessToken, email, name } = req.user;
+        const existingUser = await this.userService.findByEmail(email);
+        if (!req.user) {
+            return 'No user from google'
+        }
+        const payload = { existing: existingUser, token: accessToken }
+        const token = await this.jwtService.signAsync(payload);
+        try {
+            await fetch('http://localhost:3001/mails/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ to: email, token: token }) // Đối tượng
+            });
+            return {
+                message: 'User information from google',
+                user: req.user
+            }
+            // const apiUrl = `http://localhost:3001/auth/confirm?token=${accessToken}`
+            // if (!res.ok) {
+            //     throw new Error('Network response was not ok');
+            // }
+            // const response = await lastValueFrom(this.httpService.get(apiUrl));
+            // const data = response.data; // Lấy dữ liệu từ phản hồi
+
+            // // Xử lý dữ liệu từ phản hồi
+            // if (data.success) {
+            //     await this.handleUserConfirmation(data.success, req, existingUser);
+            //     return {
+            //         message: 'User information from google',
+            //         user: req.user
+            //     }
+            // } else {
+            //     // Xử lý thất bại
+            //     return 'Xác nhận thất bại.';
+            // }
+
+        } catch (error) {
+            console.log("Waiting confirm ...");
+        }
+    }
+
+    async forgotPassword(email: string): Promise<void> {
+        const user = this.userService.findByEmail(email);
+        if (!user) {
+            throw new NotFoundException(`No user found for email: ${email}`);
+        }
+        await fetch('http://localhost:3001/mails/resetPasswordLink', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                to: email
+            })
+        });
+    }
+
+    async resetPassword(token: string, password: string): Promise<void> {
+        const email = await this.mailService.decodeConfirmationToken(token);
+        console.log(email);
+        const user = await this.userService.findByEmail (email);
+        if (!user) {
+            throw new NotFoundException(`No user found for email: ${email}`);
+        }
+    
+        user.password = password;
+        // delete user[0].verify_token; // remove the token after the password is updated
+    }
+    async updateData(email, name, existingUser) {
+        if (!existingUser) {
+            try {
+                const response = await fetch('http://localhost:3001/users/redirect', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        email: email
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const data = await response.json();
+                console.log("Information user: ", data);
+            } catch (error) {
+                console.error('Error: ', error);
+                throw new Error('Something went wrong while fetching data.');
+            }
+        } else {
+            console.log('User is existed');
+        }
+
     }
 }

@@ -18,8 +18,8 @@ import { RoutesModule } from './routes/routes.module';
 import { TransportsModule } from './transports/transports.module';
 import { LocationsModule } from './locations/locations.module';
 import { SeedService } from './seed/seed.service';
-
-
+import { MailsModule } from './mails/mails.module';
+import { KafkaClientModule } from './kafka-client/kafka-client.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -50,9 +50,12 @@ import { SeedService } from './seed/seed.service';
     RoutesModule,
     LocationsModule,
     TransportsModule,
+    MailsModule,
+    KafkaClientModule
   ],
   controllers: [AppController],
   providers: [AppService, SeedService],
+    
 })
 export class AppModule { }
 

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, NotFoundException, Param, Patch, Put, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, NotFoundException, Param, Patch, Post, Put, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { User } from '../entities/user.entity';
@@ -26,11 +26,18 @@ export class UsersController {
     return this.userService.findAllWithPaging(paginationDTO);
   }
 
+  @HttpCode(HttpStatus.OK)
+  @Post ('redirect')
+  redirect(@Body() body: {name:string, email:string}){
+    const { name, email } = body;
+    return this.userService.create(name, email);
+  }
+
   // @MessagePattern("hero.user.createUser")
   @HttpCode(HttpStatus.OK)
   @Get('create')
   create(userDto: CreateUserDTO) {
-    return this.userService.create(userDto);
+    return this.userService.save(userDto);
   }
 
   @HttpCode(HttpStatus.OK)

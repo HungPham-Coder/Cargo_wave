@@ -7,25 +7,27 @@ export class User {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
+  // @Column ()
+  // deviceToken: string;
   @Column()
   name: string;
 
-  @Column()
+  @Column({ nullable: true })
   phone_number: string;
 
   @Column()
   email: string;
 
-  @Column()
+  @Column({ nullable: true })
   dob: Date;
 
-  @Column()
+  @Column({ nullable: true })
   gender: number
 
   @Column({ nullable: true })
   image: string
 
-  @Column()
+  @Column({ nullable: true })
   password: string;
 
   @Column({ nullable: true })
@@ -34,7 +36,7 @@ export class User {
   @Column({ nullable: true })
   verify_token_expires: Date;
 
-  @Column()
+  @Column({ nullable: true })
   status: number
 
   @ManyToMany(() => Role, (role) => role.users)

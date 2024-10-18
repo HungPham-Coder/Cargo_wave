@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { SeedService } from './seed.service';
+import { KafkaClientService } from './kafka-client.service';
 
-describe('SeedService', () => {
-  let service: SeedService;
+describe('KafkaClientService', () => {
+  let service: KafkaClientService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [SeedService],
+      providers: [KafkaClientService],
     }).compile();
 
-    service = module.get<SeedService>(SeedService);
+    service = module.get<KafkaClientService>(KafkaClientService);
   });
 
   it('should be defined', () => {

@@ -20,7 +20,17 @@ export class UsersService {
     private rolesRepository: Repository<Roles>,
   ) { }
 
-  async create(userDto: CreateUserDTO): Promise<Users> {
+  async createUser(userDto: CreateUserDTO): Promise<Users> {
+    return await this.usersRepository.save(userDto);
+  }
+
+  async create(name: string, email: string): Promise<Users> {
+    // const user =  await this.usersRepository.create ({name, email});
+    return await this.usersRepository.save({ name, email });
+  }
+  async save(userDto: CreateUserDTO): Promise<Users> {
+    // const user = await this.usersRepository.create(userDto);
+    // userDto.role = userDto.roleID
     return await this.usersRepository.save(userDto);
   }
 
