@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   DownOutlined,
   LeftOutlined,
@@ -10,6 +10,7 @@ import { Avatar, Dropdown, message } from "antd";
 import Link from "next/link";
 import routes from "../router/routes";
 import UserApi from "../apis/users";
+import { UserContext } from "../contexts/UserContext";
 
 const Container = styled.div`
   display: flex;
@@ -55,24 +56,7 @@ interface User {
 
 const ProfileBar: React.FC = () => {
   const [isHovered, setIsHovered] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [userId, setUserId] = useState("");
-  const [users, setUsers] = useState<User | undefined>(undefined);
-
-  const getData = async () => {
-    setLoading(true);
-    try {
-      console.log("userId", userId);
-      const response = await UserApi.findById(userId);
-      console.log("response", response);
-      setUsers(response);
-    } catch (error) {
-      message.error("Failed to fetch roles");
-      console.error("Failed to fetch roles: ", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { user } = useContext(UserContext);
 
   const handleMouseEnter = () => {
     setIsHovered(true);
@@ -93,14 +77,7 @@ const ProfileBar: React.FC = () => {
     window.dispatchEvent(new Event("storage"));
   };
 
-  useEffect(() => {
-    // Retrieve user and roles from localStorage
-    const userData = localStorage.getItem("user");
-    const user = JSON.parse(userData!);
-    const userId = user.id;
-    setUserId(userId);
-    getData();
-  }, [userId]);
+  useEffect(() => {});
 
   const items = [
     {
@@ -118,7 +95,7 @@ const ProfileBar: React.FC = () => {
 
   return (
     <Container style={{ height: "60px" }}>
-      <Avatar size="large" icon={<UserOutlined />} />
+      <Avatar size="large" src={user?.image} icon={<UserOutlined />} />
 
       <Dropdown menu={{ items }} trigger={["hover"]}>
         <span
@@ -132,7 +109,7 @@ const ProfileBar: React.FC = () => {
           }}
         >
           <UserInfo>
-            <UserName>{users?.name}</UserName> {/* Display the user name */}
+            <UserName>{user?.name}</UserName> {/* Display the user name */}
           </UserInfo>
           {isHovered ? (
             <DownOutlined

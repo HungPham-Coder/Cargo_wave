@@ -1,6 +1,7 @@
 "use client";
 import UserApi from "@/source/apis/users";
 import withPermission from "@/source/components/withPermission";
+import { UserContext } from "@/source/contexts/UserContext";
 import routes from "@/source/router/routes";
 import {
   CameraOutlined,
@@ -34,7 +35,7 @@ import {
   CloudinaryUploadWidgetInfo,
 } from "next-cloudinary";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 const { Title } = Typography;
 
@@ -48,15 +49,15 @@ const ProfilePage: React.FC = () => {
   const [resource, setResource] = useState<
     string | CloudinaryUploadWidgetInfo | undefined
   >(undefined);
+  const { user, setUser, setSavedUser} = useContext(UserContext);
 
   console.log("avatarUrl", avatarUrl);
-
 
   const getData = async () => {
     setLoading(true);
     try {
       const response = await UserApi.findById(userId);
-      console.log("response", response)
+      console.log("response", response);
       setUsers(response);
       form.setFieldsValue({
         name: response.name,
@@ -87,6 +88,11 @@ const ProfilePage: React.FC = () => {
 
       if (body) {
         message.success(`Profile updated successfully`);
+        localStorage.setItem("user", JSON.stringify(body));
+        const savedUser = localStorage.getItem("user");
+        if (savedUser && setSavedUser) {
+          setSavedUser(JSON.parse(savedUser));
+        }
         console.log("body", body);
       } else {
         message.error(`Failed to update profile`);

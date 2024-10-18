@@ -6,9 +6,9 @@ import { BaseTable } from "@/source/components/baseTable";
 import PermissionModal from "@/source/components/modal/permissionModal";
 import PermissionUpdateModal from "@/source/components/modal/permissionUpdateModal";
 import { PageSize } from "@/source/constants/app";
-import { More, User } from "@icon-park/react";
-import { Button, Dropdown, MenuProps, message } from "antd";
-import { Suspense, useEffect, useState } from "react";
+import { User } from "@icon-park/react";
+import { MenuProps, message } from "antd";
+import { useEffect, useState } from "react";
 import withPermission from "@/source/components/withPermission";
 
 interface ColumnType<T> {

@@ -56,6 +56,7 @@ export class UsersService {
       const data = await
         query.skip(effectivePageIndex * pageSizeNumber)
           .take(pageSizeNumber)
+          .orderBy('users.status', 'ASC')
           .getMany();
 
       return { data, total };

@@ -164,11 +164,6 @@ const UserManagementList: React.FC = () => {
     getData(search, defaultPage, status, true);
   }, []);
 
-  const roleColors: { [key in "Admin" | "Manager" | "Employee"]: string } = {
-    Admin: "#FF7777",
-    Manager: "#4ECA69",
-    Employee: "#59A7DE",
-  };
   const columns: ColumnType<{
     key: string;
     name: string;
@@ -229,6 +224,11 @@ const UserManagementList: React.FC = () => {
           )}
         </div>
       ),
+      sorter: (a, b) => {
+        const roleNameA = a.roles.length > 0 ? a.roles[0].name : "";
+        const roleNameB = b.roles.length > 0 ? b.roles[0].name : "";
+        return roleNameA.localeCompare(roleNameB);
+      },
     },
     {
       title: "Status",
