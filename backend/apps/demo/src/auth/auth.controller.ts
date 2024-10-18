@@ -1,6 +1,7 @@
 import { Post, Body, Controller, HttpCode, HttpStatus, UsePipes, ValidationPipe, UseGuards, Get, Req, Res, Query, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateUserDTO, LoginDTO } from '../users/create-user-request.dto';
+import { MessagePattern } from '@nestjs/microservices';
+import { CreateUserDTO, LoginDTO } from '../users/users.dto/create-user-request.dto';
 import { GoogleOAuthGuard } from './google-oauth/google-oauth.gaurd';
 import { JwtService } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
@@ -8,9 +9,7 @@ import { jwtConstants } from './constants';
 
 @Controller('auth')
 export class AuthController {
-    constructor(
-        private authService: AuthService,
-    ) { }
+    constructor(private authService: AuthService) { }
 
     @Get('confirm')
     async confirm(@Query('token') token: string) {
@@ -44,6 +43,12 @@ export class AuthController {
     // @MessagePattern('hero.auth.register')
     signUp(@Body(ValidationPipe) signUpDto: CreateUserDTO) {
         return this.authService.signUp(signUpDto)
+    }
+
+    @Post('refresh')
+    @HttpCode(HttpStatus.OK) // Optional: Specify HTTP status code for successful refresh
+    async refresh(@Body('refreshToken') refreshToken: string) {
+        return await this.authService.refreshToken(refreshToken);
     }
 
     @Get()

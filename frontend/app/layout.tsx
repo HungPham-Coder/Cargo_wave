@@ -11,6 +11,7 @@ import AppSider from "@/source/layouts/sider";
 import { usePathname } from "next/navigation";
 import routes from "@/source/router/routes";
 import { Suspense } from "react";
+import { PermissionProvider } from "@/source/contexts/PermissionContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -40,12 +41,16 @@ export default function RootLayout({
           <Layout>
             <AppHeader />
             <Layout>
-              {!isLoginPage && !isRegisterPage && !isForgotPage && <AppSider />}{" "}
-              <Suspense fallback={<div>Loading...</div>}>
-                <Content style={contentLayout}>{children}</Content>
-              </Suspense>
+              <PermissionProvider>
+                {!isLoginPage && !isRegisterPage && !isForgotPage && (
+                  <AppSider />
+                )}{" "}
+                <Suspense fallback={<div>Loading...</div>}>
+                  <Content style={contentLayout}>{children}</Content>
+                </Suspense>
+              </PermissionProvider>
             </Layout>
-            <AppFooter />
+            {!isLoginPage && !isRegisterPage && !isForgotPage && <AppFooter />}{" "}
           </Layout>
         </StyledComponentsRegistry>
       </body>

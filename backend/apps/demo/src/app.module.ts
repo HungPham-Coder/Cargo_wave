@@ -17,18 +17,19 @@ import { Transport } from './entities/transport.entity';
 import { RoutesModule } from './routes/routes.module';
 import { TransportsModule } from './transports/transports.module';
 import { LocationsModule } from './locations/locations.module';
-import { KafkaClientModule } from './kafka-client/kafka-client.module';
+import { SeedService } from './seed/seed.service';
 import { MailsModule } from './mails/mails.module';
+import { KafkaClientModule } from './kafka-client/kafka-client.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
-      port: 5433,
+      port: 5432,
       username: 'postgres',
-      password: '130600',
-      // database: 'CargoWave',
-      database: 'postgres',
+      password: '123456',
+      database: 'CargoWave',
+      // database: 'postgres',
       entities: [
         User,
         RefreshToken,
@@ -53,7 +54,8 @@ import { MailsModule } from './mails/mails.module';
     KafkaClientModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, SeedService],
+    
 })
 export class AppModule { }
 
@@ -64,8 +66,6 @@ export class AppModule { }
 // import { TypeOrmModule } from '@nestjs/typeorm';
 // import { AuthModule } from './auth/auth.module';
 // import { UsersModule } from './users/users.module';
-
-
 // import typeorm from './config/typeorm';
 
 // @Module({

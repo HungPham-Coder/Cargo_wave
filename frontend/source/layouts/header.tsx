@@ -8,6 +8,7 @@ import { LoginOutlined } from "@ant-design/icons";
 import Link from "next/link";
 import routes from "../router/routes";
 import { useAuth } from "../mocks/auth";
+import UserProvider from "../contexts/UserContext";
 
 const AppHeader: React.FC = () => {
   const isAuthenticated = useAuth(); // Get authentication status from custom hook
@@ -47,7 +48,9 @@ const AppHeader: React.FC = () => {
         {/* Navigation and Authentication Section */}
         <div style={{ display: "flex", justifyContent: "flex-end", flex: 1 }}>
           {isAuthenticated ? (
-            <ProfileBar /> // Render ProfileBar when authenticated
+            <UserProvider>
+              <ProfileBar /> 
+            </UserProvider>
           ) : (
             <Button
               type="default"

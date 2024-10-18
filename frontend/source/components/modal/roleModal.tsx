@@ -104,7 +104,6 @@ const RoleModal: React.FC<RoleModalProps> = ({
               ))}
               <Form.Item>
                 <Button
-                  type="dashed"
                   onClick={() => add()}
                   block
                   icon={<PlusOutlined />}

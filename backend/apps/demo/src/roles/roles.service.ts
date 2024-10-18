@@ -2,11 +2,10 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { CreateRoleDTO } from './roles.dto/create-role-request.dto';
-
 import { AssignPermissionDTO } from './roles.dto/assign-permission-dto';
 import { Permission } from '../entities/permission.entity';
 import { Role } from '../entities/role.entity';
-import { PaginationDTO } from '../users/create-user-request.dto';
+import { PaginationDTO } from '../users/users.dto/create-user-request.dto';
 
 
 export type Roles = any;
@@ -45,14 +44,17 @@ export class RolesService {
 
       // Count the total number of results after filtering
       const total = await query.getCount();
+      const effectivePageIndex = Math.min(pageIndexNumber, Math.floor(total / pageSizeNumber)); // Ensure pageIndex doesn't exceed total pages
 
       // Apply pagination and get the data
       const data = await query
-        .skip(pageIndexNumber * pageSizeNumber)
+        .skip(effectivePageIndex * pageSizeNumber)
         .take(pageSizeNumber)
         .orderBy('roles.isDisabled', 'ASC')
         .addOrderBy('roles.name', 'ASC')
         .getMany();
+
+      console.log("Fetched Data:", data);
 
       return { data, total };
     } catch (error) {
@@ -184,37 +186,50 @@ export class RolesService {
   }
 
   // Method to get permissions assigned to a role by ID
-async getPermissionsByRoleId(roleId: string): Promise<Permission[]> {
-  const role = await this.rolesRepository.findOne({
-    where: { id: roleId },
-    relations: ['permissions'], // Load permissions relation
-  });
+  async getPermissionsByRoleId(roleId: string): Promise<Permission[]> {
+    const role = await this.rolesRepository.findOne({
+      where: { id: roleId },
+      relations: ['permissions'], // Load permissions relation
+    });
 
-  if (!role) {
-    throw new Error('Role not found');
+    if (!role) {
+      throw new Error('Role not found');
+    }
+
+    return role.permissions; // Return the assigned permissions
   }
 
-  return role.permissions; // Return the assigned permissions
-}
+  // Method to get permissions not assigned to a role by ID
+  async getPermissionsNotAssignedByRoleId(roleId: string): Promise<Permission[]> {
+    const role = await this.rolesRepository.findOne({
+      where: { id: roleId },
+      relations: ['permissions'], // Load permissions relation
+    });
 
-// Method to get permissions not assigned to a role by ID
-async getPermissionsNotAssignedByRoleId(roleId: string): Promise<Permission[]> {
-  const role = await this.rolesRepository.findOne({
-    where: { id: roleId },
-    relations: ['permissions'], // Load permissions relation
-  });
+    if (!role) {
+      throw new Error('Role not found');
+    }
 
-  if (!role) {
-    throw new Error('Role not found');
+    // Fetch all permissions from the database
+    const allPermissions = await this.permissionRepository.find();
+
+    // Filter out the permissions that are already assigned to the role
+    const assignedPermissionIds = new Set(role.permissions.map(permission => permission.id));
+    const notAssignedPermissions = allPermissions.filter(permission => !assignedPermissionIds.has(permission.id));
+
+    return notAssignedPermissions; // Return the not assigned permissions
   }
 
-  // Fetch all permissions from the database
-  const allPermissions = await this.permissionRepository.find();
+  async getTotalActiveRoles(): Promise<number> {
+    try {
+      const total = await this.rolesRepository.count({
+        where: { isDisabled: false },
+      });
 
-  // Filter out the permissions that are already assigned to the role
-  const assignedPermissionIds = new Set(role.permissions.map(permission => permission.id));
-  const notAssignedPermissions = allPermissions.filter(permission => !assignedPermissionIds.has(permission.id));
-
-  return notAssignedPermissions; // Return the not assigned permissions
-}
+      return total;
+    } catch (error) {
+      console.error('Error counting active roles:', error);
+      throw new Error('Error getting total active roles');
+    }
+  }
 }

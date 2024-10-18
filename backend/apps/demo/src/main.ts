@@ -9,6 +9,15 @@ async function bootstrap() {
   app.startAllMicroservices();
   await app.listen(3001);
 
+  // const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
+  //   transport: Transport.GRPC,
+  //   options: {
+  //     package: 'hero',
+  //     protoPath: join(__dirname, 'hero/hero.proto'),
+  //     url: 'localhost:3001',
+  //   },
+  // });
+
   // const app = await NestFactory.createMicroservice <MicroserviceOptions>(AppModule, {
   //   transport: Transport.KAFKA,
   //   options: {

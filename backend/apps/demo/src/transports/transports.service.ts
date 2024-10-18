@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transport } from '../entities/transport.entity';
 import { Repository } from 'typeorm';
-import { SearchDTO } from '../users/create-user-request.dto';
 import { TransportWithShippingDTO } from './transports.dto/transport-request.dto';
+import { SearchDTO } from '../users/users.dto/create-user-request.dto';
 
 @Injectable()
 export class TransportsService {

@@ -1,3 +1,7 @@
+body{
+  margin: 0 !important;
+}
+
 .ant-btn {
   background: linear-gradient(135deg, #0d3b66 5%, #00a6fb 100%) !important;
   color: white !important; /* Change text color to white */

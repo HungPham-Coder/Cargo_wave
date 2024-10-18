@@ -14,15 +14,16 @@ const findAll = async () => {
   }
 };
 
-const findAllBySearch = async (search: string) => {
+const findAllBySearch = async (search?: string, status?: number) => {
   try {
     let params: any = {};
 
+    if (status) {
+      params.status = status;
+    }
     if (search) {
       params.search = search;
     }
-
-    // Make API request with proper params
     const response = await BaseApi.get(`/${resource}/findAllBySearch`, {
       params: params,
     });

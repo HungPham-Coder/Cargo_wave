@@ -55,7 +55,7 @@ const RegisterPage: React.FC = () => {
     setLoading(false);
     if (success) {
       message.success(`Register successful!`);
-      router.push(routes.login)
+      router.push(routes.login);
     } else {
       message.error("Wrong user name or password. Please try again!.");
     }
@@ -94,7 +94,6 @@ const RegisterPage: React.FC = () => {
               console.log("data: ", values);
               // const { phone, password } = values;
               await handleRegister(values);
-              
             }}
           >
             <Form.Item
@@ -108,7 +107,7 @@ const RegisterPage: React.FC = () => {
                   message: "Please input your username!",
                 },
                 {
-                  pattern: /^[a-zA-Z0-9]*$/,
+                  pattern: /^[a-zA-Z\s]*$/,
                   message: "No special characters allowed!",
                 },
               ]}
@@ -134,7 +133,7 @@ const RegisterPage: React.FC = () => {
             >
               <Input placeholder="Input your phone number..." size="large" />
             </Form.Item>
-            
+
             <Form.Item
               name="email"
               label="Email"
@@ -153,6 +152,7 @@ const RegisterPage: React.FC = () => {
             >
               <Input placeholder="Input your email..." size="large" />
             </Form.Item>
+
             <Form.Item
               name="gender"
               label="Gender"
@@ -165,12 +165,20 @@ const RegisterPage: React.FC = () => {
                 },
               ]}
             >
-              <Radio.Group onChange={onChangeRadio} value={value}>
+              <Radio.Group
+                onChange={onChangeRadio}
+                value={value}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-evenly", // Centers the radio group horizontally
+                }}
+              >
                 <Radio value={1}>Male</Radio>
                 <Radio value={2}>Female</Radio>
                 <Radio value={3}>Other</Radio>
               </Radio.Group>
             </Form.Item>
+
             <Form.Item
               name="dob"
               label="Date of birth"

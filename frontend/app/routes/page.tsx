@@ -2,6 +2,8 @@
 
 import RouteApi from "@/source/apis/routes";
 import RouteCreateModal from "@/source/components/modal/routeCreateModal";
+import withPermission from "@/source/components/withPermission";
+import { usePermission } from "@/source/contexts/PermissionContext";
 import { statusMap } from "@/source/mocks/mocks";
 import {
   ConfigProvider,
@@ -15,6 +17,7 @@ import {
   Spin,
   Tag,
   Button,
+  Select,
 } from "antd";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
@@ -59,14 +62,20 @@ const RoutesList: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [routes, setRoutes] = useState<Route[]>([]);
   const [showItemModal, setShowItemModal] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState<number | undefined>(
+    undefined
+  );
   const searchParams = useSearchParams();
   const router = useRouter();
   const search = searchParams.get("search") || "";
+  const { hasPermission } = usePermission();
 
-  const getData = async (search: string) => {
+  const canAccessCreateRoute = hasPermission("route_create");
+
+  const getData = async (search?: string, status?: number) => {
     setLoading(true);
     try {
-      const response = await RouteApi.findAllBySearch(search);
+      const response = await RouteApi.findAllBySearch(search, status);
       setRoutes(response);
       console.log("Routes: ", routes);
     } catch (error) {
@@ -79,12 +88,12 @@ const RoutesList: React.FC = () => {
 
   const handleSearch = (value: string) => {
     router.push(`?search=${value}`);
-    getData(value);
+    getData(value, selectedStatus);
   };
 
   useEffect(() => {
-    getData(search);
-  }, [search]);
+    getData(search, selectedStatus);
+  }, [search, selectedStatus]);
 
   const handleCardClick = (id: string) => {
     router.push(`/routes/${id}`);
@@ -118,29 +127,68 @@ const RoutesList: React.FC = () => {
       </Row>
 
       <Row justify="space-between">
-        <Input.Search
-          allowClear
-          placeholder="Search routes..."
-          onSearch={handleSearch}
-          style={{
-            width: 400,
-            marginBottom: 20,
-            padding: "5px 7px",
-            borderRadius: "8px",
-            borderColor: "#d9f1f0",
-            backgroundColor: "#e0f7f9",
-            boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-          }}
-        />
-        <Button
-          style={{
-            marginTop: 5,
-          }}
-          className="btn-primary app-bg-primary font-semibold text-white"
-          onClick={() => setShowItemModal(true)}
-        >
-          Create route
-        </Button>
+        <Col>
+          <Input.Search
+            allowClear
+            placeholder="Search routes..."
+            onSearch={handleSearch}
+            style={{
+              width: 400,
+              marginBottom: 20,
+              padding: "5px 7px",
+              borderRadius: "8px",
+              borderColor: "#d9f1f0",
+              backgroundColor: "#e0f7f9",
+              boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+            }}
+          />
+
+          <span className="mr-2" style={{ fontWeight: 600, marginLeft: 30, marginRight: 5}}>
+            Status:
+          </span>
+          <Select
+            allowClear
+            value={selectedStatus}
+            onChange={(value) => {
+              setSelectedStatus(value);
+              getData(search, value);
+            }}
+            style={{
+              width: 200,
+              marginBottom: 20,
+              padding: "5px 7px",
+              borderRadius: "8px",
+              borderColor: "#d9f1f0",
+              backgroundColor: "#e0f7f9",
+              boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+              height: 41
+            }}
+            dropdownStyle={{
+              borderRadius: "8px",
+              borderColor: "#d9f1f0",
+              boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+            }}
+            getPopupContainer={(trigger) => trigger.parentNode} // Ensure dropdown positioning is correct
+          >
+            {Object.entries(statusMap).map(([key, { text }]) => (
+              <Select.Option key={key} value={Number(key)}>
+                {text}
+              </Select.Option>
+            ))}
+          </Select>
+        </Col>
+
+        {canAccessCreateRoute && (
+          <Col>
+            <Button
+              style={{ marginTop: 5 }}
+              className="btn-primary app-bg-primary font-semibold text-white"
+              onClick={() => setShowItemModal(true)}
+            >
+              Create route
+            </Button>
+          </Col>
+        )}
       </Row>
 
       {loading ? (
@@ -261,4 +309,5 @@ const RoutesList: React.FC = () => {
   );
 };
 
-export default RoutesList;
+// export default RoutesList;
+export default withPermission(RoutesList, "route_view");

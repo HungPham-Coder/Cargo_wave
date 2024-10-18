@@ -12,12 +12,13 @@ import {
 } from "antd";
 import styled from "styled-components";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import routes from "@/source/router/routes";
 import AuthApi from "@/source/apis/auth";
 import Card from "antd/es/card/Card";
 import { useRouter } from "next/navigation";
+import CheckToken from "@/source/constants/utils";
 
 const { Title } = Typography;
 
@@ -51,9 +52,13 @@ const LoginPage: React.FC = () => {
     setLoading(false);
     if (success) {
       message.success(`Login successful!`);
-      router.push(routes.root);
+      
+      // router.push(routes.root); // Navigate to root route
+      setTimeout(() => {
+        window.location.href = routes.root; // Set timeout to reload to home page
+      }, 0);
     } else {
-      message.error("Wrong user name or password. Please try again!.");
+      message.error("Wrong username or password. Please try again!");
     }
   };
 
@@ -80,13 +85,26 @@ const LoginPage: React.FC = () => {
               labelAlign="right"
               rules={[{ required: true, message: "Please input your email!" }]}
             >
-              <Input prefix={<UserOutlined />} placeholder="Email..." size="large" />
+              <Input
+                prefix={<UserOutlined />}
+                placeholder="Email..."
+                size="large"
+              />
             </Form.Item>
             <Form.Item name="password">
-              <Input.Password prefix={<LockOutlined />} placeholder="Password..." size="large" />
+              <Input.Password
+                prefix={<LockOutlined />}
+                placeholder="Password..."
+                size="large"
+              />
             </Form.Item>
             <Form.Item>
-              <Button type="primary" size="large" htmlType="submit" style={{ width: "100%" }}>
+              <Button
+                type="primary"
+                size="large"
+                htmlType="submit"
+                style={{ width: "100%" }}
+              >
                 Login
               </Button>
             </Form.Item>
@@ -99,13 +117,19 @@ const LoginPage: React.FC = () => {
               </Button>
             </Row>
             <Row>
-              <Divider plain style={{ borderColor: "#D4D4D4", color: "#D4D4D4" }}>
+              <Divider
+                plain
+                style={{ borderColor: "#D4D4D4", color: "#D4D4D4" }}
+              >
                 Or login with
               </Divider>
             </Row>
             <Row justify="center">
               <Button shape="circle">
-                <Avatar style={{background: "white"}}  src={<img src="assets/google_logo_icon.png" />} />
+                <Avatar
+                  style={{ background: "white" }}
+                  src={<img src="assets/google_logo_icon.png" />}
+                />
               </Button>
             </Row>
           </Form>

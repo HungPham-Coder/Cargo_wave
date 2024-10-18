@@ -6,7 +6,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { RolesModule } from '../roles/roles.module';
 import { UsersModule } from '../users/users.module';
 import { GoogleStrategy } from './google-oauth/google.strategy';
-import { HttpModule, HttpService } from '@nestjs/axios';
 import { MailsModule } from '../mails/mails.module';
 
 

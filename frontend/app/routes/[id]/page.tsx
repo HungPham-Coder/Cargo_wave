@@ -22,6 +22,7 @@ import dayjs from "dayjs";
 import { statusMap } from "@/source/mocks/mocks";
 import LocationApi from "@/source/apis/location";
 import TransportApi from "@/source/apis/transport";
+import { usePermission } from "@/source/contexts/PermissionContext";
 
 interface Transport {
   id: string;
@@ -55,9 +56,11 @@ const RouteDetailPage: React.FC = () => {
   const searchLocation = searchParams.get("location") || "";
   const searchTransport = searchParams.get("transport") || "";
   const [distance, setDistance] = useState("");
-
   const BORDER_COLOR = "#0d3b66";
   const FONT_WEIGHT = 500;
+  const { hasPermission } = usePermission();
+
+  const canAccessUpdateRouteDetail = hasPermission("routeDetail_update");
 
   const getData = async () => {
     setLoading(true);
@@ -130,6 +133,7 @@ const RouteDetailPage: React.FC = () => {
   const handleCancelClick = () => {
     setIsEditing(false);
     form.resetFields();
+    setDistance("");
   };
 
   useEffect(() => {
@@ -312,7 +316,7 @@ const RouteDetailPage: React.FC = () => {
             : null,
           license_plate: routeDetail?.transport.license_plate || "",
           shipping_type: routeDetail?.transport.shippingType.name || "",
-          distance: "distance"
+          distance: distance,
         }}
         style={{
           margin: "3% auto 5%",
@@ -501,9 +505,9 @@ const RouteDetailPage: React.FC = () => {
 
         <Row justify="end" gutter={[16, 24]}>
           {!isEditing ? (
-            <>
+            canAccessUpdateRouteDetail && (
               <Button onClick={handleEditClick}>Edit</Button>
-            </>
+            )
           ) : (
             <>
               <Button onClick={handleCancelClick} style={{ marginRight: 8 }}>
@@ -513,6 +517,8 @@ const RouteDetailPage: React.FC = () => {
             </>
           )}
         </Row>
+
+        
       </Form>
     </div>
   );
