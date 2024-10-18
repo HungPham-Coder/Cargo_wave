@@ -40,6 +40,14 @@ export class AuthService {
             };
         }
     }
+    
+    private async encodePassword (password : string){
+        return await bcrypt.hash(password, this.saltOrRounds);
+    }
+
+    private async decodePassword (password: string, passwordDto: string){
+        return await bcrypt.compare(password, passwordDto);
+    }
 
     async signIn(signInDto: LoginDTO): Promise<any> {
         const { email, password } = signInDto;
@@ -48,7 +56,7 @@ export class AuthService {
                 throw new UnauthorizedException("Email or password empty!");
             }
             const user = await this.userService.findByEmail(email);
-            const isMatch = await bcrypt.compare(password, user?.password);
+            const isMatch = await this.decodePassword(password, user?.password);
 
             if (!isMatch || !user) {
                 throw new UnauthorizedException("Wrong user name or password!");
@@ -65,7 +73,7 @@ export class AuthService {
 
     async signUp(payload: CreateUserDTO) {
         try {
-            const hashPass = await bcrypt.hash(payload.password, this.saltOrRounds);
+            const hashPass = await this.encodePassword(payload.password);
             const role = await this.roleService.findOneByName(roles.EMPLOYEE); //get employee role
 
             if (!role) {
@@ -115,24 +123,6 @@ export class AuthService {
                 message: 'User information from google',
                 user: req.user
             }
-            // const apiUrl = `http://localhost:3001/auth/confirm?token=${accessToken}`
-            // if (!res.ok) {
-            //     throw new Error('Network response was not ok');
-            // }
-            // const response = await lastValueFrom(this.httpService.get(apiUrl));
-            // const data = response.data; // Lấy dữ liệu từ phản hồi
-
-            // // Xử lý dữ liệu từ phản hồi
-            // if (data.success) {
-            //     await this.handleUserConfirmation(data.success, req, existingUser);
-            //     return {
-            //         message: 'User information from google',
-            //         user: req.user
-            //     }
-            // } else {
-            //     // Xử lý thất bại
-            //     return 'Xác nhận thất bại.';
-            // }
 
         } catch (error) {
             console.log("Waiting confirm ...");
@@ -162,9 +152,13 @@ export class AuthService {
         if (!user) {
             throw new NotFoundException(`No user found for email: ${email}`);
         }
-    
-        user.password = password;
+        console.log (user);
+        const hashPass = await this.encodePassword (password);
+        // user.password = hashPass;
         // delete user[0].verify_token; // remove the token after the password is updated
+       
+        const updatedUser = await this.userService.updateUser (user, hashPass);
+        return updatedUser;
     }
     async updateData(email, name, existingUser) {
         if (!existingUser) {

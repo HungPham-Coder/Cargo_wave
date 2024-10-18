@@ -34,9 +34,10 @@ export class MailsService {
           const payload = await this.jwtService.verify(token, {
             secret: process.env.JWT_VERIFICATION_TOKEN_SECRET
           });
-          console.log(payload.email.to)
+          console.log ("Payload received: ", payload)
+          console.log("Email from payload: ", payload.email)
           if (typeof payload === 'object' && 'email' in payload) {
-            return payload.email.to;
+            return payload.email;
           }
           throw new BadRequestException();
         } catch (error) {

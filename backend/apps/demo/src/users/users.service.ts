@@ -24,6 +24,13 @@ export class UsersService {
     return await this.usersRepository.save(userDto);
   }
 
+  async updateUser (user: User, password: string): Promise <Users>{
+    return await this.usersRepository.createQueryBuilder()
+    .update(user) // Giả sử User là entity của bạn
+    .set({ password: password }) // Cập nhật mật khẩu và xóa verify_token
+    .where("id = :id", { id: user.id}) // Cần phải có điều kiện để xác định người dùng
+    .execute();
+  }
   async findAll(): Promise<Users[]> {
     const users = await this.usersRepository.find({ relations: ['roles'] });
     return users; // This should return an array of users
