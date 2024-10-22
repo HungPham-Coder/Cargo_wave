@@ -1,15 +1,26 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+// import * as cors from 'cors';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors();
+  app.enableCors({
+    origin: 'http://localhost:3000', // Thay đổi thành URL frontend của bạn
+    credentials: true,
+  });
+  // app.use(cors({
+  //   origin: 'http://localhost:3000',
+  //   credentials: true,
+  // }));
   app.useGlobalPipes(new ValidationPipe());
   app.startAllMicroservices();
   await app.listen(3001);
 
-  // const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
+  
+}
+bootstrap();
+// const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
   //   transport: Transport.GRPC,
   //   options: {
   //     package: 'hero',
@@ -34,5 +45,3 @@ async function bootstrap() {
 
   // app.useGlobalPipes (new ValidationPipe());
   // app.listen();
-}
-bootstrap();

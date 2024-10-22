@@ -18,9 +18,9 @@ import routes from "@/source/router/routes";
 import AuthApi from "@/source/apis/auth";
 import Card from "antd/es/card/Card";
 import { useRouter } from "next/navigation";
-import CheckToken from "@/source/constants/utils";
 
 const { Title } = Typography;
+const jwt = require('jsonwebtoken');
 
 const Container = styled.div`
   display: flex;
@@ -44,8 +44,56 @@ const ImageWrapper = styled.div`
 
 const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
+  const [token, setToken] = useState (Object);
   const router = useRouter();
+  useEffect (() => {
+    const urlParams = new URLSearchParams (window.location.search);
+    setToken(urlParams.get ("code"));
+    // const token  = urlParams.get("code");
+    // console.log( "my token: ", token)
+    
+  },[]);
 
+  const handleGoogle = async () => {
+    setLoading(true);
+    const success = await AuthApi.loginGoogle();
+    setLoading(false);
+    if (success) {
+      message.success(`Login by Google successful!`);
+      console.log ("myToken: ", token)
+      if (token) {
+        const data = jwt.decode(token);
+        localStorage.setItem("jwtAccessToken", data.accessToken);
+        localStorage.setItem("jwt", token.refreshToken);
+        localStorage.setItem("jwtAccessExpire", token.accessExpire);
+        localStorage.setItem("jwtRefreshExpire", token.refreshExpire);
+        localStorage.setItem("user", JSON.stringify(token.user));
+        // localStorage.setItem("roles", JSON.stringify(response.data.user.roles)); 
+        // localStorage.setItem("permissions", JSON.stringify(response.data.permissions));
+        window.dispatchEvent(new Event("storage"));
+      }
+      // router.push(routes.root); // Navigate to root route
+      setTimeout(() => {
+        window.location.href = routes.root; // Set timeout to reload to home page
+      }, 5);
+      // if (token) {
+      //   localStorage.setItem("jwtAccessToken", token.accessToken);
+      //   localStorage.setItem("jwt", token.refreshToken);
+      //   localStorage.setItem("jwtAccessExpire", token.accessExpire);
+      //   localStorage.setItem("jwtRefreshExpire", token.refreshExpire);
+      //   localStorage.setItem("user", JSON.stringify(token.user));
+      //   // localStorage.setItem("roles", JSON.stringify(response.data.user.roles)); 
+      //   // localStorage.setItem("permissions", JSON.stringify(response.data.permissions));
+      //   window.dispatchEvent(new Event("storage"));
+      // }
+      // // router.push(routes.root); // Navigate to root route
+      // setTimeout(() => {
+      //   window.location.href = routes.root; // Set timeout to reload to home page
+      // }, 5);
+    } else {
+      message.error("Wrong email. Please try again!");
+    }
+  }
   const handleLogin = async (email: string, password: string): Promise<void> => {
     setLoading(true);
     const success = await AuthApi.login(email, password);
@@ -78,6 +126,7 @@ const LoginPage: React.FC = () => {
               console.log("data: ", values);
               const { email, password } = values;
               await handleLogin(email, password);
+
             }}
           >
             <Form.Item
@@ -125,7 +174,7 @@ const LoginPage: React.FC = () => {
               </Divider>
             </Row>
             <Row justify="center">
-              <Button shape="circle">
+              <Button shape="circle" onClick={handleGoogle}>
                 <Avatar
                   style={{ background: "white" }}
                   src={<img src="assets/google_logo_icon.png" />}

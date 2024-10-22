@@ -1,3 +1,4 @@
+import { NextApiRequest, NextApiResponse } from "next";
 import BaseApi from "./app";
 
 interface RegisterPayload {
@@ -22,9 +23,9 @@ const login = async (email: string, password: string): Promise<boolean> => {
       localStorage.setItem("jwt", response.data.refreshToken);
       localStorage.setItem("jwtAccessExpire", response.data.accessExpire);
       localStorage.setItem("jwtRefreshExpire", response.data.refreshExpire);
-      localStorage.setItem("user", JSON.stringify(response.data.user)); 
+      localStorage.setItem("user", JSON.stringify(response.data.user));
       // localStorage.setItem("roles", JSON.stringify(response.data.user.roles)); 
-      localStorage.setItem("permissions", JSON.stringify(response.data.permissions)); 
+      localStorage.setItem("permissions", JSON.stringify(response.data.permissions));
       window.dispatchEvent(new Event("storage"));
       return true;
     }
@@ -72,11 +73,120 @@ const refresh = async (refreshToken: string): Promise<any | undefined> => {
   }
 };
 
+const resetPassword = async ( password: string, id: any): Promise<any | undefined> => {
+  try {
+    const response = await BaseApi.post(`auth/reset-password?token=${id}`, { password });
+    return response;
+  } catch (error) {
+    console.error("Error during implement:", error);
+    return { error: "Error reset password" };
+  }
+}
+
+const forgotPassword = async (to: string): Promise<any | undefined> => {
+  try {
+    const response = await BaseApi.post("auth/forgotPassword", { to });
+    return response;
+  } catch (error) {
+    console.error("Error during token refresh:", error);
+    return { error: "Error refreshing token" };
+  }
+
+}
+const loginGoogle = async (): Promise<boolean> => {
+  try {
+    const response = await BaseApi.get("auth/google");
+    console.log(response.data);
+    if (response.status === 201){
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error("Error during sigin GG:", error);
+    return false;
+  }
+  // try {
+  //   const fetchUserData = async () => {
+  //     try {
+  //       const response = await fetch('http://localhost:3001/auth/google', {
+  //         method: 'GET',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //       });
+       
+  //       if (!response.ok) {
+  //         throw new Error('Network response was not ok');
+  //       }
+    
+  //       const data = await response.json();
+  //       console.log(data); // Thông tin người dùng
+  //       localStorage.setItem("jwtAccessToken", data.accessToken);
+  //       localStorage.setItem("jwt", data.refreshToken);
+  //       localStorage.setItem("jwtAccessExpire", data.accessExpire);
+  //       localStorage.setItem("jwtRefreshExpire", data.refreshExpire);
+  //       localStorage.setItem("user", JSON.stringify(data.user));
+  //       // localStorage.setItem("roles", JSON.stringify(response.data.user.roles)); 
+  //       localStorage.setItem("permissions", JSON.stringify(data.permissions));
+  //       window.dispatchEvent(new Event("storage"));
+  //       return true; // Gọi thành công
+  //     } catch (error) {
+  //       console.error("Can't call api: ", error);
+  //       return false; // Gọi không thành công
+  //     }
+  //   };
+
+  //   fetchUserData();
+  //   return true
+  // } catch (error) {
+  //   console.error("Can't call api: ", error)
+  //   return false
+  // }
+  
+}
+// const loginGg = async () : Promise<boolean> => {
+
+
+//   try {
+//     const response = await BaseApi.get("auth/google");
+//     console.log ("data: ", response.data)
+    
+//     if (response.status === 201) {
+//       localStorage.setItem("jwtAccessToken", response.data.accessToken);
+//       localStorage.setItem("jwt", response.data.refreshToken);
+//       localStorage.setItem("jwtAccessExpire", response.data.accessExpire);
+//       localStorage.setItem("jwtRefreshExpire", response.data.refreshExpire);
+//       localStorage.setItem("user", JSON.stringify(response.data.user));
+//       // localStorage.setItem("roles", JSON.stringify(response.data.user.roles)); 
+//       localStorage.setItem("permissions", JSON.stringify(response.data.permissions));
+//       window.dispatchEvent(new Event("storage"));
+//     }
+//     return true;
+//   } catch (error) {
+//     console.error("Error during sign in:", error);
+//     return false;
+//   }
+// }
+
+const checkToken = async (id: any): Promise<boolean> => {
+  try {
+    const response = await BaseApi.get (`users/findById/${encodeURIComponent(id)}`);
+    console.log (response.data);
+    return response.data.verify_token != null ? true : false; 
+  }catch (error) {
+    console.error ("Error during find User", error);
+    return false;
+  }
+}
 const AuthApi = {
   login,
   authorize,
   register,
   refresh,
+  resetPassword,
+  forgotPassword,
+  loginGoogle,
+  checkToken,
 };
 
 export default AuthApi;

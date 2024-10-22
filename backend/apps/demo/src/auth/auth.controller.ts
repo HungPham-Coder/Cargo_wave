@@ -5,12 +5,14 @@ import { CreateUserDTO, LoginDTO } from '../users/users.dto/create-user-request.
 import { GoogleOAuthGuard } from './google-oauth/google-oauth.gaurd';
 import { JwtService } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
+import { isEmailIdentifier } from 'firebase-admin/lib/auth/identifier';
+import { AuthGuard } from '@nestjs/passport';
 // import { CreateUserDTO, LoginDTO } from 'src/users/create-user-request.dto';
 
 @Controller('auth')
 export class AuthController {
     constructor(private authService: AuthService) { }
-
+  
     @Get('confirm')
     async confirm(@Query('token') token: string) {
         const confirm = await this.authService.verifyAccessToken(token);
@@ -51,14 +53,24 @@ export class AuthController {
         return await this.authService.refreshToken(refreshToken);
     }
 
-    @Get()
-    @UseGuards(GoogleOAuthGuard)
+    @Get('google')
+    @UseGuards(AuthGuard('google'))
     async googleAuth(@Req() req) { }
 
     @Get('redirect')
-    @UseGuards(GoogleOAuthGuard)
-    googleAuthReirect(@Req() req) {
-        return this.authService.googleLogin(req)
+    @UseGuards(AuthGuard('google'))
+    async googleAuthReirect(@Req() req, @Res() res): Promise<any>  {
+        const response = await this.authService.googleLogin(req)
+        // const code = await response.accessToken;
+        if (typeof response === 'string') {
+            // Xử lý trường hợp không có người dùng
+            console.error(response); // "No user from google"
+            return res.status(400).send(response);
+        } else {
+            console.log(response)
+            // Đây là đối tượng và bạn có thể truy cập accessToken
+            res.redirect(`http://localhost:3000?code=${response.accessToken}`);
+        }
     }
 
     @Post('forgotPassword')
@@ -68,9 +80,9 @@ export class AuthController {
 
     @Post('reset-password')
     async resetPassword(
-        @Query('token') token: string,
+        @Query('email') email: string,
         @Body() { password }: { password: string }
     ): Promise<void> {
-        return this.authService.resetPassword(token, password);
+        return this.authService.resetPassword(email,password);
     }
 }
