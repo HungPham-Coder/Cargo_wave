@@ -34,18 +34,38 @@ export class AuthService {
                 throw new Error('Token không hợp lệ');
             }
             const data = await response.json();
-            if (data){
+            if (data) {
                 return decode;
             };
         }
     }
-    
-    private async encodePassword (password : string){
+
+    private async encodePassword(password: string) {
         return await bcrypt.hash(password, this.saltOrRounds);
     }
 
-    private async decodePassword (password: string, passwordDto: string){
+    private async decodePassword(password: string, passwordDto: string) {
         return await bcrypt.compare(password, passwordDto);
+    }
+    async generateToken(userId, email){
+        const payload = { sub: userId, email: email };
+
+        const accessToken = this.jwtService.sign(payload, {
+            expiresIn: '5s',
+        });
+        const refreshToken = this.jwtService.sign(payload, {
+            expiresIn: '7d',
+        });
+        const accessExpire = new Date(Date.now() + 5 * 1000); // 1 day from now
+        const refreshExpire = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+        return {
+            accessToken,
+            refreshToken,
+            accessExpire: accessExpire.toISOString(), // Return in ISO format
+            refreshExpire: refreshExpire.toISOString(),
+        };
+
     }
 
     async signIn(signInDto: LoginDTO): Promise<any> {
@@ -60,25 +80,28 @@ export class AuthService {
             if (!isMatch || !user) {
                 throw new UnauthorizedException("Wrong user name or password!");
             }
-            const payload = { sub: user.id, email: user.email };
+            const {accessToken, refreshToken, accessExpire, refreshExpire} =await this.generateToken(user.id, user.email);
+            // const payload = { sub: user.id, email: user.email };
 
-            const accessToken = this.jwtService.sign(payload, {
-                expiresIn: '5s',
-            });
-            const refreshToken = this.jwtService.sign(payload, {
-                expiresIn: '7d',
-            });
-            const accessExpire = new Date(Date.now() + 5 * 1000); // 1 day from now
-            const refreshExpire = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-            
+            // const accessToken = this.jwtService.sign(payload, {
+            //     expiresIn: '5s',
+            // });
+            // const refreshToken = this.jwtService.sign(payload, {
+            //     expiresIn: '7d',
+            // });
+            // const accessExpire = new Date(Date.now() + 5 * 1000); // 1 day from now
+            // const refreshExpire = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
             const uniquePermissions = this.getUniquePermissions(user.roles || []);
-            const { password: _, roles: __,...userInfo } = user;
+            const { password: _, roles: __, ...userInfo } = user;
 
             return {
                 accessToken,
                 refreshToken,
-                accessExpire: accessExpire.toISOString(), // Return in ISO format
-                refreshExpire: refreshExpire.toISOString(),
+                // accessExpire: accessExpire.toISOString(), // Return in ISO format
+                // refreshExpire: refreshExpire.toISOString(),
+                accessExpire,
+                refreshExpire,
                 user: userInfo,
                 permissions: uniquePermissions
             }
@@ -169,24 +192,61 @@ export class AuthService {
     }
 
     async googleLogin(req) {
-        const { accessToken, email, name } = req.user;
+        const { email, name } = req.user;
         const existingUser = await this.userService.findByEmail(email);
+        const {accessToken, refreshToken, accessExpire, refreshExpire} =await this.generateToken(name, email);
+        const payload = {  
+            message: 'User information from google',
+            user: req.user,
+            accessToken,
+            refreshToken,
+            accessExpire,
+            refreshExpire,}
         if (!req.user) {
             return 'No user from google'
         }
-        const payload = { existing: existingUser, token: accessToken }
-        const token = await this.jwtService.signAsync(payload);
+        // const payload = { existing: existingUser, token: accessToken }
+        // const token = await this.jwtService.signAsync(payload);
         try {
             await fetch('http://localhost:3001/mails/send', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ to: email, token: token }) // Đối tượng
+                // body: JSON.stringify({ to: email, token: token }) // Đối tượng
+                body: JSON.stringify({ to: email }) // Đối tượng
+            });
+            if (!existingUser) {
+                try {
+                    const response = await fetch('http://localhost:3001/users/redirect', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            name: name,
+                            email: email
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+
+                    const data = await response.json();
+                    console.log("Information user: ", data);
+                } catch (error) {
+                    console.error('Error: ', error);
+                    throw new Error('Something went wrong while fetching data.');
+                }
+            } else {
+                console.log('User is existed');
+            }
+            const accessToken = this.jwtService.sign(payload, {
+                expiresIn: '1d',
             });
             return {
-                message: 'User information from google',
-                user: req.user
+                accessToken
             }
 
         } catch (error) {
@@ -210,19 +270,23 @@ export class AuthService {
         });
     }
 
-    async resetPassword(token: string, password: string): Promise<void> {
-        const email = await this.mailService.decodeConfirmationToken(token);
+    async resetPassword(email: string, password: string): Promise<void> {
+        // const user = await this.userService.findById(id);
+        // const email = await this.mailService.decodeConfirmationToken(token);
+        // const email = user.email;
+        // console.log(email);
+        const user = await this.userService.findByEmail(email);
         console.log(email);
-        const user = await this.userService.findByEmail (email);
         if (!user) {
             throw new NotFoundException(`No user found for email: ${email}`);
         }
-        console.log (user);
-        const hashPass = await this.encodePassword (password);
+        console.log(user);
+        const hashPass = await this.encodePassword(password);
         // user.password = hashPass;
         // delete user[0].verify_token; // remove the token after the password is updated
-       
-        const updatedUser = await this.userService.updateUser (user, hashPass);
+
+        console.log(user.id);
+        const updatedUser = await this.userService.updatePass(user.id, hashPass);
         return updatedUser;
     }
     async updateData(email, name, existingUser) {

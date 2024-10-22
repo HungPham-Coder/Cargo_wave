@@ -1,16 +1,25 @@
 "use client"
 
-import React from 'react';
-import { Button, Flex, Form, Input, Typography } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Button, Flex, Form, Input, message, Typography } from 'antd';
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { UserOutlined } from "@ant-design/icons";
 import Paragraph from "antd/es/typography/Paragraph";
+import AuthApi from '@/source/apis/auth';
+import routes from '@/source/router/routes';
+import { useParams } from 'next/navigation';
 
 const { Title } = Typography;
 
 const ResetPasswordPage: React.FC = () => {
+    const {id} = useParams();
+    console.log("id: ", id);
+    
+    const [loading, setLoading] = useState(false);
+    const [isTokenValid, setIsTokenValid] = useState(false);
+
     const schema = yup
         .object({
             password: yup
@@ -31,8 +40,36 @@ const ResetPasswordPage: React.FC = () => {
 
     const onFinish = (data: any) => {
         console.log("Form data:", data);
+        handleResetPassword(data.password, id.toString());
     };
 
+    const handleResetPassword = async (newPassword: string, id: any): Promise<any> => {
+        setLoading(true);
+        const success = await AuthApi.resetPassword(newPassword, id);
+        setLoading(false);
+        if (success) {
+            message.success(`New password is reseted`);
+
+            // router.push(routes.root); // Navigate to root route
+            setTimeout(() => {
+                window.location.href = routes.login; // Set timeout to reload to home page
+            }, 10);
+        } else {
+            message.error("Wrong request forgot password. Please try again!");
+        }
+    }
+
+    useEffect(() => {
+        const checkToken = async () => {
+            const success = await AuthApi.checkToken(id); // Kiểm tra token bằng id
+            setIsTokenValid(success);
+        };
+        checkToken();
+    }, [id]);
+
+    if (!isTokenValid) {
+        return <h2>Token không hợp lệ hoặc đã hết hạn. Vui lòng thử lại.</h2>;
+    }
     return (
         <Flex justify="center" align="center" style={{ minHeight: "100vh", width: "100vw" }}>
             <Form

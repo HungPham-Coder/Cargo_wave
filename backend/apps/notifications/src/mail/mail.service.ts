@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { User } from 'apps/demo/src/entities/user.entity';
+import { UsersService } from 'apps/demo/src/users/users.service';
 
 import { config } from 'dotenv';
 import { createTransport } from 'nodemailer'
@@ -9,7 +11,8 @@ export class MailService {
   private readonly transporter;
 
   constructor(
-    private jwtService: JwtService
+    private jwtService: JwtService,
+    private userService: UsersService
   ) {
     this.transporter = createTransport({
       host: process.env.MAIL_HOST,
@@ -41,16 +44,23 @@ export class MailService {
   }
 
   async sendResetPasswordLink(email): Promise<void> {
+
     const payload = { email: email.to };
     console.log(payload.email);
+    
+    const user = await this.userService.findByEmail (payload.email);
+
     const token = this.jwtService.sign(payload, {
       secret: process.env.JWT_VERIFICATION_TOKEN_SECRET,
       expiresIn: `${process.env.JWT_VERIFICATION_TOKEN_EXPIRATION_TIME}s`
     });
     console.log(token);
-    // user.verify_token = token;
 
-    const url = `http://localhost:3001/auth/reset-password?token=${token}`;
+    await this.userService.updateToken(user.id, token);
+    // this.userService.updatePass
+    // user.verify_token = token;
+    const url = `http://localhost:3000/reset/${user.id}`
+    // const url = `http://localhost:3001/auth/reset-password?token=${token}`;
     console.log (url);
 
     

@@ -34,12 +34,20 @@ export class UsersService {
     return await this.usersRepository.save(userDto);
   }
 
-  async updateUser (user: User, password: string): Promise <Users>{
-    return await this.usersRepository.createQueryBuilder()
-    .update(user) // Giả sử User là entity của bạn
-    .set({ password: password }) // Cập nhật mật khẩu và xóa verify_token
-    .where("id = :id", { id: user.id}) // Cần phải có điều kiện để xác định người dùng
-    .execute();
+  async updateToken(id: string, token: string): Promise<Users> {
+    return await this.usersRepository.createQueryBuilder('user')
+      .update() // Giả sử User là entity của bạn
+      .set({ verify_token: token}) // Cập nhật mật khẩu và xóa verify_token
+      .where("id = :id", { id: id }) // Cần phải có điều kiện để xác định người dùng
+      .execute();
+  }
+  async updatePass(id: string, password: string): Promise<Users> {
+    // const user = await this.findById(id);
+    return await this.usersRepository.createQueryBuilder('user')
+      .update() // Giả sử User là entity của bạn
+      .set({ password: password, verify_token: null }) // Cập nhật mật khẩu và xóa verify_token
+      .where("id = :id", { id: id }) // Cần phải có điều kiện để xác định người dùng
+      .execute();
   }
   async findAll(): Promise<Users[]> {
     const users = await this.usersRepository.find({ relations: ['roles'] });
@@ -115,7 +123,7 @@ export class UsersService {
     await this.usersRepository.update(id, userDto);
     return this.findById(id); // Return the updated user
   }
-  
+
   async updateUserStatus(id: string, status: number): Promise<Users> {
     const user = await this.findById(id);
     if (!user) {

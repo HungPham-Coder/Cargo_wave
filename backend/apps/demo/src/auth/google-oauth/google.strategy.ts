@@ -14,6 +14,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
             clientSecret: process.env.GOOGLE_SECRET,
             callbackURL: 'http://localhost:3001/auth/redirect',
             scope: ['email', 'profile'],
+            grant_type: 'authorization_code',
+            code: 'AUTHORIZATION_CODE_RECEIVED',
         });
     }
 
