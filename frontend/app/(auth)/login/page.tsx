@@ -18,6 +18,7 @@ import routes from "@/source/router/routes";
 import AuthApi from "@/source/apis/auth";
 import Card from "antd/es/card/Card";
 import { useRouter } from "next/navigation";
+import { useLocation } from 'react-router-dom';
 
 const { Title } = Typography;
 const jwt = require('jsonwebtoken');
@@ -43,16 +44,16 @@ const ImageWrapper = styled.div`
 `;
 
 const LoginPage: React.FC = () => {
+  const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [token, setToken] = useState (Object);
   const router = useRouter();
   useEffect (() => {
     const urlParams = new URLSearchParams (window.location.search);
-    setToken(urlParams.get ("code"));
+    setToken(urlParams.get ('code'));
     // const token  = urlParams.get("code");
     // console.log( "my token: ", token)
-    
-  },[]);
+  },[location]);
 
   const handleGoogle = async () => {
     setLoading(true);

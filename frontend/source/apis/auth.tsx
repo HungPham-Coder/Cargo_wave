@@ -97,10 +97,10 @@ const loginGoogle = async (): Promise<boolean> => {
   try {
     const response = await BaseApi.get("auth/google");
     console.log(response.data);
-    if (response.status === 201){
-      return true;
-    }
-    return false;
+    // if (response.status === 201){
+    //   return true;
+    // }
+    return true;
   } catch (error) {
     console.error("Error during sigin GG:", error);
     return false;
