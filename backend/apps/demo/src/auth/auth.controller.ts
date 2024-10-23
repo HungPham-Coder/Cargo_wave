@@ -59,18 +59,19 @@ export class AuthController {
 
     @Get('redirect')
     @UseGuards(AuthGuard('google'))
-    async googleAuthReirect(@Req() req, @Res() res): Promise<any>  {
-        const response = await this.authService.googleLogin(req)
-        // const code = await response.accessToken;
-        if (typeof response === 'string') {
-            // Xử lý trường hợp không có người dùng
-            console.error(response); // "No user from google"
-            return res.status(400).send(response);
-        } else {
-            console.log(response)
-            // Đây là đối tượng và bạn có thể truy cập accessToken
-            res.redirect(`http://localhost:3000?code=${response.accessToken}`);
-        }
+    async googleAuthReirect(@Req() req): Promise<any>  {
+        return await this.authService.googleLogin(req);
+        // const response = await this.authService.googleLogin(req)
+        // // const code = await response.accessToken;
+        // if (typeof response === 'string') {
+        //     // Xử lý trường hợp không có người dùng
+        //     console.error(response); // "No user from google"
+        //     return res.status(400).send(response);
+        // } else {
+        //     console.log(response)
+        //     // Đây là đối tượng và bạn có thể truy cập accessToken
+        //     res.redirect(`http://localhost:3000?code=${response.accessToken}`);
+        // }
     }
 
     @Post('forgotPassword')
