@@ -10,6 +10,7 @@ interface RegisterPayload {
   password: string;
 }
 const jwt = require('jsonwebtoken');
+
 const login = async (email: string, password: string): Promise<boolean> => {
   try {
     const response = await BaseApi.post("auth/login", {

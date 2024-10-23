@@ -47,7 +47,7 @@ export class AuthService {
     private async decodePassword(password: string, passwordDto: string) {
         return await bcrypt.compare(password, passwordDto);
     }
-    async generateToken(userId, email){
+    async generateToken(userId, email) {
         const payload = { sub: userId, email: email };
 
         const accessToken = this.jwtService.sign(payload, {
@@ -80,14 +80,14 @@ export class AuthService {
             if (!isMatch || !user) {
                 throw new UnauthorizedException("Wrong user name or password!");
             }
-            const {accessToken, refreshToken, accessExpire, refreshExpire} =await this.generateToken(user.id, user.email);
+            const { accessToken, refreshToken, accessExpire, refreshExpire } = await this.generateToken(user.id, user.email);
 
             return {
                 accessToken,
                 refreshToken,
                 accessExpire,
                 refreshExpire,
-             
+
             }
         } catch (error) {
             console.error('Error during SignIn:', error.message);
@@ -178,14 +178,15 @@ export class AuthService {
     async googleLogin(req) {
         const { email, name } = req.user;
         const existingUser = await this.userService.findByEmail(email);
-        const {accessToken, refreshToken, accessExpire, refreshExpire} =await this.generateToken(name, email);
-        const payload = {  
+        const { accessToken, refreshToken, accessExpire, refreshExpire } = await this.generateToken(name, email);
+        const payload = {
             message: 'User information from google',
             user: req.user,
             accessToken,
             refreshToken,
             accessExpire,
-            refreshExpire,}
+            refreshExpire,
+        }
         if (!req.user) {
             return 'No user from google'
         }

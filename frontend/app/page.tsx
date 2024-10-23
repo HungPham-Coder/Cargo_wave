@@ -136,8 +136,6 @@ export default function Home() {
       localStorage.setItem("jwtAccessExpire", data.accessExpire);
       localStorage.setItem("jwtRefreshExpire", data.refreshExpire);
       localStorage.setItem("user", JSON.stringify(data.user));
-      // localStorage.setItem("roles", JSON.stringify(response.data.user.roles)); 
-      // localStorage.setItem("permissions", JSON.stringify(response.data.permissions));
       window.dispatchEvent(new Event("storage"));
       // Cài đặt các giá trị khác vào localStorage như bạn đã làm
     }
