@@ -1,12 +1,12 @@
 import React from "react";
 import styled from "styled-components";
 import { Layout } from "antd";
-import { FacebookOutlined, TwitterOutlined, InstagramOutlined } from "@ant-design/icons";
+import { FacebookOutlined, InstagramOutlined } from "@ant-design/icons";
 
 const { Footer } = Layout;
 
 const FooterContainer = styled(Footer)`
-  background: linear-gradient(135deg, #090273 30%, #0D03AD 100%); /* Sea-themed gradient */
+  background: #2876F2; 
   color: white; /* Text color */
   padding: 1rem 0; /* Vertical padding for more space */
   text-align: left;

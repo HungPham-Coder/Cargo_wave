@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import type { MenuProps } from "antd";
 import { Menu, Button } from "antd";
 import Link from "next/link";
@@ -18,55 +18,45 @@ import {
 } from "@icon-park/react";
 import styled from "styled-components";
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
-import { usePermission } from "../contexts/PermissionContext";
+import { GetValueFromScreen, UseScreenWidth } from "./screen";
+import { usePermission } from "../hook/usePermission";
+import { UserContext } from "../contexts/UserContext";
 
 const StyledSider = styled(Sider)<{ $collapsed: boolean }>`
-  background: linear-gradient(
-    135deg,
-    #0d3b66 0%,
-    #00a6fb 100%
-  ); /* Deep sea blue to turquoise gradient */
-  padding: 20px;
-  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between; /* Distribute space evenly */
-  .ant-layout-sider-trigger {
-    background-color: #00a6fb; /* Color for the collapse button */
-  }
+  background: #063464 !important;
 `;
 
 const StyledMenu = styled(Menu)`
   background: transparent !important;
-  color: #fff !important;
   flex-grow: 1; /* Make menu take up remaining space */
   margin-bottom: 20px; /* Add margin to create space from the button */
 
-  .ant-menu-item {
-    color: #fff !important;
-    transition: all 0.3s ease-in-out;
-  }
-
+  /* Default text color for menu items and submenu titles */
+  .ant-menu-item,
   .ant-menu-submenu-title {
-    color: #fff !important;
+    color: white !important; /* Set default color to white */
   }
 
+  /* Hover effect for menu items and submenu titles */
   .ant-menu-item:hover,
   .ant-menu-submenu-title:hover {
-    background-color: rgba(
-      255,
-      255,
-      255,
-      0.1
-    ) !important; /* Light overlay on hover */
-    box-shadow: 0 4px 8px rgba(0, 166, 251, 0.4); /* Soft glow effect */
+    color: #f08650 !important; /* Change text color on hover */
+  }
+
+  /* Prevent background color change */
+  .ant-menu-item:hover {
+    background-color: transparent !important; /* No background change */
   }
 
   .ant-menu-item-selected {
-    background-color: #00a6fb !important; /* Bright turquoise for selected item */
+    background-color: #008afb !important; /* Bright turquoise for selected item */
     border-radius: 8px; /* Rounded corners for selected item */
-    color: #fff !important;
+    color: #fff !important; /* Text color for selected item */
     box-shadow: 0 0 12px rgba(0, 166, 251, 0.7); /* Stronger glow on selection */
+  }
+
+  .ant-menu-item-selected {
+    transition: background-color 0.3s ease; /* Smooth transition */
   }
 `;
 
@@ -76,23 +66,49 @@ const AppSider: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false); // State to control collapse
   const [current, setCurrent] = useState<string>("home");
   const [openKeys, setOpenKeys] = useState<string[]>(["Administration"]);
+  const [canAccessAdministration, setCanAccessAdministration] =
+    useState<boolean>(false);
   const pathname = usePathname();
+  const screenWidth = UseScreenWidth();
+  const responsive = GetValueFromScreen(
+    screenWidth,
+    true,
+    true,
+    false,
+    false,
+    false,
+    false
+  );
   const { hasPermission } = usePermission();
+  const { userData } = useContext(UserContext);
+  console.log("userData in sider", userData);
 
-  const canAccessAdministration =
-    hasPermission("user_view") ||
-    hasPermission("role_view") ||
-    hasPermission("permission_view");
+  console.log("collapsed", collapsed);
+
+  useEffect(() => {
+    const access =
+      hasPermission("user_view") ||
+      hasPermission("role_view") ||
+      hasPermission("permission_view");
+    setCanAccessAdministration(access);
+  }, [userData]);
 
   const toggleCollapsed = () => {
-    setCollapsed(!collapsed); // Toggle the collapsed state
+    if (responsive) {
+      setCollapsed(responsive);
+    }
+    setCollapsed(responsive);
+  };
+
+  const onClickCollapsed = () => {
+    setCollapsed(!collapsed);
   };
 
   const items: Required<MenuProps>["items"][number][] = [
     {
       label: <Link href={routes.root}>Home</Link>,
       key: "home",
-      icon: <Home size={iconSize} fill="#FFF" />,
+      icon: <Home size={iconSize} />,
     },
     { type: "divider" },
     ...(hasPermission("dashboard_view") // Check permission for Dashboard
@@ -100,7 +116,7 @@ const AppSider: React.FC = () => {
           {
             label: <Link href={routes.dashboard}>Dashboard</Link>,
             key: "dashboard",
-            icon: <ChartLine size={iconSize} fill="#FFF" />,
+            icon: <ChartLine size={iconSize} />,
           },
         ]
       : []),
@@ -110,19 +126,19 @@ const AppSider: React.FC = () => {
           {
             label: "Administration",
             key: "Administration",
-            icon: <CategoryManagement size={iconSize} fill="#FFF" />,
+            icon: <CategoryManagement size={iconSize} />,
             children: [
               hasPermission("user_view")
                 ? {
                     label: <Link href={routes.userManagement}>User</Link>,
-                    icon: <User size={iconSize} fill="#FFF" />,
+                    icon: <User size={iconSize} />,
                     key: "userManagement",
                   }
                 : null,
               hasPermission("role_view")
                 ? {
                     label: <Link href={routes.roleManagement}>Role</Link>,
-                    icon: <UserPositioning size={iconSize} fill="#FFF" />,
+                    icon: <UserPositioning size={iconSize} />,
                     key: "roleManagement",
                   }
                 : null,
@@ -131,9 +147,7 @@ const AppSider: React.FC = () => {
                     label: (
                       <Link href={routes.permissionManagement}>Permission</Link>
                     ),
-                    icon: (
-                      <UserToUserTransmission size={iconSize} fill="#FFF" />
-                    ),
+                    icon: <UserToUserTransmission size={iconSize} />,
                     key: "permissionManagement",
                   }
                 : null,
@@ -147,7 +161,7 @@ const AppSider: React.FC = () => {
           {
             label: <Link href={routes.route}>Route</Link>,
             key: "routes",
-            icon: <Repositioning size={iconSize} fill="#FFF" />,
+            icon: <Repositioning size={iconSize} />,
           },
         ]
       : []),
@@ -160,11 +174,13 @@ const AppSider: React.FC = () => {
   useEffect(() => {
     const path = pathname.substring(1) || "home";
     setCurrent(path);
-  }, [pathname]);
+    toggleCollapsed();
+  }, [pathname, responsive]);
 
   return (
     <StyledSider $collapsed={collapsed} width={250} collapsed={collapsed}>
       <StyledMenu
+        style={{ marginTop: 20 }}
         onClick={onClick}
         selectedKeys={[current]}
         defaultOpenKeys={openKeys}
@@ -173,9 +189,7 @@ const AppSider: React.FC = () => {
       />
       <div style={{ display: "flex", justifyContent: "center" }}>
         <Button
-          type="primary"
-          onClick={toggleCollapsed}
-          style={{ marginBottom: 20 }}
+          onClick={onClickCollapsed}
           icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
         />
       </div>

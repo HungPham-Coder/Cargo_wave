@@ -9,7 +9,7 @@ import { PageSize } from "@/source/constants/app";
 import { User } from "@icon-park/react";
 import { MenuProps, message } from "antd";
 import { useEffect, useState } from "react";
-import withPermission from "@/source/components/withPermission";
+import withPermission from "@/source/hook/withPermission";
 
 interface ColumnType<T> {
   title: string;

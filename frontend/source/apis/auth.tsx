@@ -22,9 +22,6 @@ const login = async (email: string, password: string): Promise<boolean> => {
       localStorage.setItem("jwt", response.data.refreshToken);
       localStorage.setItem("jwtAccessExpire", response.data.accessExpire);
       localStorage.setItem("jwtRefreshExpire", response.data.refreshExpire);
-      localStorage.setItem("user", JSON.stringify(response.data.user)); 
-      // localStorage.setItem("roles", JSON.stringify(response.data.user.roles)); 
-      localStorage.setItem("permissions", JSON.stringify(response.data.permissions)); 
       window.dispatchEvent(new Event("storage"));
       return true;
     }

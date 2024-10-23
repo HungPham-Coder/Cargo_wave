@@ -1,11 +1,15 @@
 "use client";
 
 import AuthApi from "@/source/apis/auth";
+import UserApi from "@/source/apis/users";
 import CheckToken from "@/source/constants/utils";
+import { UserContext } from "@/source/contexts/UserContext";
 import routes from "@/source/router/routes";
 import { Carousel, Typography, Button } from "antd";
+import { jwtDecode } from "jwt-decode";
+import { Map } from "mapbox-gl";
 import Link from "next/link";
-import { useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 
 const { Title, Paragraph } = Typography;
@@ -30,9 +34,9 @@ const CarouselContainer = styled.div`
 
 const StyledImage = styled.img`
   width: 100%;
-  height: 400px; 
+  height: 500px;
   object-fit: cover;
-  filter: brightness(70%);
+  filter: brightness(60%);
 `;
 
 const Introduction = styled.div`
@@ -47,6 +51,7 @@ export default function Home() {
     { src: "/assets/2.jpg", alt: "Image 2" },
     { src: "/assets/3.jpg", alt: "Image 3" },
   ];
+  const [jwtData, setJwtData] = useState<string | null>(null);
 
   const onChange = (currentSlide: number) => {};
 
@@ -66,13 +71,12 @@ export default function Home() {
   };
 
   const refreshAccessToken = async () => {
-    const refreshToken = localStorage.getItem("jwt");
-    if (!refreshToken) {
+    if (!jwtData) {
       console.log("No refresh token available. Please log in again.");
       return;
     }
     try {
-      const response = await AuthApi.refresh(refreshToken);
+      const response = await AuthApi.refresh(jwtData);
       localStorage.setItem("jwtAccessToken", response.data.accessToken);
       localStorage.setItem("jwtAccessExpire", response.data.accessExpire);
       console.log("Access token refreshed successfully!");
@@ -81,9 +85,42 @@ export default function Home() {
     }
   };
 
+  const { setUserData, setRoleData } = useContext(UserContext);
+
+  let id: string | undefined;
+  if (jwtData) {
+    try {
+      const decodedJwt = jwtDecode<{ sub: string }>(jwtData);
+      id = decodedJwt.sub;
+    } catch (error) {
+      console.error("Failed to decode JWT: ", error);
+    }
+  } else {
+    console.log("No JWT found, please log in.");
+  }
+
+  const getData = async () => {
+    if (!id) return;
+
+    try {
+      const response = await UserApi.findById(id);
+      console.log("response", response);
+      setUserData(response);
+
+      console.log("setUserData", setUserData);
+    } catch (error) {
+      console.error("Failed to fetch roles: ", error);
+    }
+  };
+
   useEffect(() => {
-    checkTokenAccesstoken(CheckToken());
-  }, []);
+    const token = localStorage.getItem("jwt");
+    setJwtData(token);
+    if (jwtData) {
+      getData();
+      checkTokenAccesstoken(CheckToken());
+    }
+  }, [jwtData]);
 
   return (
     <HomeContainer>
@@ -97,17 +134,40 @@ export default function Home() {
           shipping routes, and monitor the specifics of each route to ensure
           efficient and optimized operations.
         </Paragraph>
+
         <Link href={routes.login}>
-          <Button
-            type="primary"
-            size="large"
-            style={{
-              background: "linear-gradient(135deg, #0d3b66 0%, #00a6fb 100%)",
-              border: "none",
-            }}
-          >
-            Get Started
-          </Button>
+          <div className="buttons">
+            <Button className="blob-btn" type="primary">
+              Get Started
+              <span className="blob-btn__inner">
+                <span className="blob-btn__blobs">
+                  <span className="blob-btn__blob"></span>
+                  <span className="blob-btn__blob"></span>
+                  <span className="blob-btn__blob"></span>
+                  <span className="blob-btn__blob"></span>
+                </span>
+              </span>
+            </Button>
+            <br />
+            <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+              <defs>
+                <filter id="goo">
+                  <feGaussianBlur
+                    in="SourceGraphic"
+                    result="blur"
+                    stdDeviation="10"
+                  ></feGaussianBlur>
+                  <feColorMatrix
+                    in="blur"
+                    mode="matrix"
+                    values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 21 -7"
+                    result="goo"
+                  ></feColorMatrix>
+                  <feBlend in2="goo" in="SourceGraphic" result="mix"></feBlend>
+                </filter>
+              </defs>
+            </svg>
+          </div>
         </Link>
       </Introduction>
       <CarouselContainer>

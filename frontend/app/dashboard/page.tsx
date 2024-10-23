@@ -1,7 +1,7 @@
 "use client";
 
 import UserApi from "@/source/apis/users";
-import withPermission from "@/source/components/withPermission";
+import withPermission from "@/source/hook/withPermission";
 import { message } from "antd";
 import { useEffect, useRef, useState } from "react";
 import * as echarts from "echarts";

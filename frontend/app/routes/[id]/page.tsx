@@ -22,7 +22,9 @@ import dayjs from "dayjs";
 import { statusMap } from "@/source/mocks/mocks";
 import LocationApi from "@/source/apis/location";
 import TransportApi from "@/source/apis/transport";
-import { usePermission } from "@/source/contexts/PermissionContext";
+import MapComponent from "@/source/components/map";
+import { usePermission } from "@/source/hook/usePermission";
+import withPermission from "@/source/hook/withPermission";
 
 interface Transport {
   id: string;
@@ -44,10 +46,23 @@ interface Location {
   latitude: number;
 }
 
+interface RouteDetail {
+  id: string;
+  name: string;
+  departure_time: Date;
+  arrival_time: Date;
+  latitude: number;
+  status: number;
+  transport: Transport[];
+  departure: Location;
+  arrival: Location;
+}
+
 const RouteDetailPage: React.FC = () => {
   const { id } = useParams();
   const [loading, setLoading] = useState(false);
   const [routeDetail, setRouteDetail] = useState<any>(null);
+  const [routeDetails, setRouteDetails] = useState<RouteDetail | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [form] = Form.useForm();
   const [locations, setLocations] = useState<Location[]>([]);
@@ -56,18 +71,41 @@ const RouteDetailPage: React.FC = () => {
   const searchLocation = searchParams.get("location") || "";
   const searchTransport = searchParams.get("transport") || "";
   const [distance, setDistance] = useState("");
+  const [mapCoordinates, setMapCoordinates] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
+  const [showRoute, setShowRoute] = useState(false);
+
+  const { hasPermission } = usePermission();
+  const canAccessUpdateRouteDetail = hasPermission("routeDetail_update");
+
   const BORDER_COLOR = "#0d3b66";
   const FONT_WEIGHT = 500;
-  const { hasPermission } = usePermission();
 
-  const canAccessUpdateRouteDetail = hasPermission("routeDetail_update");
+  console.log(
+    "routeDetails?.departure?.latitude!",
+    routeDetails?.departure?.latitude!
+  );
+  console.log(
+    "routeDetails?.departure?.longitude",
+    routeDetails?.departure?.longitude!
+  );
+  console.log(
+    "routeDetails?.arrival?.latitude!",
+    routeDetails?.arrival?.latitude!
+  );
+  console.log(
+    "routeDetails?.arrival?.longitude!",
+    routeDetails?.arrival?.longitude!
+  );
 
   const getData = async () => {
     setLoading(true);
     try {
       const response = await RouteApi.findRouteById(id);
       setRouteDetail(response);
-
+      setRouteDetails(response);
       const calculatedDistance = calculateDistance(
         response.departure.latitude,
         response.departure.longitude,
@@ -75,7 +113,6 @@ const RouteDetailPage: React.FC = () => {
         response.arrival.longitude
       ).toFixed(2);
       setDistance(calculatedDistance);
-      console.log("distance: ", distance);
 
       form.setFieldsValue({
         ...response,
@@ -94,6 +131,10 @@ const RouteDetailPage: React.FC = () => {
           ? dayjs(response.arrival_time)
           : null,
         distance: calculatedDistance,
+      });
+      setMapCoordinates({
+        latitude: response.departure.latitude,
+        longitude: response.departure.longitude,
       });
     } catch (error) {
       message.error("Failed to fetch route details");
@@ -162,12 +203,12 @@ const RouteDetailPage: React.FC = () => {
       };
       console.log("formattedValues", formattedValues);
       const response = await RouteApi.updateRouteByID(id, formattedValues);
-      console.log(response);
 
       if (response) {
         message.success("Route updated successfully");
         setIsEditing(false);
         setRouteDetail(response);
+        setRouteDetails(response);
         form.resetFields();
         form.setFieldsValue({
           ...response,
@@ -235,6 +276,11 @@ const RouteDetailPage: React.FC = () => {
       );
       setDistance(distance.toFixed(2));
       form.setFieldsValue({ distance: distance.toFixed(2) });
+
+      setMapCoordinates({
+        latitude: arrivalLocation.latitude,
+        longitude: arrivalLocation.longitude,
+      });
     } else {
       form.setFieldsValue({ distance: "" });
       setDistance("");
@@ -250,6 +296,10 @@ const RouteDetailPage: React.FC = () => {
         departure_address: selectedLocation.address,
         departure: selectedLocation.id,
       });
+      setMapCoordinates({
+        latitude: selectedLocation.latitude,
+        longitude: selectedLocation.longitude,
+      });
     }
   };
 
@@ -261,6 +311,10 @@ const RouteDetailPage: React.FC = () => {
       form.setFieldsValue({
         arrival_address: selectedLocation.address,
         arrival: selectedLocation.id,
+      });
+      setMapCoordinates({
+        latitude: selectedLocation.latitude,
+        longitude: selectedLocation.longitude,
       });
     }
   };
@@ -279,22 +333,33 @@ const RouteDetailPage: React.FC = () => {
   };
 
   return loading || !routeDetail ? (
-    <Row justify="center" align="middle" style={{ minHeight: "60vh" }}>
+    <Row justify="center" align="middle">
       <Spin size="large" />
     </Row>
   ) : (
-    <div style={{ padding: 20, background: "#FFFFFF", minHeight: "100vh" }}>
-      <Breadcrumb style={{ margin: "16px 0", fontSize: 16 }}>
-        <Breadcrumb.Item>
-          <Link href={routes.root}>
-            <HomeOutlined /> Home
-          </Link>
-        </Breadcrumb.Item>
-        <Breadcrumb.Item>
-          <Link href={routes.route}>Route</Link>
-        </Breadcrumb.Item>
-        <Breadcrumb.Item>{routeDetail.name}</Breadcrumb.Item>
-      </Breadcrumb>
+    <div>
+      <Breadcrumb
+        style={{ margin: "16px 16px" }}
+        items={[
+          {
+            title: (
+              <Link href={routes.root}>
+                <HomeOutlined /> Home
+              </Link>
+            ),
+          },
+          {
+            title: <Link href={routes.route}>Route</Link>,
+          },
+          {
+            title: (
+              <div style={{ color: "#008afb", fontWeight: 500 }}>
+                {routeDetail.name}
+              </div>
+            ),
+          },
+        ]}
+      />
 
       <Form
         form={form}
@@ -319,8 +384,9 @@ const RouteDetailPage: React.FC = () => {
           distance: distance,
         }}
         style={{
-          margin: "3% auto 5%",
-          maxWidth: "70%",
+          marginLeft: 50,
+          marginRight: 50,
+          maxWidth: "100%",
           padding: 30,
           backgroundColor: "#ffffff",
           borderRadius: 15,
@@ -329,199 +395,257 @@ const RouteDetailPage: React.FC = () => {
         }}
       >
         <Row gutter={[24, 24]}>
-          <Col span={8}>
-            <Form.Item name="id" hidden>
-              <Input />
-            </Form.Item>
-            <Form.Item
-              name="name"
-              label="Name"
-              style={{ fontWeight: FONT_WEIGHT }}
-            >
-              <Input
-                readOnly={!isEditing}
-                style={{ borderColor: BORDER_COLOR }}
-              />
-            </Form.Item>
+          <Col span={12}>
+            <Row gutter={[24, 24]}>
+              <Col span={8}>
+                <Form.Item name="id" hidden>
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  name="name"
+                  label="Name"
+                  style={{ fontWeight: FONT_WEIGHT }}
+                >
+                  <Input readOnly={!isEditing} />
+                </Form.Item>
+              </Col>
+              <Col span={8}>
+                <Form.Item
+                  name="distance"
+                  label="Distance (km)"
+                  style={{ fontWeight: FONT_WEIGHT }}
+                >
+                  <Input readOnly />
+                </Form.Item>
+              </Col>
+              <Col span={8}>
+                <Form.Item
+                  name="status"
+                  label="Status"
+                  style={{ fontWeight: FONT_WEIGHT }}
+                >
+                  <Select placeholder="Select status" disabled={!isEditing}>
+                    {Object.entries(statusMap).map(([key, value]) => (
+                      <Select.Option key={Number(key)} value={Number(key)}>
+                        {value.text}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={[24, 24]}>
+              <Col span={8}>
+                <Form.Item
+                  name="departure"
+                  label="Departure"
+                  style={{ fontWeight: FONT_WEIGHT }}
+                >
+                  <Select
+                    disabled={!isEditing}
+                    style={{ borderColor: BORDER_COLOR }}
+                    onChange={(value) => {
+                      handleDepartureChange(value);
+                      handleDistance();
+                    }}
+                  >
+                    {locations.map((item) => (
+                      <Select.Option key={item.id} value={item.id}>
+                        {item.name}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={16}>
+                <Form.Item
+                  name="departure_address"
+                  label="Departure Address"
+                  style={{ fontWeight: FONT_WEIGHT }}
+                >
+                  <Input disabled />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={[24, 24]}>
+              <Col span={8}>
+                <Form.Item
+                  name="arrival"
+                  label="Arrival"
+                  style={{ fontWeight: FONT_WEIGHT }}
+                >
+                  <Select
+                    disabled={!isEditing}
+                    style={{ borderColor: BORDER_COLOR }}
+                    onChange={(value) => {
+                      handleArrivalChange(value);
+                      handleDistance();
+                    }}
+                  >
+                    {locations.map((item) => (
+                      <Select.Option key={item.id} value={item.id}>
+                        {item.name}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={16}>
+                <Form.Item
+                  name="arrival_address"
+                  label="Arrival Address"
+                  style={{ fontWeight: FONT_WEIGHT }}
+                >
+                  <Input disabled />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={[24, 24]}>
+              <Col span={12}>
+                <Form.Item
+                  name="arrival_time"
+                  label="Arrival Time"
+                  style={{ fontWeight: FONT_WEIGHT }}
+                >
+                  <DatePicker
+                    format=" hh:mm A - DD/MM/YYYY"
+                    style={{ width: "100%" }}
+                    showTime={{ format: "hh:mm A", use12Hours: true }}
+                    disabled={!isEditing}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="departure_time"
+                  label="Departure Time"
+                  style={{ fontWeight: FONT_WEIGHT }}
+                >
+                  <DatePicker
+                    format=" hh:mm A - DD/MM/YYYY"
+                    style={{ width: "100%" }}
+                    showTime={{ format: "hh:mm A", use12Hours: true }}
+                    disabled={!isEditing}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={[24, 24]}>
+              <Col span={8}>
+                <Form.Item
+                  name="transport"
+                  label="Vehicle name"
+                  style={{ fontWeight: FONT_WEIGHT }}
+                >
+                  <Select
+                    disabled={!isEditing}
+                    style={{ borderColor: BORDER_COLOR }}
+                    onChange={handleTransportChange}
+                  >
+                    {transports.map((item) => (
+                      <Select.Option key={item.id} value={item.id}>
+                        {item.name}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={8}>
+                <Form.Item
+                  name="license_plate"
+                  label="License Plate"
+                  style={{ fontWeight: FONT_WEIGHT }}
+                >
+                  <Input disabled />
+                </Form.Item>
+              </Col>
+              <Col span={8}>
+                <Form.Item
+                  name="shipping_type"
+                  label="Shipping Type"
+                  style={{ fontWeight: FONT_WEIGHT }}
+                >
+                  <Input disabled />
+                </Form.Item>
+              </Col>
+            </Row>
           </Col>
-          <Col span={8}>
-            <Form.Item
-              name="distance"
-              label="Distance (km)"
-              style={{ fontWeight: FONT_WEIGHT }}
-            >
-              <Input readOnly style={{ borderColor: BORDER_COLOR }} />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item
-              name="status"
-              label="Status"
-              style={{ fontWeight: FONT_WEIGHT }}
-            >
-              <Select placeholder="Select status" disabled={!isEditing}>
-                {Object.entries(statusMap).map(([key, value]) => (
-                  <Select.Option key={Number(key)} value={Number(key)}>
-                    {value.text}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={[24, 24]}>
-          <Col span={8}>
-            <Form.Item
-              name="departure"
-              label="Departure"
-              style={{ fontWeight: FONT_WEIGHT }}
-            >
-              <Select
-                disabled={!isEditing}
-                style={{ borderColor: BORDER_COLOR }}
-                onChange={(value) => {
-                  handleDepartureChange(value);
-                  handleDistance();
-                }}
-              >
-                {locations.map((item) => (
-                  <Select.Option key={item.id} value={item.id}>
-                    {item.name}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item
-              name="departure_address"
-              label="Departure Address"
-              style={{ fontWeight: FONT_WEIGHT }}
-            >
-              <Input disabled />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item
-              name="departure_time"
-              label="Departure Time"
-              style={{ fontWeight: FONT_WEIGHT }}
-            >
-              <DatePicker
-                format=" hh:mm A - DD/MM/YYYY"
-                style={{ width: "100%" }}
-                showTime={{ format: "hh:mm A", use12Hours: true }}
-                disabled={!isEditing}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={[24, 24]}>
-          <Col span={8}>
-            <Form.Item
-              name="arrival"
-              label="Arrival"
-              style={{ fontWeight: FONT_WEIGHT }}
-            >
-              <Select
-                disabled={!isEditing}
-                style={{ borderColor: BORDER_COLOR }}
-                onChange={(value) => {
-                  handleArrivalChange(value);
-                  handleDistance();
-                }}
-              >
-                {locations.map((item) => (
-                  <Select.Option key={item.id} value={item.id}>
-                    {item.name}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item
-              name="arrival_address"
-              label="Arrival Address"
-              style={{ fontWeight: FONT_WEIGHT }}
-            >
-              <Input disabled />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item
-              name="arrival_time"
-              label="Arrival Time"
-              style={{ fontWeight: FONT_WEIGHT }}
-            >
-              <DatePicker
-                format=" hh:mm A - DD/MM/YYYY"
-                style={{ width: "100%" }}
-                showTime={{ format: "hh:mm A", use12Hours: true }}
-                disabled={!isEditing}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={[24, 24]}>
-          <Col span={8}>
-            <Form.Item
-              name="transport"
-              label="Vehicle name"
-              style={{ fontWeight: FONT_WEIGHT }}
-            >
-              <Select
-                disabled={!isEditing}
-                style={{ borderColor: BORDER_COLOR }}
-                onChange={handleTransportChange}
-              >
-                {transports.map((item) => (
-                  <Select.Option key={item.id} value={item.id}>
-                    {item.name}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item
-              name="license_plate"
-              label="License Plate"
-              style={{ fontWeight: FONT_WEIGHT }}
-            >
-              <Input disabled />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item
-              name="shipping_type"
-              label="Shipping Type"
-              style={{ fontWeight: FONT_WEIGHT }}
-            >
-              <Input disabled />
-            </Form.Item>
+          <Col span={12}>
+            <MapComponent
+              startLat={routeDetails?.departure?.latitude!}
+              startLng={routeDetails?.departure?.longitude!}
+              destLat={routeDetails?.arrival?.latitude!}
+              destLng={routeDetails?.arrival?.longitude!}
+              showRoute={showRoute}
+            />
           </Col>
         </Row>
 
-        <Row justify="end" gutter={[16, 24]}>
+        <Row style={{ marginTop: 20 }} justify="end" gutter={[24, 24]}>
+          <Button
+            className="btn btn-white btn-animate"
+            style={{
+              fontSize: 17,
+              marginRight: 10,
+              borderRadius: 50,
+              padding: "20px 20px",
+              fontWeight: 500,
+            }}
+            onClick={() => setShowRoute(true)}
+          >
+            Show Route
+          </Button>
           {!isEditing ? (
             canAccessUpdateRouteDetail && (
-              <Button onClick={handleEditClick}>Edit</Button>
+              <Button
+                className="btn btn-white btn-animate"
+                style={{
+                  fontSize: 17,
+                  borderRadius: 50,
+                  padding: "20px 20px",
+                  fontWeight: 500,
+                }}
+                onClick={handleEditClick}
+              >
+                Edit
+              </Button>
             )
           ) : (
             <>
-              <Button onClick={handleCancelClick} style={{ marginRight: 8 }}>
+              <Button
+                onClick={handleCancelClick}
+                className="btn btn-cancel btn-animate"
+                style={{
+                  marginRight: 8,
+                  fontSize: 17,
+                  borderRadius: 50,
+                  padding: "20px 20px",
+                  fontWeight: 500,
+                }}
+              >
                 Cancel
               </Button>
-              <Button onClick={handleSaveClick}>Save</Button>
+              <Button
+                className="btn btn-white btn-animate"
+                style={{
+                  fontSize: 17,
+                  borderRadius: 50,
+                  padding: "20px 20px",
+                  fontWeight: 500,
+                }}
+                onClick={handleSaveClick}
+              >
+                Save
+              </Button>
             </>
           )}
         </Row>
-
-        
       </Form>
     </div>
   );
 };
 
-export default RouteDetailPage;
+// export default RouteDetailPage;
+export default withPermission(RouteDetailPage, "route_view");

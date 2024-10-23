@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Button, Layout } from "antd";
 import { Header } from "antd/es/layout/layout";
 import ProfileBar from "./profile";
@@ -8,12 +8,17 @@ import { LoginOutlined } from "@ant-design/icons";
 import Link from "next/link";
 import routes from "../router/routes";
 import { useAuth } from "../mocks/auth";
-import UserProvider from "../contexts/UserContext";
+import { UserContext } from "../contexts/UserContext";
 
 const AppHeader: React.FC = () => {
   const isAuthenticated = useAuth(); // Get authentication status from custom hook
+  const [isMounted, setIsMounted] = useState(false);
 
-  console.log("isAuthenticated", isAuthenticated);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) return null
 
   return (
     <Layout>
@@ -22,35 +27,54 @@ const AppHeader: React.FC = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          backgroundColor: "#e0f7fa", 
+          backgroundColor: "#00b4ff",
+          // background: "#FFFFFF",
           padding: "0 20px",
-          height: "80px",
+          height: "90px",
         }}
       >
-        {/* Empty div to balance the layout */}
         <div style={{ flex: 1 }}></div>
+       
 
-        {/* Centered Logo Section */}
-        <div style={{ display: "flex", justifyContent: "center", flex: 1 }}>
+        <div style={{ flex: 1,  zIndex: 2}}>
           <Link href={routes.root}>
             <img
               src="/assets/CARGO WAVE.png" // Your uploaded logo path
               style={{
                 height: 40,
-                marginTop: 20,
-                objectFit: "contain", // Ensure the logo scales without distortion
+                marginTop: 20
               }}
               alt="Cargo Wave Logo"
             />
           </Link>
         </div>
 
-        {/* Navigation and Authentication Section */}
-        <div style={{ display: "flex", justifyContent: "flex-end", flex: 1 }}>
+        <div className="cloud-container" style={{ zIndex: 1, marginTop: 20 }}>
+          <div style={{ flex: 1 }}></div>
+          <div className="x1">
+            <div className="cloud"></div>
+          </div>
+
+          <div className="x2">
+            <div className="cloud"></div>
+          </div>
+
+          <div className="x3">
+            <div className="cloud"></div>
+          </div>
+
+          <div className="x4">
+            <div className="cloud"></div>
+          </div>
+
+          <div className="x5">
+            <div className="cloud"></div>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", justifyContent: "flex-end", zIndex: 2 }}>
           {isAuthenticated ? (
-            <UserProvider>
-              <ProfileBar /> 
-            </UserProvider>
+            <ProfileBar />
           ) : (
             <Button
               type="default"
@@ -68,7 +92,7 @@ const AppHeader: React.FC = () => {
                 alignItems: "center",
               }}
               onMouseOver={(e) => {
-                e.currentTarget.style.backgroundColor = "#0066cc";
+                e.currentTarget.style.backgroundColor = "#008afb";
                 e.currentTarget.style.color = "#fff";
               }}
               onMouseOut={(e) => {
@@ -82,6 +106,8 @@ const AppHeader: React.FC = () => {
             </Button>
           )}
         </div>
+
+        
       </Header>
     </Layout>
   );

@@ -1,6 +1,6 @@
 "use client";
 import UserApi from "@/source/apis/users";
-import withPermission from "@/source/components/withPermission";
+import withPermission from "@/source/hook/withPermission";
 import { UserContext } from "@/source/contexts/UserContext";
 import routes from "@/source/router/routes";
 import {
@@ -29,6 +29,7 @@ import {
 } from "antd";
 import { RcFile, UploadChangeParam } from "antd/es/upload";
 import dayjs from "dayjs";
+import { jwtDecode } from "jwt-decode";
 import {
   CldImage,
   CldUploadWidget,
@@ -39,44 +40,33 @@ import { useContext, useEffect, useState } from "react";
 
 const { Title } = Typography;
 
+interface Users {
+  id: string;
+  name: string;
+  email: string;
+  phone_number: string;
+  gender: number;
+  dob: Date;
+  image: string;
+  status: number;
+  description: string;
+}
+
 const ProfilePage: React.FC = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string>("");
   const [value, setValue] = useState(1);
-  const [users, setUsers] = useState();
-  const [userId, setUserId] = useState("");
   const [resource, setResource] = useState<
     string | CloudinaryUploadWidgetInfo | undefined
   >(undefined);
-  const { user, setUser, setSavedUser} = useContext(UserContext);
+  const { userData } = useContext(UserContext);
 
-  console.log("avatarUrl", avatarUrl);
+  const jwtData = localStorage.getItem("jwt");
+  const decodedJwt = jwtDecode<{ sub: string }>(jwtData!);
+  const id = decodedJwt.sub;
 
-  const getData = async () => {
-    setLoading(true);
-    try {
-      const response = await UserApi.findById(userId);
-      console.log("response", response);
-      setUsers(response);
-      form.setFieldsValue({
-        name: response.name,
-        phone_number: response.phone_number,
-        email: response.email,
-        gender: response.gender,
-        image: response.image,
-        dob: dayjs(response.dob),
-      });
-      setAvatarUrl(response.image);
-    } catch (error) {
-      message.error("Failed to fetch roles");
-      console.error("Failed to fetch roles: ", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleUpdateUserProfile = async (id: string, values: any) => {
+  const handleUpdateUserProfile = async (values: any) => {
     setLoading(true);
     try {
       const updatedValues = {
@@ -88,12 +78,8 @@ const ProfilePage: React.FC = () => {
 
       if (body) {
         message.success(`Profile updated successfully`);
-        localStorage.setItem("user", JSON.stringify(body));
-        const savedUser = localStorage.getItem("user");
-        if (savedUser && setSavedUser) {
-          setSavedUser(JSON.parse(savedUser));
-        }
         console.log("body", body);
+        window.location.reload();
       } else {
         message.error(`Failed to update profile`);
       }
@@ -111,16 +97,22 @@ const ProfilePage: React.FC = () => {
   }, [resource]);
 
   useEffect(() => {
-    const userData = localStorage.getItem("user");
-    const user = JSON.parse(userData!);
-    const userId = user.id;
-    setUserId(userId);
-    getData();
-  }, [userId]);
+    if (userData) {
+      form.setFieldsValue({
+        name: userData?.name,
+        phone_number: userData?.phone_number,
+        email: userData?.email,
+        gender: userData?.gender,
+        image: userData?.image,
+        dob: dayjs(userData?.dob),
+      });
+      setAvatarUrl(userData?.image);
+    }
+  }, [userData]);
 
   const onFinish = (values: any) => {
     console.log("Received values: ", values);
-    handleUpdateUserProfile(userId, values);
+    handleUpdateUserProfile(values);
   };
 
   const onChangeRadio = (e: RadioChangeEvent) => {
@@ -130,16 +122,29 @@ const ProfilePage: React.FC = () => {
 
   return (
     <div>
-      <Breadcrumb style={{ margin: "16px 16px" }}>
-        <Breadcrumb.Item>
-          <Link href={routes.root}>
-            <HomeOutlined /> Home
-          </Link>
-        </Breadcrumb.Item>
-        <Breadcrumb.Item>
-          <Link href={routes.profile}>Profile</Link>
-        </Breadcrumb.Item>
-      </Breadcrumb>
+      <Breadcrumb
+        style={{ margin: "16px 16px" }}
+        items={[
+          {
+            title: (
+              <Link href={routes.root}>
+                <HomeOutlined /> Home
+              </Link>
+            ),
+          },
+          {
+            title: <Link href={routes.profile}>Profile</Link>,
+          },
+          // {
+          //   title: (
+          //     <div style={{ color: "#008afb", fontWeight: 500 }}>
+          //       {user?.name}
+          //     </div>
+          //   ),
+          // },
+        ]}
+      />
+
       <Title ellipsis level={3} style={{ marginLeft: 16 }}>
         Profile management
       </Title>

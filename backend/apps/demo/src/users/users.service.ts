@@ -6,11 +6,21 @@ import { Role } from '../entities/role.entity';
 import { CreateUserDTO, PaginationDTO } from './users.dto/create-user-request.dto';
 import { AssignRoleDTO } from './users.dto/assign-role-dto';
 import { UpdateUserDTO } from './users.dto/update-route-request.dto';
+import { SubscribeMessage, WebSocketServer, WebSocketGateway } from "@nestjs/websockets";
+import { Socket } from "socket.io";
+import { Permission } from '../entities/permission.entity';
 
 export type Users = any;
 export type Roles = any;
+export type Permissions = any;
 
 @Injectable()
+@WebSocketGateway({
+  cors: {
+    origin: "*"
+  }
+})
+
 export class UsersService {
 
   constructor(
@@ -19,6 +29,9 @@ export class UsersService {
     @InjectRepository(Role)
     private rolesRepository: Repository<Roles>,
   ) { }
+
+  @WebSocketServer()
+  socket: Socket
 
   async createUser(userDto: CreateUserDTO): Promise<Users> {
     return await this.usersRepository.save(userDto);
@@ -80,23 +93,43 @@ export class UsersService {
     return this.usersRepository.findOne({ where: { email }, relations: ['roles', 'roles.permissions'], });
   }
 
-  async findById(userId: string): Promise<Users | null> {
-    try {
-      const user = await this.usersRepository.createQueryBuilder('user')
-        .leftJoinAndSelect('user.roles', 'roles')
-        .leftJoinAndSelect('roles.permissions', 'permissions')
-        .where('user.id = :userId', { userId })
-        .getOne();
+  async getUserWithRolesAndUniquePermissions(userId: string): Promise<{ user: User, uniquePermissions: Permission[] }> {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+      relations: ['roles', 'roles.permissions'], // Load roles and permissions
+    });
 
-      if (!user) {
-        throw new NotFoundException(`User with ID ${userId} not found`);
-      }
-
-      return user;
-    } catch (error) {
-      console.error('Error finding user by ID:', error);
-      throw new Error('Error finding user');
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
     }
+
+    // Filter out disabled roles and extract their names
+    // const activeRoles = user.roles.filter((role: { isDisabled: any; }) => !role.isDisabled);
+
+    // Get unique permissions from the user's active roles
+    // const uniquePermissions = this.getUniquePermissions(activeRoles);
+
+    return user // Return the complete user information
+  }
+
+  // Existing getUniquePermissions method
+  // private getUniquePermissions(roles: any[]): Permission[] {
+  //   const permissionsMap = new Map<string, Permission>();
+
+  //   roles.forEach((role) => {
+  //     role.permissions.forEach((permission: Permission) => {
+  //       if (!permissionsMap.has(permission.name)) {
+  //         permissionsMap.set(permission.name, permission);
+  //       }
+  //     });
+  //   });
+
+  //   return Array.from(permissionsMap.values());
+  // }
+
+  // Example usage of findById modified to include user information, role names, and unique permissions
+  async findById(userId: string): Promise<any> {
+    return this.getUserWithRolesAndUniquePermissions(userId);
   }
 
   async update(id: string, userDto: UpdateUserDTO): Promise<Users> {
@@ -118,13 +151,14 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
+  @SubscribeMessage("message")
   async assignRole(assignRoleDTO: AssignRoleDTO): Promise<User> {
     const { userId, roleIds } = assignRoleDTO;
 
     // Find the user using the usersRepository instead of rolesRepository
     const user = await this.usersRepository.findOne({
       where: { id: userId },
-      relations: ['roles'],
+      relations: ['roles', 'roles.permissions'],
     });
 
     if (!user) {
@@ -140,9 +174,22 @@ export class UsersService {
     const newRoles = rolesToAdd.filter((p) => !existingRoleIDs.has(p.id));
     user.roles = [...user.roles, ...newRoles];
     user.roles = user.roles.filter((p: { id: string; }) => roleIds.includes(p.id) || newRoles.includes(p));
+
+    const allPermissions = user.roles.flatMap(role => role.permissions || []);
+
+    const uniquePermissions = Array.from(new Set(allPermissions.map(permission => permission.id)))
+      .map(id => allPermissions.find(permission => permission.id === id))
+      .filter(permission => permission !== undefined); 
+
+
+    this.socket.emit(`message_${userId}`, JSON.stringify({
+      userId: userId,
+      roleIds: roleIds,
+      permissions: uniquePermissions,
+    }));
+
     return this.usersRepository.save(user);
   }
-
 
   async getRolesByUserId(userId: string): Promise<Role[]> {
     const user = await this.usersRepository.findOne({
