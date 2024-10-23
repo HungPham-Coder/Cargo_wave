@@ -9,7 +9,7 @@ interface RegisterPayload {
   email: string;
   password: string;
 }
-
+const jwt = require('jsonwebtoken');
 const login = async (email: string, password: string): Promise<boolean> => {
   try {
     const response = await BaseApi.post("auth/login", {
@@ -73,7 +73,7 @@ const refresh = async (refreshToken: string): Promise<any | undefined> => {
   }
 };
 
-const resetPassword = async ( password: string, id: any): Promise<any | undefined> => {
+const resetPassword = async (password: string, id: any): Promise<any | undefined> => {
   try {
     const response = await BaseApi.post(`auth/reset-password?token=${id}`, { password });
     return response;
@@ -93,17 +93,18 @@ const forgotPassword = async (to: string): Promise<any | undefined> => {
   }
 
 }
-const loginGoogle = async (): Promise<boolean> => {
+const loginGoogle = async (): Promise<any> => {
   try {
     const response = await BaseApi.get("auth/google");
-    console.log(response.data);
-    // if (response.status === 201){
-    //   return true;
-    // }
-    return true;
+    console.log("Data from google: ", response.data);
+    if (response.status === 200) {
+      return response.data.accessToken;
+    } else {
+      console.error("Failed to get access token: ", response.data);
+      return null; // Hoặc xử lý theo cách khác tùy vào yêu cầu của bạn
+    }
   } catch (error) {
     console.error("Error during sigin GG:", error);
-    return false;
   }
   // try {
   //   const fetchUserData = async () => {
@@ -114,11 +115,11 @@ const loginGoogle = async (): Promise<boolean> => {
   //           'Content-Type': 'application/json',
   //         },
   //       });
-       
+
   //       if (!response.ok) {
   //         throw new Error('Network response was not ok');
   //       }
-    
+
   //       const data = await response.json();
   //       console.log(data); // Thông tin người dùng
   //       localStorage.setItem("jwtAccessToken", data.accessToken);
@@ -142,7 +143,7 @@ const loginGoogle = async (): Promise<boolean> => {
   //   console.error("Can't call api: ", error)
   //   return false
   // }
-  
+
 }
 // const loginGg = async () : Promise<boolean> => {
 
@@ -150,7 +151,7 @@ const loginGoogle = async (): Promise<boolean> => {
 //   try {
 //     const response = await BaseApi.get("auth/google");
 //     console.log ("data: ", response.data)
-    
+
 //     if (response.status === 201) {
 //       localStorage.setItem("jwtAccessToken", response.data.accessToken);
 //       localStorage.setItem("jwt", response.data.refreshToken);
@@ -170,11 +171,11 @@ const loginGoogle = async (): Promise<boolean> => {
 
 const checkToken = async (id: any): Promise<boolean> => {
   try {
-    const response = await BaseApi.get (`users/findById/${encodeURIComponent(id)}`);
-    console.log (response.data);
-    return response.data.verify_token != null ? true : false; 
-  }catch (error) {
-    console.error ("Error during find User", error);
+    const response = await BaseApi.get(`users/findById/${encodeURIComponent(id)}`);
+    console.log(response.data);
+    return response.data.verify_token != null ? true : false;
+  } catch (error) {
+    console.error("Error during find User", error);
     return false;
   }
 }

@@ -95,16 +95,16 @@ export class UsersService {
     return this.usersRepository.findOne({ where: { email }, relations: ['roles', 'roles.permissions'], });
   }
 
-  async findById(userId: string): Promise<Users | null> {
+  async findById(id: string): Promise<Users | null> {
     try {
       const user = await this.usersRepository.createQueryBuilder('user')
         .leftJoinAndSelect('user.roles', 'roles')
         .leftJoinAndSelect('roles.permissions', 'permissions')
-        .where('user.id = :userId', { userId })
+        .where('user.id = :id', { id })
         .getOne();
 
       if (!user) {
-        throw new NotFoundException(`User with ID ${userId} not found`);
+        throw new NotFoundException(`User with ID ${id} not found`);
       }
 
       return user;
