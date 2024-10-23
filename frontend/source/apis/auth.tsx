@@ -1,19 +1,13 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import BaseApi from "./app";
 
-interface RegisterPayload {
-  name: string;
-  phone: string;
-  position?: string;
-  born?: string;
-  email: string;
-  password: string;
-}
+
 const jwt = require('jsonwebtoken');
+const resource = "auth";
 
 const login = async (email: string, password: string): Promise<boolean> => {
   try {
-    const response = await BaseApi.post("auth/login", {
+    const response = await BaseApi.post(`${resource}/login`, {
       email,
       password,
     });
@@ -34,27 +28,10 @@ const login = async (email: string, password: string): Promise<boolean> => {
   }
 };
 
-const authorize = async (): Promise<any | undefined> => {
+const register = async (payload: any) => {
   try {
-    const id = localStorage.getItem("userId");
-    if (!id) throw new Error("User ID not found in localStorage");
-
-    const response = await BaseApi.get(`/User/GetById/${id}`);
+    const response = await BaseApi.post(`/${resource}/register`, payload);
     return response.data;
-    // Uncomment if using local user data
-    // const user = JSON.parse(localStorage.getItem("user")) || {};
-    // return user;
-  } catch (error) {
-    console.log("Error getting user: ", error);
-    return undefined;
-  }
-};
-
-const register = async (payload: RegisterPayload): Promise<boolean> => {
-  try {
-    const response = await BaseApi.post("auth/register", payload);
-    console.log("response: ", response.status);
-    return response.status === 200;
   } catch (error) {
     console.log("Error during registration: ", error);
     return false;
@@ -179,7 +156,6 @@ const checkToken = async (id: any): Promise<boolean> => {
 }
 const AuthApi = {
   login,
-  authorize,
   register,
   refresh,
   resetPassword,

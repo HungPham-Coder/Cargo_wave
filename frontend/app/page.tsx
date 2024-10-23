@@ -4,6 +4,7 @@ import AuthApi from "@/source/apis/auth";
 import UserApi from "@/source/apis/users";
 import CheckToken from "@/source/constants/utils";
 import { UserContext } from "@/source/contexts/UserContext";
+import { useAuth } from "@/source/mocks/auth";
 import routes from "@/source/router/routes";
 import { Carousel, Typography, Button } from "antd";
 import { jwtDecode } from "jwt-decode";
@@ -13,7 +14,7 @@ import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 
 const { Title, Paragraph } = Typography;
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
 const HomeContainer = styled.div`
   display: flex;
@@ -53,8 +54,9 @@ export default function Home() {
     { src: "/assets/3.jpg", alt: "Image 3" },
   ];
   const [jwtData, setJwtData] = useState<string | null>(null);
+  const isAuthenticated = useAuth();
 
-  const onChange = (currentSlide: number) => { };
+  const onChange = (currentSlide: number) => {};
 
   const checkTokenAccesstoken = (item: number) => {
     if (item === 1) {
@@ -106,7 +108,6 @@ export default function Home() {
     try {
       const response = await UserApi.findById(id);
       setUserData(response);
-
     } catch (error) {
       console.error("Failed to fetch roles: ", error);
     }
@@ -124,7 +125,7 @@ export default function Home() {
   useEffect(() => {
     // Lấy giá trị từ query string
     const params = new URLSearchParams(window.location.search);
-    const token = params.get('code');
+    const token = params.get("code");
     if (token) {
       // Thực hiện các hành động cần thiết với token ở đây
       console.log("myToken: ", token);
@@ -139,7 +140,6 @@ export default function Home() {
     }
   }, []);
 
-
   return (
     <HomeContainer>
       <Introduction>
@@ -153,40 +153,46 @@ export default function Home() {
           efficient and optimized operations.
         </Paragraph>
 
-        <Link href={routes.login}>
-          <div className="buttons">
-            <Button className="blob-btn" type="primary">
-              Get Started
-              <span className="blob-btn__inner">
-                <span className="blob-btn__blobs">
-                  <span className="blob-btn__blob"></span>
-                  <span className="blob-btn__blob"></span>
-                  <span className="blob-btn__blob"></span>
-                  <span className="blob-btn__blob"></span>
+        {!isAuthenticated && (
+          <Link href={routes.login}>
+            <div className="buttons">
+              <Button className="blob-btn" type="primary">
+                Get Started
+                <span className="blob-btn__inner">
+                  <span className="blob-btn__blobs">
+                    <span className="blob-btn__blob"></span>
+                    <span className="blob-btn__blob"></span>
+                    <span className="blob-btn__blob"></span>
+                    <span className="blob-btn__blob"></span>
+                  </span>
                 </span>
-              </span>
-            </Button>
-            <br />
-            <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
-              <defs>
-                <filter id="goo">
-                  <feGaussianBlur
-                    in="SourceGraphic"
-                    result="blur"
-                    stdDeviation="10"
-                  ></feGaussianBlur>
-                  <feColorMatrix
-                    in="blur"
-                    mode="matrix"
-                    values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 21 -7"
-                    result="goo"
-                  ></feColorMatrix>
-                  <feBlend in2="goo" in="SourceGraphic" result="mix"></feBlend>
-                </filter>
-              </defs>
-            </svg>
-          </div>
-        </Link>
+              </Button>
+              <br />
+              <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+                <defs>
+                  <filter id="goo">
+                    <feGaussianBlur
+                      in="SourceGraphic"
+                      result="blur"
+                      stdDeviation="10"
+                    ></feGaussianBlur>
+                    <feColorMatrix
+                      in="blur"
+                      mode="matrix"
+                      values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 21 -7"
+                      result="goo"
+                    ></feColorMatrix>
+                    <feBlend
+                      in2="goo"
+                      in="SourceGraphic"
+                      result="mix"
+                    ></feBlend>
+                  </filter>
+                </defs>
+              </svg>
+            </div>
+          </Link>
+        )}
       </Introduction>
       <CarouselContainer>
         <Carousel autoplay afterChange={onChange} dots draggable>
