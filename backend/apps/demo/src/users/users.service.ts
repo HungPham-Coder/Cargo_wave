@@ -161,8 +161,9 @@ export class UsersService {
       throw new Error('User not found');
     }
 
-    const rolesToAdd = await this.rolesRepository.findBy({
-      id: In(roleIds),
+    const rolesToAdd = await this.rolesRepository.find({
+      where: { id: In(roleIds) },
+      relations: ['permissions'],
     });
 
     const existingRoleIDs = new Set(user.roles.map((p: { id: any; }) => p.id));
@@ -171,17 +172,28 @@ export class UsersService {
     user.roles = [...user.roles, ...newRoles];
     user.roles = user.roles.filter((p: { id: string; }) => roleIds.includes(p.id) || newRoles.includes(p));
 
-    const allPermissions = user.roles.flatMap(role => role.permissions || []);
+    const uniquePermissions = new Set<Permission>();
 
-    const uniquePermissions = Array.from(new Set(allPermissions.map(permission => permission.id)))
-      .map(id => allPermissions.find(permission => permission.id === id))
-      .filter(permission => permission !== undefined);
+    newRoles.forEach(role => {
+      if (role.permissions) {
+        if (Array.isArray(role.permissions)) {
+          for (const permission of role.permissions) {
+            uniquePermissions.add(permission);
+          }
+        } else {
+          console.error(`Role ${role.id} has permissions that are not iterable.`);
+        }
+      } else {
+        console.warn(`Role ${role.id} has no permissions defined.`);
+      }
+    });
 
+    console.log("uniquePermissions", uniquePermissions)
 
     this.socket.emit(`message_${userId}`, JSON.stringify({
       userId: userId,
       roleIds: roleIds,
-      permissions: uniquePermissions,
+      permissions: Array.from(uniquePermissions),
     }));
 
     return this.usersRepository.save(user);

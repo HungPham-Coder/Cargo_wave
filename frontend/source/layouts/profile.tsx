@@ -54,8 +54,6 @@ const ProfileBar: React.FC = () => {
   const [isHovered, setIsHovered] = useState(false);
   const { userData } = useContext(UserContext);
 
-  console.log("user in header: ", userData?.name!)
-
   const handleMouseEnter = () => {
     setIsHovered(true);
   };

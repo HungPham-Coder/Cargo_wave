@@ -68,12 +68,23 @@ const updateRouteByID = async (id: any, values: any) => {
   }
 };
 
+const getRouteStatistics = async () => {
+  try {
+    const response = await BaseApi.get(`/${resource}/getRouteStatistics`);
+    return response.data;
+  } catch (error) {
+    console.log("Error getRouteStatistics class: ", error);
+    return false;
+  }
+};
+
 const RouteApi = {
   findAll,
   findAllBySearch,
   updateRouteByID,
   createRoute,
   findRouteById,
+  getRouteStatistics,
 };
 
 export default RouteApi;

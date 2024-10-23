@@ -105,10 +105,8 @@ export default function Home() {
 
     try {
       const response = await UserApi.findById(id);
-      console.log("response", response);
       setUserData(response);
 
-      console.log("setUserData", setUserData);
     } catch (error) {
       console.error("Failed to fetch roles: ", error);
     }

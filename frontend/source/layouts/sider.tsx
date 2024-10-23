@@ -81,9 +81,6 @@ const AppSider: React.FC = () => {
   );
   const { hasPermission } = usePermission();
   const { userData } = useContext(UserContext);
-  console.log("userData in sider", userData);
-
-  console.log("collapsed", collapsed);
 
   useEffect(() => {
     const access =

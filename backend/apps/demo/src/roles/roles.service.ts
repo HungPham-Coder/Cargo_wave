@@ -6,7 +6,7 @@ import { AssignPermissionDTO } from './roles.dto/assign-permission-dto';
 import { Permission } from '../entities/permission.entity';
 import { Role } from '../entities/role.entity';
 import { PaginationDTO } from '../users/users.dto/create-user-request.dto';
-import { SubscribeMessage, WebSocketServer } from '@nestjs/websockets';
+import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { User } from '../entities/user.entity';
 
@@ -16,6 +16,11 @@ export type Permissions = any;
 export type Users = any;
 
 @Injectable()
+@WebSocketGateway({
+  cors: {
+    origin: "*"
+  }
+})
 export class RolesService {
 
   constructor(
@@ -63,8 +68,6 @@ export class RolesService {
         .addOrderBy('roles.name', 'ASC')
         .getMany();
 
-      console.log("Fetched Data:", data);
-
       return { data, total };
     } catch (error) {
       console.error('Error finding roles: ', error);
@@ -77,7 +80,6 @@ export class RolesService {
   async findOneByName(name: string): Promise<Roles> {
     try {
       const role = await this.rolesRepository.findOneBy({ name });
-      console.log("role: ", role)
       return role;
     } catch (error) {
       console.error('Error finding role by name:', error);
@@ -148,9 +150,11 @@ export class RolesService {
   }
 
   // Method to update the name of a role by ID
-  // @SubscribeMessage("message")
+  @SubscribeMessage("message")
   async assignPermissions(assignPermissionDTO: AssignPermissionDTO): Promise<Role> {
     const { roleId, permissionIDs } = assignPermissionDTO;
+
+
     const role = await this.rolesRepository.findOne({
       where: { id: roleId },
       relations: ['permissions', 'users'],
@@ -161,27 +165,34 @@ export class RolesService {
     const permissionsToAdd = await this.permissionRepository.findBy({
       id: In(permissionIDs),
     });
+
     const existingPermissionIDs = new Set(role.permissions.map((p: { id: any; }) => p.id));
     const newPermissions = permissionsToAdd.filter(p => !existingPermissionIDs.has(p.id));
     role.permissions = [...role.permissions, ...newPermissions];
     role.permissions = role.permissions.filter((p: { id: string; }) => permissionIDs.includes(p.id) || newPermissions.includes(p));
 
+    const uniquePermissions = new Set(role.permissions.map((p: { id: any; }) => p.id));
 
-    const users: User[] = await this.usersRepository.find({
-      where: { roles: {id: roleId} },
-      relations: ['roles'],
+    permissionsToAdd.forEach(permission => {
+      uniquePermissions.add(permission.id);
     });
 
-    console.log("users", users)
+    const roleIds = [roleId]
 
+    const users = await this.usersRepository.createQueryBuilder('user')
+      .innerJoin('user.roles', 'role') // Join with roles
+      .where('role.id = :roleId', { roleId }) // Filter by role ID
+      .getMany();
+
+    console.log("roleId", roleId)
+    console.log("usersInRole", users)
+    // Emit a message to each user associated with the modified role
     users.forEach(user => {
-    //   this.socket.emit(`message_${user.id}`, JSON.stringify({
-    //     demo: 1
-    //     // role: role.name,
-    //     // permissions: role.permissions.map(permission => permission.name),
-    //   }));
+      this.socket.emit(`message_${user.id}`, JSON.stringify({
+        roleIds: roleIds,
+        permissions: role.permissions,
+      }));
     });
-
     return this.rolesRepository.save(role);
   }
 

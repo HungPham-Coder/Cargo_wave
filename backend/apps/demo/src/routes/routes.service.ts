@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { CreateRouteDto, RouteWithTransportDTO } from './routes.dto/create-route-request.dto';
 import { UpdateRouteDto } from './routes.dto/update-route-request.dto';
 import { SearchDTO } from '../users/users.dto/create-user-request.dto';
+import { RouteStatisticsDto } from './routes.dto/route-statistics.dto';
 
 export type Routes = any;
 
@@ -110,6 +111,28 @@ export class RoutesService {
         const result = await this.routeRepository.delete(id);
         if (result.affected === 0) {
             throw new NotFoundException(`Route with ID ${id} not found`);
+        }
+    }
+
+    async getRouteStatistics(): Promise<RouteStatisticsDto> {
+        try {
+            const statuses = await this.routeRepository
+                .createQueryBuilder('routes')
+                .select('routes.status', 'status')
+                .addSelect('COUNT(routes.id)', 'count')
+                .groupBy('routes.status')
+                .getRawMany();
+    
+            const statistics: RouteStatisticsDto = {};
+    
+            statuses.forEach(({ status, count }) => {
+                statistics[status] = parseInt(count, 10);
+            });
+    
+            return statistics; // Return the statistics object
+        } catch (error) {
+            console.error('Error retrieving route statistics:', error);
+            throw new Error('Error retrieving route statistics');
         }
     }
 }

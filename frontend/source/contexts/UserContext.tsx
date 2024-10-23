@@ -69,7 +69,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [userData, setUserData] = useState<Users | null>(null);
 
   const setUserDataHandler = (userDataParam: SetStateAction<Users | null>) => {
-    console.log("userDataParam", userDataParam);
     setUserData(userDataParam);
   };
 
@@ -77,8 +76,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     roleIds: string[];
     permissions: Permissions[];
   }) => {
-    console.log("roleDataParam", roleDataParam);
-
     setUserData((prevUserData: any) => {
       if (!prevUserData) return prevUserData;
 
