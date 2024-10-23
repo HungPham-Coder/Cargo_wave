@@ -48,12 +48,12 @@ const RegisterPage: React.FC = () => {
   const [value, setValue] = useState(1);
   const router = useRouter();
 
-  const handleRegister = async (val: any): Promise<void> => {
+  const handleRegister = async (val: any) => {
     setLoading(true);
-    const payload = val[0];
-    const success = await AuthApi.register(payload);
+    const body = await AuthApi.register(val);
+    console.log("body", body)
     setLoading(false);
-    if (success) {
+    if (body) {
       message.success(`Register successful!`);
       router.push(routes.login);
     } else {
@@ -90,11 +90,7 @@ const RegisterPage: React.FC = () => {
               gender: 1,
               dob: dayjs(),
             }}
-            onFinish={async (...values: any) => {
-              console.log("data: ", values);
-              // const { phone, password } = values;
-              await handleRegister(values);
-            }}
+            onFinish={handleRegister}
           >
             <Form.Item
               name="name"

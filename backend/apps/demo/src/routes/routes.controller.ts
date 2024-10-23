@@ -5,6 +5,7 @@ import { CreateRouteDto, RouteWithTransportDTO } from './routes.dto/create-route
 import { UpdateRouteDto } from './routes.dto/update-route-request.dto';
 import { Route } from '../entities/routes.entity';
 import { SearchDTO } from '../users/users.dto/create-user-request.dto';
+import { RouteStatisticsDto } from './routes.dto/route-statistics.dto';
 
 @Controller('routes')
 export class RoutesController {
@@ -48,6 +49,7 @@ export class RoutesController {
         return await this.routeService.create(createRouteDto);
     }
 
+    @HttpCode(HttpStatus.OK)
     @Put('updateRouteByID/:id')
     update(@Param('id') id: string, @Body() updateRouteDto: UpdateRouteDto) {
         return this.routeService.update(id, updateRouteDto);
@@ -56,5 +58,11 @@ export class RoutesController {
     @Delete(':id')
     remove(@Param('id') id: string) {
         return this.routeService.remove(id);
+    }
+
+    @HttpCode(HttpStatus.OK)
+    @Get('getRouteStatistics')
+    async getStatistics(): Promise<RouteStatisticsDto> {
+        return await this.routeService.getRouteStatistics();
     }
 }

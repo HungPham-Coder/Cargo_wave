@@ -47,7 +47,7 @@ export class AuthService {
     private async decodePassword(password: string, passwordDto: string) {
         return await bcrypt.compare(password, passwordDto);
     }
-    async generateToken(userId, email){
+    async generateToken(userId, email) {
         const payload = { sub: userId, email: email };
 
         const accessToken = this.jwtService.sign(payload, {
@@ -80,30 +80,14 @@ export class AuthService {
             if (!isMatch || !user) {
                 throw new UnauthorizedException("Wrong user name or password!");
             }
-            const {accessToken, refreshToken, accessExpire, refreshExpire} =await this.generateToken(user.id, user.email);
-            // const payload = { sub: user.id, email: user.email };
-
-            // const accessToken = this.jwtService.sign(payload, {
-            //     expiresIn: '5s',
-            // });
-            // const refreshToken = this.jwtService.sign(payload, {
-            //     expiresIn: '7d',
-            // });
-            // const accessExpire = new Date(Date.now() + 5 * 1000); // 1 day from now
-            // const refreshExpire = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-
-            const uniquePermissions = this.getUniquePermissions(user.roles || []);
-            const { password: _, roles: __, ...userInfo } = user;
+            const { accessToken, refreshToken, accessExpire, refreshExpire } = await this.generateToken(user.id, user.email);
 
             return {
                 accessToken,
                 refreshToken,
-                // accessExpire: accessExpire.toISOString(), // Return in ISO format
-                // refreshExpire: refreshExpire.toISOString(),
                 accessExpire,
                 refreshExpire,
-                user: userInfo,
-                permissions: uniquePermissions
+
             }
         } catch (error) {
             console.error('Error during SignIn:', error.message);
@@ -111,21 +95,21 @@ export class AuthService {
         }
     }
 
-    private getUniquePermissions(roles: any[]): Permission[] {
-        const permissionsMap = new Map<string, Permission>();
+    // private getUniquePermissions(roles: any[]): Permission[] {
+    //     const permissionsMap = new Map<string, Permission>();
 
-        roles.forEach((role) => {
-            if (!role.isDisabled) {
-                role.permissions.forEach((permission: Permission) => {
-                    if (!permissionsMap.has(permission.name)) {
-                        permissionsMap.set(permission.name, permission);
-                    }
-                });
-            }
-        });
+    //     roles.forEach((role) => {
+    //         if (!role.isDisabled) {
+    //             role.permissions.forEach((permission: Permission) => {
+    //                 if (!permissionsMap.has(permission.name)) {
+    //                     permissionsMap.set(permission.name, permission);
+    //                 }
+    //             });
+    //         }
+    //     });
 
-        return Array.from(permissionsMap.values());
-    }
+    //     return Array.from(permissionsMap.values());
+    // }
 
     async signUp(payload: CreateUserDTO) {
         try {
@@ -194,14 +178,15 @@ export class AuthService {
     async googleLogin(req) {
         const { email, name } = req.user;
         const existingUser = await this.userService.findByEmail(email);
-        const {accessToken, refreshToken, accessExpire, refreshExpire} =await this.generateToken(name, email);
-        const payload = {  
+        const { accessToken, refreshToken, accessExpire, refreshExpire } = await this.generateToken(name, email);
+        const payload = {
             message: 'User information from google',
             user: req.user,
             accessToken,
             refreshToken,
             accessExpire,
-            refreshExpire,}
+            refreshExpire,
+        }
         if (!req.user) {
             return 'No user from google'
         }

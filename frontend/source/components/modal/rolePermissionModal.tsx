@@ -28,7 +28,9 @@ const RolePermissionModal: React.FC<RolePermissionModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [targetKeys, setTargetKeys] = useState<string[]>([]);
   const [permissions, setPermissions] = useState<Permission[]>([]); // Assigned permissions
-  const [permissionsNotAssigned, setPermissionsNotAssigned] = useState<Permission[]>([]); // Permissions not assigned
+  const [permissionsNotAssigned, setPermissionsNotAssigned] = useState<
+    Permission[]
+  >([]); // Permissions not assigned
 
   // Fetch assigned permissions by role ID
   const getPermissionsByRoleId = async (handleLoading?: boolean) => {
@@ -39,7 +41,9 @@ const RolePermissionModal: React.FC<RolePermissionModalProps> = ({
     console.log("Fetching permissions for role ID:", data?.id);
 
     try {
-      const response: Permission[] = await RoleApi.getPermissionsByRoleId(data?.id!);
+      const response: Permission[] = await RoleApi.getPermissionsByRoleId(
+        data?.id!
+      );
       console.log("Fetched permissions:", response);
       setPermissions(response);
       setTargetKeys(response.map((permission) => permission.id));
@@ -57,7 +61,8 @@ const RolePermissionModal: React.FC<RolePermissionModalProps> = ({
       setLoading(true);
     }
     try {
-      const response: Permission[] = await RoleApi.getPermissionsNotAssignedByRoleId(data?.id!);
+      const response: Permission[] =
+        await RoleApi.getPermissionsNotAssignedByRoleId(data?.id!);
       setPermissionsNotAssigned(Array.isArray(response) ? response : []);
     } catch (error) {
       message.error("Failed to fetch unassigned permissions");
@@ -80,7 +85,10 @@ const RolePermissionModal: React.FC<RolePermissionModalProps> = ({
     const permissionIDs = targetKeys;
 
     try {
-      const response = await RoleApi.assignPermissionsToRole(roleId, permissionIDs);
+      const response = await RoleApi.assignPermissionsToRole(
+        roleId,
+        permissionIDs
+      );
       if (response) {
         message.success("Assigned permissions successfully");
         onSuccess();
@@ -130,7 +138,7 @@ const RolePermissionModal: React.FC<RolePermissionModalProps> = ({
         targetKeys={targetKeys}
         onChange={handleChange}
         render={(item) => item.title}
-        listStyle={{width: "100%"}}
+        listStyle={{ width: "100%" }}
       />
     </BaseModal>
   );

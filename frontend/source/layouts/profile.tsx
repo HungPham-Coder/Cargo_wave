@@ -19,8 +19,11 @@ const Container = styled.div`
   border-radius: 200px;
   color: white;
   transition: background 0.3s ease, box-shadow 0.3s ease;
-  background: linear-gradient(135deg, #007bb2 0%, #00a2e8 100%);
+  background: #008afb;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  min-width: 200px; /* Minimum width to ensure it doesn't shrink too much */
+  max-width: 100%; /* Ensures it doesn't overflow */
+  flex-grow: 1; /* Allows the container to grow based on content size */
 
   &:hover {
     background: linear-gradient(135deg, #090273 30%, #0d03ad 100%);
@@ -29,34 +32,27 @@ const Container = styled.div`
 `;
 
 const UserName = styled.span`
-  color: white; /* White text for better visibility */
-  font-size: 20px;
+  color: white;
+  font-size: 18px;
   font-weight: 600;
   transition: color 0.3s ease;
-`;
-
-const RoleName = styled.span`
-  color: #e0f7fa; /* Light cyan for role name */
-  font-size: 14px;
-  font-weight: 400;
-  margin-top: -2.5rem;
+  white-space: nowrap; /* Prevents the name from wrapping */
+  overflow: hidden;
+  text-overflow: ellipsis; /* Ellipsis if the name is too long */
 `;
 
 const UserInfo = styled.div`
   display: flex;
-  flex-direction: column; /* Stack items vertically */
+  flex-direction: column;
   margin-left: 1.5rem;
   margin-right: 1.5rem;
+  min-width: 0; /* Ensures proper ellipsis behavior for long text */
+  flex-grow: 1;
 `;
-
-interface User {
-  id: string;
-  name: string;
-}
 
 const ProfileBar: React.FC = () => {
   const [isHovered, setIsHovered] = useState(false);
-  const { user } = useContext(UserContext);
+  const { userData } = useContext(UserContext);
 
   const handleMouseEnter = () => {
     setIsHovered(true);
@@ -77,8 +73,6 @@ const ProfileBar: React.FC = () => {
     window.dispatchEvent(new Event("storage"));
   };
 
-  useEffect(() => {});
-
   const items = [
     {
       key: "PROFILE",
@@ -94,8 +88,8 @@ const ProfileBar: React.FC = () => {
   ];
 
   return (
-    <Container style={{ height: "60px" }}>
-      <Avatar size="large" src={user?.image} icon={<UserOutlined />} />
+    <Container style={{ height: "60px", width: "auto" }}>
+      <Avatar size="large" src={userData?.image} icon={<UserOutlined />} />
 
       <Dropdown menu={{ items }} trigger={["hover"]}>
         <span
@@ -109,7 +103,7 @@ const ProfileBar: React.FC = () => {
           }}
         >
           <UserInfo>
-            <UserName>{user?.name}</UserName> {/* Display the user name */}
+            <UserName>{userData?.name!}</UserName> {/* Display the user name */}
           </UserInfo>
           {isHovered ? (
             <DownOutlined

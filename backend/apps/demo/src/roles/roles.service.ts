@@ -6,20 +6,34 @@ import { AssignPermissionDTO } from './roles.dto/assign-permission-dto';
 import { Permission } from '../entities/permission.entity';
 import { Role } from '../entities/role.entity';
 import { PaginationDTO } from '../users/users.dto/create-user-request.dto';
+import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { Socket } from 'socket.io';
+import { User } from '../entities/user.entity';
 
 
 export type Roles = any;
 export type Permissions = any;
+export type Users = any;
 
 @Injectable()
+@WebSocketGateway({
+  cors: {
+    origin: "*"
+  }
+})
 export class RolesService {
 
   constructor(
     @InjectRepository(Role)
     private rolesRepository: Repository<Roles>,
+    @InjectRepository(User)
+    private usersRepository: Repository<Users>,
     @InjectRepository(Permission)
     private permissionRepository: Repository<Permissions>,
   ) { }
+
+  @WebSocketServer()
+  socket: Socket
 
   // Method to find all roles
   async findAllWithPaging(paginationDTO: PaginationDTO): Promise<{ data: Roles[], total: number }> {
@@ -54,8 +68,6 @@ export class RolesService {
         .addOrderBy('roles.name', 'ASC')
         .getMany();
 
-      console.log("Fetched Data:", data);
-
       return { data, total };
     } catch (error) {
       console.error('Error finding roles: ', error);
@@ -68,7 +80,6 @@ export class RolesService {
   async findOneByName(name: string): Promise<Roles> {
     try {
       const role = await this.rolesRepository.findOneBy({ name });
-      console.log("role: ", role)
       return role;
     } catch (error) {
       console.error('Error finding role by name:', error);
@@ -139,28 +150,49 @@ export class RolesService {
   }
 
   // Method to update the name of a role by ID
+  @SubscribeMessage("message")
   async assignPermissions(assignPermissionDTO: AssignPermissionDTO): Promise<Role> {
     const { roleId, permissionIDs } = assignPermissionDTO;
-    // Find the role with the given ID
+
+
     const role = await this.rolesRepository.findOne({
       where: { id: roleId },
-      relations: ['permissions'],
+      relations: ['permissions', 'users'],
     });
     if (!role) {
       throw new Error('Role not found');
     }
-    // Find the permissions by the provided IDs
     const permissionsToAdd = await this.permissionRepository.findBy({
       id: In(permissionIDs),
     });
-    // Create a set of existing permission IDs for easier lookup
+
     const existingPermissionIDs = new Set(role.permissions.map((p: { id: any; }) => p.id));
-    // Add new permissions
     const newPermissions = permissionsToAdd.filter(p => !existingPermissionIDs.has(p.id));
     role.permissions = [...role.permissions, ...newPermissions];
-    // Remove permissions that are not included in the new list
-    role.permissions = role.permissions.filter(p => permissionIDs.includes(p.id) || newPermissions.includes(p));
-    // Save the updated role
+    role.permissions = role.permissions.filter((p: { id: string; }) => permissionIDs.includes(p.id) || newPermissions.includes(p));
+
+    const uniquePermissions = new Set(role.permissions.map((p: { id: any; }) => p.id));
+
+    permissionsToAdd.forEach(permission => {
+      uniquePermissions.add(permission.id);
+    });
+
+    const roleIds = [roleId]
+
+    const users = await this.usersRepository.createQueryBuilder('user')
+      .innerJoin('user.roles', 'role') // Join with roles
+      .where('role.id = :roleId', { roleId }) // Filter by role ID
+      .getMany();
+
+    console.log("roleId", roleId)
+    console.log("usersInRole", users)
+    // Emit a message to each user associated with the modified role
+    users.forEach(user => {
+      this.socket.emit(`message_${user.id}`, JSON.stringify({
+        roleIds: roleIds,
+        permissions: role.permissions,
+      }));
+    });
     return this.rolesRepository.save(role);
   }
 
@@ -214,7 +246,7 @@ export class RolesService {
     const allPermissions = await this.permissionRepository.find();
 
     // Filter out the permissions that are already assigned to the role
-    const assignedPermissionIds = new Set(role.permissions.map(permission => permission.id));
+    const assignedPermissionIds = new Set(role.permissions.map((permission: { id: any; }) => permission.id));
     const notAssignedPermissions = allPermissions.filter(permission => !assignedPermissionIds.has(permission.id));
 
     return notAssignedPermissions; // Return the not assigned permissions

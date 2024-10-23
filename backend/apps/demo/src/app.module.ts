@@ -26,11 +26,11 @@ import { CorsMiddleware } from './cors.middleware';
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
-      port: 5433,
+      port: 5432,
       username: 'postgres',
-      password: '130600',
-      // database: 'CargoWave',
-      database: 'postgres',
+      password: '123456',
+      database: 'CargoWave',
+      // database: 'postgres',
       entities: [
         User,
         RefreshToken,

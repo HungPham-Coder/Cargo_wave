@@ -6,18 +6,19 @@ import AppHeader from "@/source/layouts/header";
 import { Content } from "antd/es/layout/layout";
 import AppFooter from "@/source/layouts/footer";
 import StyledComponentsRegistry from "./registry";
-import { Layout } from "antd";
+import { ConfigProvider, Layout } from "antd";
 import AppSider from "@/source/layouts/sider";
 import { usePathname } from "next/navigation";
 import routes from "@/source/router/routes";
 import { Suspense } from "react";
-import { PermissionProvider } from "@/source/contexts/PermissionContext";
+import "mapbox-gl/dist/mapbox-gl.css";
+import UserProvider, { UserContext } from "@/source/contexts/UserContext";
+import SocketComponent from "@/source/components/socketComponent";
 
 const inter = Inter({ subsets: ["latin"] });
 
 const contentLayout: React.CSSProperties = {
-  borderBottom: "1px solid #eee",
-  backgroundColor: "#FFFFFF",
+  backgroundColor: "#f0f5ff",
   minHeight: "90vh",
 };
 
@@ -38,20 +39,25 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <StyledComponentsRegistry>
-          <Layout>
-            <AppHeader />
-            <Layout>
-              <PermissionProvider>
+          <ConfigProvider>
+            <UserProvider>
+              <Layout>
+                <SocketComponent />
+                <AppHeader />
+                <Layout>
+                  {!isLoginPage && !isRegisterPage && !isForgotPage && (
+                    <AppSider />
+                  )}{" "}
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <Content style={contentLayout}>{children}</Content>
+                  </Suspense>
+                </Layout>
                 {!isLoginPage && !isRegisterPage && !isForgotPage && (
-                  <AppSider />
+                  <AppFooter />
                 )}{" "}
-                <Suspense fallback={<div>Loading...</div>}>
-                  <Content style={contentLayout}>{children}</Content>
-                </Suspense>
-              </PermissionProvider>
-            </Layout>
-            {!isLoginPage && !isRegisterPage && !isForgotPage && <AppFooter />}{" "}
-          </Layout>
+              </Layout>
+            </UserProvider>
+          </ConfigProvider>
         </StyledComponentsRegistry>
       </body>
     </html>

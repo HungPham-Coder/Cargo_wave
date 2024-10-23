@@ -3,13 +3,21 @@ import {
   useState,
   ReactNode,
   useEffect,
-  useContext,
+  SetStateAction,
 } from "react";
+
+interface Permissions {
+  id: string;
+  name: string;
+  description: string;
+  isDisabled: boolean;
+}
 
 interface Roles {
   id: string;
   name: string;
   isDisabled: boolean;
+  permissions?: Permissions[];
 }
 
 interface Users {
@@ -25,46 +33,80 @@ interface Users {
   description: string;
 }
 
+// Define the UserContext type with `null` instead of `undefined`
 interface UserContextType {
-  user: Users | undefined;
-  setUser: React.Dispatch<React.SetStateAction<Users | undefined>> | undefined;
-  setSavedUser: React.Dispatch<React.SetStateAction<Users | undefined>> | undefined;
+  userData: Users | null;
+  setUserData: React.Dispatch<React.SetStateAction<Users | null>>;
+  setRoleData: any | null;
 }
 
+// Initial value
 const initialValue: UserContextType = {
-  user: undefined,
-  setUser: undefined,
-  setSavedUser: undefined,
+  userData: null,
+  setUserData: (userDataParam) => {},
+  setRoleData: (roleDataParam: any) => {},
 };
 
 export const UserContext = createContext<UserContextType>(initialValue);
 
+// UserProviderProps remains unchanged
 interface UserProviderProps {
   children: ReactNode;
 }
 
-interface CustomEventMap extends WindowEventMap {
-  userUpdated: CustomEvent<Users>;
+interface RoleDataParam {
+  id: string;
+  roleIds: string[];
+  permissions: Permissions[];
 }
 
-const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<Users | undefined>(undefined);
-  const saveUser = localStorage.getItem("user");
+const isValidRoleDataParam = (data: any): data is RoleDataParam =>
+  typeof data.id === "string" &&
+  Array.isArray(data.roleIds) &&
+  data.roleIds.every((roleId: string) => typeof roleId === "string");
 
-  const [savedUser, setSavedUser] = useState<Users | undefined>(JSON.parse(saveUser!));
+export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
+  const [userData, setUserData] = useState<Users | null>(null);
 
+  const setUserDataHandler = (userDataParam: SetStateAction<Users | null>) => {
+    setUserData(userDataParam);
+  };
 
-  useEffect(() => {
-    // const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      setUser(savedUser);
-    }
-  }, [savedUser]);
+  const setRoleDataHandler = (roleDataParam: {
+    roleIds: string[];
+    permissions: Permissions[];
+  }) => {
+    setUserData((prevUserData: any) => {
+      if (!prevUserData) return prevUserData;
+
+      const updatedRoles = roleDataParam.roleIds.map((roleId) => {
+        const existingRole = prevUserData.roles.find(
+          (role: { id: string }) => role.id === roleId
+        );
+
+        return {
+          ...existingRole, 
+          id: roleId, 
+          permissions: roleDataParam.permissions, 
+        };
+      });
+
+      return {
+        ...prevUserData,
+        roles: updatedRoles, 
+      };
+    });
+  };
+
+  const contextValue = {
+    userData: userData,
+    setUserData: setUserDataHandler,
+    // setUserData: setUserData,
+    setRoleData: setRoleDataHandler,
+  };
 
   return (
-    <UserContext.Provider value={{ user, setUser, setSavedUser }}>
-      {children}
-    </UserContext.Provider>
+    <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>
   );
 };
 

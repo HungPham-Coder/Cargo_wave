@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Form, message, Transfer, TransferProps } from "antd";
 import BaseModal from "../baseModal";
 import UserApi from "@/source/apis/users";
+import { UserContext } from "@/source/contexts/UserContext";
 
 interface UserRoleModalProps {
   data?: { id?: string; name?: string; permissions?: string[] };
@@ -22,13 +23,15 @@ const UserRoleModal: React.FC<UserRoleModalProps> = ({
   onCancel,
   onSuccess,
 }) => {
+  // const { user, setUser } = useContext(UserContext);
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [targetKeys, setTargetKeys] = useState<string[]>([]);
   const [roles, setRoles] = useState<Role[]>([]); // Assigned permissions
   const [rolesNotAssigned, setRolesNotAssigned] = useState<Role[]>([]); // Permissions not assigned
+  const { setUserData } = useContext(UserContext);
 
-  console.log("Fetching permissions for role ID:", data);
+  // console.log("Fetching permissions for role ID:", data);
   // Fetch assigned permissions by role ID
   const getRolesByUserId = async (handleLoading?: boolean) => {
     if (handleLoading) {
@@ -36,7 +39,6 @@ const UserRoleModal: React.FC<UserRoleModalProps> = ({
     }
     try {
       const response: Role[] = await UserApi.getRolesByUserId(data?.id!);
-      console.log("Fetched permissions:", response);
       setRoles(response);
       setTargetKeys(response.map((permission) => permission.id));
     } catch (error) {
@@ -53,7 +55,9 @@ const UserRoleModal: React.FC<UserRoleModalProps> = ({
       setLoading(true);
     }
     try {
-      const response: Role[] = await UserApi.getRolesNotAssignedByUserId(data?.id!);
+      const response: Role[] = await UserApi.getRolesNotAssignedByUserId(
+        data?.id!
+      );
       setRolesNotAssigned(Array.isArray(response) ? response : []);
     } catch (error) {
       message.error("Failed to fetch unassigned permissions");
@@ -78,7 +82,9 @@ const UserRoleModal: React.FC<UserRoleModalProps> = ({
     try {
       const response = await UserApi.assignRoleToUser(roleId, permissionIDs);
       if (response) {
-        message.success("Assigned permissions successfully");
+        message.success("Assigned roles successfully");
+        console.log("New role data", response);
+        // setUserData(response);
         onSuccess();
       } else {
         message.error("Failed to update role permissions");
@@ -124,7 +130,7 @@ const UserRoleModal: React.FC<UserRoleModalProps> = ({
         targetKeys={targetKeys}
         onChange={handleChange}
         render={(item) => item.title}
-        listStyle={{width: "100%"}}
+        listStyle={{ width: "100%" }}
       />
     </BaseModal>
   );

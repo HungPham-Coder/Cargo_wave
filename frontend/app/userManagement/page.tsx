@@ -3,7 +3,7 @@
 import UserApi from "@/source/apis/users";
 import { BaseTable } from "@/source/components/baseTable";
 import UserRoleModal from "@/source/components/modal/userRoleModal";
-import withPermission from "@/source/components/withPermission";
+import withPermission from "@/source/hook/withPermission";
 import { PageSize } from "@/source/constants/app";
 import {
   Edit,
@@ -14,7 +14,16 @@ import {
   Unlock,
   User as Users,
 } from "@icon-park/react";
-import { Button, Col, Dropdown, MenuProps, message, Modal, Select, Tag } from "antd";
+import {
+  Button,
+  Col,
+  Dropdown,
+  MenuProps,
+  message,
+  Modal,
+  Select,
+  Tag,
+} from "antd";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -103,7 +112,7 @@ const UserManagementList: React.FC = () => {
         search,
         pageIndex,
         pageSize: PageSize.USER_LIST,
-        status
+        status,
       });
       const response: UsersResponse = await UserApi.findAllWithPaging(
         search!,
@@ -146,7 +155,6 @@ const UserManagementList: React.FC = () => {
     setIsStatus(value);
     getData(search, 1, value);
   };
-
 
   const updateUserStatus = async (userID: string, status: number) => {
     try {
@@ -405,3 +413,4 @@ const UserManagementList: React.FC = () => {
 };
 
 export default withPermission(UserManagementList, "user_view");
+// export default UserManagementList;

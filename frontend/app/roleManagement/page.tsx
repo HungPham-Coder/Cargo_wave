@@ -5,9 +5,8 @@ import { BaseTable } from "@/source/components/baseTable";
 import RoleModal from "@/source/components/modal/roleModal";
 import RolePermissionModal from "@/source/components/modal/rolePermissionModal";
 import RoleUpdateModal from "@/source/components/modal/roleUpdateModal";
-import withPermission from "@/source/components/withPermission";
+import withPermission from "@/source/hook/withPermission";
 import { PageSize } from "@/source/constants/app";
-import { usePermission } from "@/source/contexts/PermissionContext";
 import { Forbid, ListAdd, More, Unlock, User } from "@icon-park/react";
 import {
   Button,
@@ -22,6 +21,7 @@ import {
 import confirm from "antd/es/modal/confirm";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
+import { usePermission } from "@/source/hook/usePermission";
 
 interface ColumnType<T> {
   title: string;
@@ -225,11 +225,17 @@ const RoleManagementList: React.FC = () => {
       title: "Action",
       dataIndex: "action",
       key: "action",
-      render: (_, record) => (
-        <Dropdown menu={{ items: getActionItems(record) }}>
-          <Button icon={<More size={24} />} />
-        </Dropdown>
-      ),
+      render: (_, record) => {
+        // Check if the role is Admin
+        if (record.name === "Admin") {
+          return <></>; // Don't render the action button
+        }
+        return (
+          <Dropdown menu={{ items: getActionItems(record) }}>
+            <Button icon={<More size={24} />} />
+          </Dropdown>
+        );
+      },
     });
   }
 
@@ -237,6 +243,9 @@ const RoleManagementList: React.FC = () => {
     const { isDisabled, id, name, permissions } = record;
 
     const items: MenuProps["items"] = [];
+    if (name === "Admin") {
+      return items;
+    }
 
     if (canAccessUpdateRole) {
       items.push({
@@ -281,6 +290,9 @@ const RoleManagementList: React.FC = () => {
               ? "Do you want to enable this role?"
               : "Do you want to disable this role?",
             onOk: () => updateRoleStatus(id, !isDisabled),
+            onCancel() {
+              console.log("Cancelled");
+            },
           });
         },
       });
@@ -295,11 +307,15 @@ const RoleManagementList: React.FC = () => {
         rowKey="id"
         title="Role management"
         loading={loading}
-        dataSource={roles.data.map((role) => ({
-          ...role,
-          key: role.id,
-          permissions: role.permissions || [],
-        }))}
+        dataSource={
+          Array.isArray(roles.data)
+            ? roles.data.map((role) => ({
+                ...role,
+                key: role.id,
+                permissions: role.permissions || [],
+              }))
+            : []
+        }
         columns={columns}
         pagination={{
           current: currentPage,

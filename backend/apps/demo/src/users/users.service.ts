@@ -6,11 +6,21 @@ import { Role } from '../entities/role.entity';
 import { CreateUserDTO, PaginationDTO } from './users.dto/create-user-request.dto';
 import { AssignRoleDTO } from './users.dto/assign-role-dto';
 import { UpdateUserDTO } from './users.dto/update-route-request.dto';
+import { SubscribeMessage, WebSocketServer, WebSocketGateway } from "@nestjs/websockets";
+import { Socket } from "socket.io";
+import { Permission } from '../entities/permission.entity';
 
 export type Users = any;
 export type Roles = any;
+export type Permissions = any;
 
 @Injectable()
+@WebSocketGateway({
+  cors: {
+    origin: "*"
+  }
+})
+
 export class UsersService {
 
   constructor(
@@ -19,6 +29,9 @@ export class UsersService {
     @InjectRepository(Role)
     private rolesRepository: Repository<Roles>,
   ) { }
+
+  @WebSocketServer()
+  socket: Socket
 
   async createUser(userDto: CreateUserDTO): Promise<Users> {
     return await this.usersRepository.save(userDto);
@@ -37,7 +50,7 @@ export class UsersService {
   async updateToken(id: string, token: string): Promise<Users> {
     return await this.usersRepository.createQueryBuilder('user')
       .update() // Giả sử User là entity của bạn
-      .set({ verify_token: token}) // Cập nhật mật khẩu và xóa verify_token
+      .set({ verify_token: token }) // Cập nhật mật khẩu và xóa verify_token
       .where("id = :id", { id: id }) // Cần phải có điều kiện để xác định người dùng
       .execute();
   }
@@ -134,21 +147,23 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
+  @SubscribeMessage("message")
   async assignRole(assignRoleDTO: AssignRoleDTO): Promise<User> {
     const { userId, roleIds } = assignRoleDTO;
 
     // Find the user using the usersRepository instead of rolesRepository
     const user = await this.usersRepository.findOne({
       where: { id: userId },
-      relations: ['roles'],
+      relations: ['roles', 'roles.permissions'],
     });
 
     if (!user) {
       throw new Error('User not found');
     }
 
-    const rolesToAdd = await this.rolesRepository.findBy({
-      id: In(roleIds),
+    const rolesToAdd = await this.rolesRepository.find({
+      where: { id: In(roleIds) },
+      relations: ['permissions'],
     });
 
     const existingRoleIDs = new Set(user.roles.map((p: { id: any; }) => p.id));
@@ -156,9 +171,33 @@ export class UsersService {
     const newRoles = rolesToAdd.filter((p) => !existingRoleIDs.has(p.id));
     user.roles = [...user.roles, ...newRoles];
     user.roles = user.roles.filter((p: { id: string; }) => roleIds.includes(p.id) || newRoles.includes(p));
+
+    const uniquePermissions = new Set<Permission>();
+
+    newRoles.forEach(role => {
+      if (role.permissions) {
+        if (Array.isArray(role.permissions)) {
+          for (const permission of role.permissions) {
+            uniquePermissions.add(permission);
+          }
+        } else {
+          console.error(`Role ${role.id} has permissions that are not iterable.`);
+        }
+      } else {
+        console.warn(`Role ${role.id} has no permissions defined.`);
+      }
+    });
+
+    console.log("uniquePermissions", uniquePermissions)
+
+    this.socket.emit(`message_${userId}`, JSON.stringify({
+      userId: userId,
+      roleIds: roleIds,
+      permissions: Array.from(uniquePermissions),
+    }));
+
     return this.usersRepository.save(user);
   }
-
 
   async getRolesByUserId(userId: string): Promise<Role[]> {
     const user = await this.usersRepository.findOne({

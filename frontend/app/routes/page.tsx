@@ -1,9 +1,10 @@
 "use client";
 
 import RouteApi from "@/source/apis/routes";
+import MapComponent from "@/source/components/map";
 import RouteCreateModal from "@/source/components/modal/routeCreateModal";
-import withPermission from "@/source/components/withPermission";
-import { usePermission } from "@/source/contexts/PermissionContext";
+import { usePermission } from "@/source/hook/usePermission";
+import withPermission from "@/source/hook/withPermission";
 import { statusMap } from "@/source/mocks/mocks";
 import {
   ConfigProvider,
@@ -77,6 +78,14 @@ const RoutesList: React.FC = () => {
     try {
       const response = await RouteApi.findAllBySearch(search, status);
       setRoutes(response);
+      const url = new URL(window.location.href);
+      url.searchParams.set("search", search!);
+      if (status !== undefined) {
+        url.searchParams.set("status", status.toString());
+      } else {
+        url.searchParams.delete("status");
+      }
+      router.push(url.toString());
       console.log("Routes: ", routes);
     } catch (error) {
       message.error("Failed to fetch routes. Please try again later.");
@@ -93,7 +102,7 @@ const RoutesList: React.FC = () => {
 
   useEffect(() => {
     getData(search, selectedStatus);
-  }, [search, selectedStatus]);
+  }, [search]);
 
   const handleCardClick = (id: string) => {
     router.push(`/routes/${id}`);
@@ -117,7 +126,8 @@ const RoutesList: React.FC = () => {
         paddingLeft: "2%",
         paddingRight: "2%",
         background: "linear-gradient(135deg, #A0EACD, #82D3F5)",
-        minHeight: "90vh",
+        minHeight: "100%",
+        marginBottom: 30,
       }}
     >
       <Row justify="space-between">
@@ -133,8 +143,10 @@ const RoutesList: React.FC = () => {
             placeholder="Search routes..."
             onSearch={handleSearch}
             style={{
-              width: 400,
+              width: "30vh",
+              flex: 1,
               marginBottom: 20,
+              marginRight: 40,
               padding: "5px 7px",
               borderRadius: "8px",
               borderColor: "#d9f1f0",
@@ -143,11 +155,9 @@ const RoutesList: React.FC = () => {
             }}
           />
 
-          <span className="mr-2" style={{ fontWeight: 600, marginLeft: 30, marginRight: 5}}>
-            Status:
-          </span>
           <Select
             allowClear
+            placeholder="Filter status..."
             value={selectedStatus}
             onChange={(value) => {
               setSelectedStatus(value);
@@ -156,12 +166,13 @@ const RoutesList: React.FC = () => {
             style={{
               width: 200,
               marginBottom: 20,
+              flex: 2,
               padding: "5px 7px",
               borderRadius: "8px",
               borderColor: "#d9f1f0",
               backgroundColor: "#e0f7f9",
               boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-              height: 41
+              height: 41,
             }}
             dropdownStyle={{
               borderRadius: "8px",
@@ -181,8 +192,8 @@ const RoutesList: React.FC = () => {
         {canAccessCreateRoute && (
           <Col>
             <Button
-              style={{ marginTop: 5 }}
-              className="btn-primary app-bg-primary font-semibold text-white"
+              style={{  fontSize: 18, borderRadius: 50, padding: "20px 20px", fontWeight: 700}}
+              className="btn btn-white btn-animate"
               onClick={() => setShowItemModal(true)}
             >
               Create route
@@ -214,7 +225,7 @@ const RoutesList: React.FC = () => {
               >
                 <div
                   style={{
-                    padding: "20px",
+                    padding: 20,
                     backgroundColor: "#e8fdfd",
                     border: "2px solid #82D3F5",
                     borderRadius: "15px",
@@ -260,7 +271,8 @@ const RoutesList: React.FC = () => {
                     <Tag
                       color={statusMap[route.status!]?.color || "default"}
                       style={{
-                        width: statusMap[route.status!]?.width || "auto",
+                        width: "auto",
+                        fontWeight: 500,
                         marginBottom: 15,
                       }}
                     >

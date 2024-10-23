@@ -1,8 +1,8 @@
 // components/withPermission.tsx
 import { useRouter } from 'next/navigation';
-import { usePermission } from '../contexts/PermissionContext';
 import { ReactNode, useEffect } from 'react';
 import routes from '../router/routes';
+import { usePermission } from './usePermission';
 
 const withPermission = (WrappedComponent: React.ComponentType, requiredRole: string) => {
   return (props: any) => {

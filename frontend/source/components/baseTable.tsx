@@ -95,7 +95,7 @@ export const BaseTable = <RecordType extends object>({
         <Col>
           <Space align="center">
             {title && (
-              <Title ellipsis level={3} style={{ margin: 0 }}>
+              <Title ellipsis level={3} style={{ margin: 0, fontWeight: 600}}>
                 {title}
               </Title>
             )}

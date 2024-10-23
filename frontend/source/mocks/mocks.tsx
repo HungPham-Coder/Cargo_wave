@@ -42,9 +42,9 @@ export const userMocks = [
 ];
 
 export const statusMap: {
-  [key: number]: { text?: string; color?: string; width?: string };
+  [key: number]: { text?: string; color?: string};
 } = {
-  1: { text: "Finished", color: "green", width: "18%" },
-  2: { text: "Cancelled", color: "red", width: "20.5%" },
-  3: { text: "Progress", color: "orange", width: "18.8%" },
+  1: { text: "Finished", color: "green"},
+  2: { text: "Cancelled", color: "red" },
+  3: { text: "Progress", color: "orange" },
 };

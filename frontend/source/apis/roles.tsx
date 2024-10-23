@@ -70,8 +70,6 @@ const assignPermissionsToRole = async (
   permissionIDs: string[]
 ) => {
   try {
-    console.log("Payload sent to the server:", { roleId, permissionIDs });
-
     const response = await BaseApi.patch(`/${resource}/assignPermissions/`, {
       roleId,
       permissionIDs,

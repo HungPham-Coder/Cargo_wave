@@ -70,8 +70,6 @@ const getRolesNotAssignedByUserId = async (id: string) => {
 
 const assignRoleToUser = async (userId: string, roleIds: string[]) => {
   try {
-    console.log("Payload sent to the server:", { userId, roleIds });
-
     const response = await BaseApi.patch(`/${resource}/assignRoles/`, {
       userId,
       roleIds,
