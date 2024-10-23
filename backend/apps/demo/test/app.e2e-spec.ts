@@ -21,4 +21,23 @@ describe('AppController (e2e)', () => {
       .expect(200)
       .expect('Hello World!');
   });
+
+  
+
+  // it('/users/findById/:id (GET)', () => {
+  //   return request(app.getHttpServer())
+  //     .get('/users/findById/ba0bf44b-9c05-4644-b3c9-34f542594d0b')
+  //     .expect(200)
+  //     .expect((res) => {
+  //       // Kiểm tra thông tin người dùng
+  //       expect(res.body).toHaveProperty('id', 1);
+  //       expect(res.body).toHaveProperty('name');
+  //     });
+  // });
+
+  // it('/users/:id (DELETE)', () => {
+  //   return request(app.getHttpServer())
+  //     .delete('/users/1')
+  //     .expect(204); // Mong đợi không có nội dung
+  // });
 });

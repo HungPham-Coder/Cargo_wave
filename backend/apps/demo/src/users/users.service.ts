@@ -47,6 +47,21 @@ export class UsersService {
     return await this.usersRepository.save(userDto);
   }
 
+  async updateToken(id: string, token: string): Promise<Users> {
+    return await this.usersRepository.createQueryBuilder('user')
+      .update() // Giả sử User là entity của bạn
+      .set({ verify_token: token }) // Cập nhật mật khẩu và xóa verify_token
+      .where("id = :id", { id: id }) // Cần phải có điều kiện để xác định người dùng
+      .execute();
+  }
+  async updatePass(id: string, password: string): Promise<Users> {
+    // const user = await this.findById(id);
+    return await this.usersRepository.createQueryBuilder('user')
+      .update() // Giả sử User là entity của bạn
+      .set({ password: password, verify_token: null }) // Cập nhật mật khẩu và xóa verify_token
+      .where("id = :id", { id: id }) // Cần phải có điều kiện để xác định người dùng
+      .execute();
+  }
   async findAll(): Promise<Users[]> {
     const users = await this.usersRepository.find({ relations: ['roles'] });
     return users; // This should return an array of users
@@ -93,43 +108,23 @@ export class UsersService {
     return this.usersRepository.findOne({ where: { email }, relations: ['roles', 'roles.permissions'], });
   }
 
-  async getUserWithRolesAndUniquePermissions(userId: string): Promise<{ user: User, uniquePermissions: Permission[] }> {
-    const user = await this.usersRepository.findOne({
-      where: { id: userId },
-      relations: ['roles', 'roles.permissions'], // Load roles and permissions
-    });
+  async findById(id: string): Promise<Users | null> {
+    try {
+      const user = await this.usersRepository.createQueryBuilder('user')
+        .leftJoinAndSelect('user.roles', 'roles')
+        .leftJoinAndSelect('roles.permissions', 'permissions')
+        .where('user.id = :id', { id })
+        .getOne();
 
-    if (!user) {
-      throw new NotFoundException(`User with ID ${userId} not found`);
+      if (!user) {
+        throw new NotFoundException(`User with ID ${id} not found`);
+      }
+
+      return user;
+    } catch (error) {
+      console.error('Error finding user by ID:', error);
+      throw new Error('Error finding user');
     }
-
-    // Filter out disabled roles and extract their names
-    // const activeRoles = user.roles.filter((role: { isDisabled: any; }) => !role.isDisabled);
-
-    // Get unique permissions from the user's active roles
-    // const uniquePermissions = this.getUniquePermissions(activeRoles);
-
-    return user // Return the complete user information
-  }
-
-  // Existing getUniquePermissions method
-  // private getUniquePermissions(roles: any[]): Permission[] {
-  //   const permissionsMap = new Map<string, Permission>();
-
-  //   roles.forEach((role) => {
-  //     role.permissions.forEach((permission: Permission) => {
-  //       if (!permissionsMap.has(permission.name)) {
-  //         permissionsMap.set(permission.name, permission);
-  //       }
-  //     });
-  //   });
-
-  //   return Array.from(permissionsMap.values());
-  // }
-
-  // Example usage of findById modified to include user information, role names, and unique permissions
-  async findById(userId: string): Promise<any> {
-    return this.getUserWithRolesAndUniquePermissions(userId);
   }
 
   async update(id: string, userDto: UpdateUserDTO): Promise<Users> {
@@ -141,6 +136,7 @@ export class UsersService {
     await this.usersRepository.update(id, userDto);
     return this.findById(id); // Return the updated user
   }
+
   async updateUserStatus(id: string, status: number): Promise<Users> {
     const user = await this.findById(id);
     if (!user) {
@@ -179,7 +175,7 @@ export class UsersService {
 
     const uniquePermissions = Array.from(new Set(allPermissions.map(permission => permission.id)))
       .map(id => allPermissions.find(permission => permission.id === id))
-      .filter(permission => permission !== undefined); 
+      .filter(permission => permission !== undefined);
 
 
     this.socket.emit(`message_${userId}`, JSON.stringify({

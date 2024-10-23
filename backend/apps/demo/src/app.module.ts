@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -20,6 +20,7 @@ import { LocationsModule } from './locations/locations.module';
 import { SeedService } from './seed/seed.service';
 import { MailsModule } from './mails/mails.module';
 import { KafkaClientModule } from './kafka-client/kafka-client.module';
+import { CorsMiddleware } from './cors.middleware';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -57,7 +58,11 @@ import { KafkaClientModule } from './kafka-client/kafka-client.module';
   providers: [AppService, SeedService],
     
 })
-export class AppModule { }
+export class AppModule {configure(consumer: MiddlewareConsumer) {
+  consumer
+    .apply(CorsMiddleware)
+    .forRoutes('/auth/*'); // Áp dụng cho các route auth
+} }
 
 // import { Module } from '@nestjs/common';
 // import { AppController } from './app.controller';

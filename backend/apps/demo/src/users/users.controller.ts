@@ -49,9 +49,9 @@ export class UsersController {
     }
     return user;
   }
-
-  @MessagePattern("hero.user.findByEmail")
-  findByEmail(email: string) {
+  @HttpCode(HttpStatus.OK)
+  @Get('findByEmail/:emai')
+  findByEmail(@Param('email') email: string) {
     return this.userService.findByEmail(email);
   }
 

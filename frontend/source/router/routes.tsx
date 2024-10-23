@@ -1,4 +1,5 @@
 const routes = {
+  rootFromGG: (token: string) => `/?code=${token}`,
   root: "/",
   login: `/login`,
   register: `/register`,

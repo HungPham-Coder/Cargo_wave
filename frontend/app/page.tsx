@@ -13,6 +13,7 @@ import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 
 const { Title, Paragraph } = Typography;
+const jwt = require('jsonwebtoken');
 
 const HomeContainer = styled.div`
   display: flex;
@@ -53,7 +54,7 @@ export default function Home() {
   ];
   const [jwtData, setJwtData] = useState<string | null>(null);
 
-  const onChange = (currentSlide: number) => {};
+  const onChange = (currentSlide: number) => { };
 
   const checkTokenAccesstoken = (item: number) => {
     if (item === 1) {
@@ -121,6 +122,27 @@ export default function Home() {
       checkTokenAccesstoken(CheckToken());
     }
   }, [jwtData]);
+
+  useEffect(() => {
+    // Lấy giá trị từ query string
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('code');
+    if (token) {
+      // Thực hiện các hành động cần thiết với token ở đây
+      console.log("myToken: ", token);
+      const data = jwt.decode(token);
+      localStorage.setItem("jwtAccessToken", data.accessToken);
+      localStorage.setItem("jwt", data.refreshToken);
+      localStorage.setItem("jwtAccessExpire", data.accessExpire);
+      localStorage.setItem("jwtRefreshExpire", data.refreshExpire);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      // localStorage.setItem("roles", JSON.stringify(response.data.user.roles)); 
+      // localStorage.setItem("permissions", JSON.stringify(response.data.permissions));
+      window.dispatchEvent(new Event("storage"));
+      // Cài đặt các giá trị khác vào localStorage như bạn đã làm
+    }
+  }, []);
+
 
   return (
     <HomeContainer>

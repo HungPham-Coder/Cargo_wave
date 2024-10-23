@@ -18,9 +18,10 @@ import routes from "@/source/router/routes";
 import AuthApi from "@/source/apis/auth";
 import Card from "antd/es/card/Card";
 import { useRouter } from "next/navigation";
-import CheckToken from "@/source/constants/utils";
+import { useLocation } from 'react-router-dom';
 
 const { Title } = Typography;
+
 
 const Container = styled.div`
   display: flex;
@@ -42,17 +43,31 @@ const ImageWrapper = styled.div`
   margin-bottom: 1.5rem;
 `;
 
+
 const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
-
+  const route = useRouter();
+  const handleGoogle = async () => {
+    setLoading(true);
+    const success = await AuthApi.loginGoogle();
+    setLoading(false);
+    if (success) {
+      message.success(`Login by Google successful!`);
+      // // router.push(routes.root); // Navigate to root route
+      setTimeout(() => {
+        window.location.href = routes.rootFromGG(success); // Set timeout to reload to home page
+      }, 5);
+    } else {
+      message.error("Wrong email. Please try again!");
+    }
+  }
   const handleLogin = async (email: string, password: string): Promise<void> => {
     setLoading(true);
     const success = await AuthApi.login(email, password);
     setLoading(false);
     if (success) {
       message.success(`Login successful!`);
-      
+
       // router.push(routes.root); // Navigate to root route
       setTimeout(() => {
         window.location.href = routes.root; // Set timeout to reload to home page
@@ -78,6 +93,7 @@ const LoginPage: React.FC = () => {
               console.log("data: ", values);
               const { email, password } = values;
               await handleLogin(email, password);
+
             }}
           >
             <Form.Item
@@ -125,7 +141,7 @@ const LoginPage: React.FC = () => {
               </Divider>
             </Row>
             <Row justify="center">
-              <Button shape="circle">
+              <Button shape="circle" onClick={handleGoogle}>
                 <Avatar
                   style={{ background: "white" }}
                   src={<img src="assets/google_logo_icon.png" />}
