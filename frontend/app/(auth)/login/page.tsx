@@ -19,6 +19,7 @@ import AuthApi from "@/source/apis/auth";
 import Card from "antd/es/card/Card";
 import { useRouter } from "next/navigation";
 import { useLocation } from 'react-router-dom';
+import { showMessageAndContinue } from "@/source/constants/showMessage";
 
 const { Title } = Typography;
 
@@ -52,11 +53,7 @@ const LoginPage: React.FC = () => {
     const success = await AuthApi.loginGoogle();
     setLoading(false);
     if (success) {
-      message.success(`Login by Google successful!`);
-      // // router.push(routes.root); // Navigate to root route
-      setTimeout(() => {
-        window.location.href = routes.rootFromGG(success); // Set timeout to reload to home page
-      }, 5);
+      await showMessageAndContinue (`Authication successful!`, routes.rootFromGG(success));
     } else {
       message.error("Wrong email. Please try again!");
     }
@@ -66,12 +63,7 @@ const LoginPage: React.FC = () => {
     const success = await AuthApi.login(email, password);
     setLoading(false);
     if (success) {
-      message.success(`Login successful!`);
-
-      // router.push(routes.root); // Navigate to root route
-      setTimeout(() => {
-        window.location.href = routes.root; // Set timeout to reload to home page
-      }, 0);
+      await showMessageAndContinue (`Login successful!`,  routes.root);
     } else {
       message.error("Wrong username or password. Please try again!");
     }
