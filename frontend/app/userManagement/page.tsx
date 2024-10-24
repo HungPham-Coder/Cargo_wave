@@ -299,7 +299,7 @@ const UserManagementList: React.FC = () => {
       // {
       {
         key: "ASSIGN_PERMISSION",
-        label: roles.length === 0 ? "Assign permissions" : "Update permissions",
+        label: roles.length === 0 ? "Assign roles" : "Update roles",
         icon: <ListAdd size="16" />,
         onClick: () => {
           setSelectedUser({
@@ -391,6 +391,7 @@ const UserManagementList: React.FC = () => {
           <Col>
             <span className="mr-2">Status: </span>
             <Select
+            placeholder="status..."
               allowClear
               style={{ width: 120 }}
               onChange={handleChange}

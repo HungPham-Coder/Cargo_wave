@@ -6,9 +6,12 @@ import CheckToken from "@/source/constants/utils";
 import { UserContext } from "@/source/contexts/UserContext";
 import { useAuth } from "@/source/mocks/auth";
 import routes from "@/source/router/routes";
-import { Carousel, Typography, Button } from "antd";
+import { LinkOutlined } from "@ant-design/icons";
+import { Github } from "@icon-park/react";
+import { Carousel, Typography, Button, Image, Card } from "antd";
+import Meta from "antd/es/card/Meta";
+import { color } from "echarts";
 import { jwtDecode } from "jwt-decode";
-import { Map } from "mapbox-gl";
 import Link from "next/link";
 import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
@@ -21,7 +24,6 @@ const HomeContainer = styled.div`
   flex-direction: row;
   justify-content: center;
   width: 100%;
-  min-height: 90vh;
   background-color: #f0f5ff;
   margin-top: 2rem;
 `;
@@ -142,67 +144,69 @@ export default function Home() {
   }, []);
 
   return (
-    <HomeContainer>
-      <Introduction>
-        <Title level={1} style={{ color: "#0d3b66" }}>
-          Welcome to the Cargo Wave System
-        </Title>
-        <Paragraph style={{ fontSize: "1.2rem", color: "#333" }}>
-          Our system offers a comprehensive solution for managing users, routes,
-          and route details. Easily track and update user information, manage
-          shipping routes, and monitor the specifics of each route to ensure
-          efficient and optimized operations.
-        </Paragraph>
+    <div style={{ minHeight: "90vh", marginTop: "15vh" }}>
+      <HomeContainer>
+        <Introduction>
+          <Title level={1} style={{ color: "#0d3b66" }}>
+            Welcome to the Cargo Wave System
+          </Title>
+          <Paragraph style={{ fontSize: "1.2rem", color: "#333" }}>
+            Our system offers a comprehensive solution for managing users,
+            routes, and route details. Easily track and update user information,
+            manage shipping routes, and monitor the specifics of each route to
+            ensure efficient and optimized operations.
+          </Paragraph>
 
-        {!userData && (
-          <Link href={routes.login}>
-            <div className="buttons">
-              <Button className="blob-btn" type="primary">
-                Get Started
-                <span className="blob-btn__inner">
-                  <span className="blob-btn__blobs">
-                    <span className="blob-btn__blob"></span>
-                    <span className="blob-btn__blob"></span>
-                    <span className="blob-btn__blob"></span>
-                    <span className="blob-btn__blob"></span>
+          {!userData && (
+            <Link href={routes.login}>
+              <div className="buttons">
+                <Button className="blob-btn" type="primary">
+                  Get Started
+                  <span className="blob-btn__inner">
+                    <span className="blob-btn__blobs">
+                      <span className="blob-btn__blob"></span>
+                      <span className="blob-btn__blob"></span>
+                      <span className="blob-btn__blob"></span>
+                      <span className="blob-btn__blob"></span>
+                    </span>
                   </span>
-                </span>
-              </Button>
-              <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
-                <defs>
-                  <filter id="goo">
-                    <feGaussianBlur
-                      in="SourceGraphic"
-                      result="blur"
-                      stdDeviation="10"
-                    ></feGaussianBlur>
-                    <feColorMatrix
-                      in="blur"
-                      mode="matrix"
-                      values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 21 -7"
-                      result="goo"
-                    ></feColorMatrix>
-                    <feBlend
-                      in2="goo"
-                      in="SourceGraphic"
-                      result="mix"
-                    ></feBlend>
-                  </filter>
-                </defs>
-              </svg>
-            </div>
-          </Link>
-        )}
-      </Introduction>
-      <CarouselContainer>
-        <Carousel autoplay afterChange={onChange} dots draggable>
-          {images.map((image, index) => (
-            <div key={index}>
-              <StyledImage src={image.src} alt={image.alt} />
-            </div>
-          ))}
-        </Carousel>
-      </CarouselContainer>
-    </HomeContainer>
+                </Button>
+                <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+                  <defs>
+                    <filter id="goo">
+                      <feGaussianBlur
+                        in="SourceGraphic"
+                        result="blur"
+                        stdDeviation="10"
+                      ></feGaussianBlur>
+                      <feColorMatrix
+                        in="blur"
+                        mode="matrix"
+                        values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 21 -7"
+                        result="goo"
+                      ></feColorMatrix>
+                      <feBlend
+                        in2="goo"
+                        in="SourceGraphic"
+                        result="mix"
+                      ></feBlend>
+                    </filter>
+                  </defs>
+                </svg>
+              </div>
+            </Link>
+          )}
+        </Introduction>
+        <CarouselContainer>
+          <Carousel autoplay afterChange={onChange} dots draggable>
+            {images.map((image, index) => (
+              <div key={index}>
+                <StyledImage src={image.src} alt={image.alt} />
+              </div>
+            ))}
+          </Carousel>
+        </CarouselContainer>
+      </HomeContainer>
+    </div>
   );
 }

@@ -118,10 +118,6 @@ const RouteCreateModal: React.FC<RouteCreateModalProps> = ({
     }
   };
 
-  const disabledDate = (current: any) => {
-    return current && current < dayjs().startOf("day");
-  };
-
   const handleArrivalTimeValidation = () => {
     const departureTime = form.getFieldValue("departure_time");
     const arrivalTime = form.getFieldValue("arrival_time");
@@ -229,7 +225,6 @@ const RouteCreateModal: React.FC<RouteCreateModalProps> = ({
               <DatePicker
                 showTime={{ format: "hh:mm A" }}
                 format="hh:mm A - DD/MM/YYYY"
-                disabledDate={disabledDate}
                 placeholder="Select departure time"
                 style={{ width: "100%" }}
               />
@@ -249,7 +244,6 @@ const RouteCreateModal: React.FC<RouteCreateModalProps> = ({
               <DatePicker
                 showTime={{ format: "hh:mm A" }}
                 format="DD/MM/YYYY hh:mm A"
-                disabledDate={disabledDate}
                 placeholder="Select arrival time"
                 style={{ width: "100%" }}
               />
