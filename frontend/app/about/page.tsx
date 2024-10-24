@@ -158,13 +158,16 @@ const AboutPage: React.FC = () => {
             <Meta title="Backend Tasks" />
             <ul style={{ textAlign: "left", paddingLeft: "1.5rem" }}>
               <li>Design database</li>
-              <li>Create entities user, routes, role (basic)</li>
-              <li>Build APIs for auth, users, send mail, routes (basic)</li>
-              <li>Build Kafka Microservice for notifications</li>
-              <li>Configure email sending</li>
-              <li>Configure Google Strategy</li>
-              <li>Configure PostgreSQL connection</li>
-              <li>Configure Docker Compose to run Kafka and database</li>
+              <li>Create entities user, bookshippings, customers, routes, staffs, storage, typeStaff (First stage)</li>
+              <li>Build APIs for auth, users, mails</li>
+              <li>Implement API for login user, send message, manager password</li>
+              <li>Implement resetpassword from notification email</li>
+              <li>Set up Kafka Client for notifications</li>
+              <li>Send notifications to email</li>
+              <li>Set up API Google Cloud Console</li>
+              <li>Authenication by Google</li>
+              <li>Configure Docker Compose to connect Kafka Broker</li>
+              <li>Configure Docker Compose to connect DB PostgreSQL</li>
             </ul>
           </CategoryCard>
         </div>

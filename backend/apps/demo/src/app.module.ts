@@ -27,9 +27,9 @@ import { CorsMiddleware } from './cors.middleware';
       host: 'localhost',
       port: 5432,
       username: 'postgres',
-      password: '123456',
-      database: 'CargoWave',
-      // database: 'postgres',
+      password: '130600',
+      // database: 'CargoWave',
+      database: 'postgres',
       entities: [
         User,
         Role,
