@@ -135,4 +135,13 @@ export class RoutesService {
             throw new Error('Error retrieving route statistics');
         }
     }
+
+    async getTotalRoutes(): Promise<number> {
+        try {
+            return await this.routeRepository.count();
+        } catch (error) {
+            console.error('Error getting total routes:', error);
+            throw new Error('Error getting total routes');
+        }
+    }
 }

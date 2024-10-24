@@ -1,6 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToMany, JoinTable, OneToOne } from 'typeorm';
 import { Role } from './role.entity';
-import { RefreshToken } from './refreshToken.entity';
 
 @Entity()
 export class User {
@@ -44,7 +43,4 @@ export class User {
     name: 'user_role'
   })
   roles: Role[]
-
-  @OneToMany(() => RefreshToken, (refreshTokens) => refreshTokens.users)
-  refreshTokens: RefreshToken[]
 }

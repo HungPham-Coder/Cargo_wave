@@ -19,15 +19,16 @@ const jwt = require("jsonwebtoken");
 const HomeContainer = styled.div`
   display: flex;
   flex-direction: row;
-  align-items: center;
   justify-content: center;
   width: 100%;
   min-height: 90vh;
   background-color: #f0f5ff;
+  margin-top: 2rem;
 `;
 
 const CarouselContainer = styled.div`
   width: 50%;
+  height: 50%;
   margin-left: 2rem;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
@@ -45,6 +46,7 @@ const Introduction = styled.div`
   text-align: left;
   max-width: 500px;
   margin-right: 2rem;
+  margin-top: 2rem;
 `;
 
 export default function Home() {
@@ -54,7 +56,6 @@ export default function Home() {
     { src: "/assets/3.jpg", alt: "Image 3" },
   ];
   const [jwtData, setJwtData] = useState<string | null>(null);
-  const isAuthenticated = useAuth();
 
   const onChange = (currentSlide: number) => {};
 
@@ -88,7 +89,7 @@ export default function Home() {
     }
   };
 
-  const { setUserData, setRoleData } = useContext(UserContext);
+  const { setUserData, userData } = useContext(UserContext);
 
   let id: string | undefined;
   if (jwtData) {
@@ -153,7 +154,7 @@ export default function Home() {
           efficient and optimized operations.
         </Paragraph>
 
-        {!isAuthenticated && (
+        {!userData && (
           <Link href={routes.login}>
             <div className="buttons">
               <Button className="blob-btn" type="primary">
@@ -167,7 +168,6 @@ export default function Home() {
                   </span>
                 </span>
               </Button>
-              <br />
               <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
                 <defs>
                   <filter id="goo">

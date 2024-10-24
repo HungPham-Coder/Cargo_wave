@@ -333,6 +333,7 @@ const RoleManagementList: React.FC = () => {
           canAccessCreateRole ? ( // Check for create permission
             <Button
               type="primary"
+              className="btn btn-white btn-animate"
               onClick={() => setShowItemModal(true)}
               loading={roleCreating}
             >
@@ -344,6 +345,7 @@ const RoleManagementList: React.FC = () => {
           <Col>
             <span className="mr-2">Status: </span>
             <Select
+            placeholder="status..."
               allowClear
               style={{ width: 120 }}
               onChange={handleChange}

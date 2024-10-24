@@ -83,22 +83,12 @@ const RouteDetailPage: React.FC = () => {
   const BORDER_COLOR = "#0d3b66";
   const FONT_WEIGHT = 500;
 
-  console.log(
-    "routeDetails?.departure?.latitude!",
-    routeDetails?.departure?.latitude!
-  );
-  console.log(
-    "routeDetails?.departure?.longitude",
-    routeDetails?.departure?.longitude!
-  );
-  console.log(
-    "routeDetails?.arrival?.latitude!",
-    routeDetails?.arrival?.latitude!
-  );
-  console.log(
-    "routeDetails?.arrival?.longitude!",
-    routeDetails?.arrival?.longitude!
-  );
+  const handleDistanceChange = (newDistance: string) => {
+    setDistance(newDistance);
+    form.setFieldsValue({ distance: newDistance }); // Update the form value
+  };
+
+  console.log("distance", distance)
 
   const getData = async () => {
     setLoading(true);
@@ -106,13 +96,13 @@ const RouteDetailPage: React.FC = () => {
       const response = await RouteApi.findRouteById(id);
       setRouteDetail(response);
       setRouteDetails(response);
-      const calculatedDistance = calculateDistance(
-        response.departure.latitude,
-        response.departure.longitude,
-        response.arrival.latitude,
-        response.arrival.longitude
-      ).toFixed(2);
-      setDistance(calculatedDistance);
+      // const calculatedDistance = calculateDistance(
+      //   response.departure.latitude,
+      //   response.departure.longitude,
+      //   response.arrival.latitude,
+      //   response.arrival.longitude
+      // ).toFixed(2);
+      // setDistance(calculatedDistance);
 
       form.setFieldsValue({
         ...response,
@@ -130,7 +120,7 @@ const RouteDetailPage: React.FC = () => {
         arrival_time: response.arrival_time
           ? dayjs(response.arrival_time)
           : null,
-        distance: calculatedDistance,
+        distance: distance,
       });
       setMapCoordinates({
         latitude: response.departure.latitude,
@@ -186,8 +176,6 @@ const RouteDetailPage: React.FC = () => {
   const handleSaveClick = async () => {
     try {
       const values = form.getFieldsValue();
-
-      console.log("Form Values:", values);
       const formattedValues = {
         name: values.name,
         status: Number(values.status),
@@ -201,7 +189,6 @@ const RouteDetailPage: React.FC = () => {
           ? values.arrival_time.toISOString()
           : null,
       };
-      console.log("formattedValues", formattedValues);
       const response = await RouteApi.updateRouteByID(id, formattedValues);
 
       if (response) {
@@ -237,28 +224,28 @@ const RouteDetailPage: React.FC = () => {
     }
   };
 
-  const calculateDistance = (
-    lat1: number,
-    lon1: number,
-    lat2: number,
-    lon2: number
-  ): number => {
-    const toRadians = (degree: number) => (degree * Math.PI) / 180;
-    const R = 6371; // Radius of the Earth in km
+  // const calculateDistance = (
+  //   lat1: number,
+  //   lon1: number,
+  //   lat2: number,
+  //   lon2: number
+  // ): number => {
+  //   const toRadians = (degree: number) => (degree * Math.PI) / 180;
+  //   const R = 6371; // Radius of the Earth in km
 
-    const dLat = toRadians(lat2 - lat1);
-    const dLon = toRadians(lon2 - lon1);
+  //   const dLat = toRadians(lat2 - lat1);
+  //   const dLon = toRadians(lon2 - lon1);
 
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(toRadians(lat1)) *
-        Math.cos(toRadians(lat2)) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
+  //   const a =
+  //     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+  //     Math.cos(toRadians(lat1)) *
+  //       Math.cos(toRadians(lat2)) *
+  //       Math.sin(dLon / 2) *
+  //       Math.sin(dLon / 2);
 
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
-  };
+  //   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  //   return R * c;
+  // };
 
   const handleDistance = () => {
     const departureId = form.getFieldValue("departure");
@@ -268,15 +255,6 @@ const RouteDetailPage: React.FC = () => {
     const arrivalLocation = locations.find((loc) => loc.id === arrivalId);
 
     if (departureLocation && arrivalLocation) {
-      const distance = calculateDistance(
-        departureLocation.latitude,
-        departureLocation.longitude,
-        arrivalLocation.latitude,
-        arrivalLocation.longitude
-      );
-      setDistance(distance.toFixed(2));
-      form.setFieldsValue({ distance: distance.toFixed(2) });
-
       setMapCoordinates({
         latitude: arrivalLocation.latitude,
         longitude: arrivalLocation.longitude,
@@ -574,6 +552,7 @@ const RouteDetailPage: React.FC = () => {
           </Col>
           <Col span={12}>
             <MapComponent
+              onDistanceChange={handleDistanceChange}
               startLat={routeDetails?.departure?.latitude!}
               startLng={routeDetails?.departure?.longitude!}
               destLat={routeDetails?.arrival?.latitude!}
