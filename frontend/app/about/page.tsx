@@ -189,7 +189,7 @@ const AboutPage: React.FC = () => {
           Diagrams
         </Title>
 
-        <Image src="/assets/ERD.jpg" alt="Entity-Relationship Diagram"></Image>
+        <Image src="/assets/Architecture diagram.jpg" alt="Entity-Relationship Diagram"></Image>
         <Paragraph style={{ fontStyle: "italic", marginTop: "1rem" }}>
           01. Architecture diagram.
         </Paragraph>
