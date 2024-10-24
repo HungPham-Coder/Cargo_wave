@@ -162,6 +162,11 @@ const AppSider: React.FC = () => {
           },
         ]
       : []),
+    {
+      label: <Link href={routes.about}>About</Link>,
+      key: "about",
+      icon: <Home size={iconSize} />,
+    },
   ];
 
   const onClick: MenuProps["onClick"] = (e) => {

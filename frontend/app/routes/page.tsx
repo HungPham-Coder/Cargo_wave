@@ -192,7 +192,12 @@ const RoutesList: React.FC = () => {
         {canAccessCreateRoute && (
           <Col>
             <Button
-              style={{  fontSize: 18, borderRadius: 50, padding: "20px 20px", fontWeight: 700}}
+              style={{
+                fontSize: 18,
+                borderRadius: 50,
+                padding: "20px 20px",
+                fontWeight: 700,
+              }}
               className="btn btn-white btn-animate"
               onClick={() => setShowItemModal(true)}
             >
