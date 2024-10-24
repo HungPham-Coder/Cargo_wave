@@ -5,7 +5,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { User } from './entities/user.entity';
-import { RefreshToken } from './entities/refreshToken.entity';
 import { Role } from './entities/role.entity';
 import { Route } from './entities/routes.entity';
 import { Permission } from './entities/permission.entity';
@@ -33,7 +32,6 @@ import { CorsMiddleware } from './cors.middleware';
       // database: 'postgres',
       entities: [
         User,
-        RefreshToken,
         Role,
         Permission,
         Route,

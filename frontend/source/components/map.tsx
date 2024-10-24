@@ -14,6 +14,7 @@ interface MapComponentProps {
   destLat: number;
   destLng: number;
   showRoute: boolean;
+  onDistanceChange: (newDistance: string) => void;
 }
 
 const MapComponent: React.FC<MapComponentProps> = ({
@@ -22,8 +23,10 @@ const MapComponent: React.FC<MapComponentProps> = ({
   destLat,
   destLng,
   showRoute,
+  onDistanceChange,
 }) => {
   const [routeData, setRouteData] = useState<any>(null);
+  const [distance, setDistance] = useState<number | null>(null);
   const mapRef = useRef<any>(null); // Reference to the Map component
 
   const fetchRoute = async () => {
@@ -31,9 +34,10 @@ const MapComponent: React.FC<MapComponentProps> = ({
       `https://api.mapbox.com/directions/v5/mapbox/driving/${startLng},${startLat};${destLng},${destLat}?geometries=geojson&access_token=${process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`
     );
     const data = await response.json();
-    console.log("Fetched Route Data:", data); // Log the data to debug
+    console.log("Fetched Route Data:", data.routes[0].distance); // Log the data to debug
     if (data.routes && data.routes.length > 0) {
       setRouteData(data.routes[0].geometry);
+      onDistanceChange(data.routes[0].distance)
     }
   };
 
@@ -64,7 +68,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
         {showRoute && routeData && (
           <Marker longitude={startLng} latitude={startLat} color="red" />
         )}
-       
+
         {showRoute && routeData && (
           <Source id="route" type="geojson" data={routeData}>
             <Layer

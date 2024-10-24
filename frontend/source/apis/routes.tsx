@@ -78,6 +78,16 @@ const getRouteStatistics = async () => {
   }
 };
 
+const getTotalRoutes = async () => {
+  try {
+    const response = await BaseApi.get(`/${resource}/getTotalRoutes`);
+    return response.data;
+  } catch (error) {
+    console.log("Error getTotalRoutes class: ", error);
+    return false;
+  }
+};
+
 const RouteApi = {
   findAll,
   findAllBySearch,
@@ -85,6 +95,7 @@ const RouteApi = {
   createRoute,
   findRouteById,
   getRouteStatistics,
+  getTotalRoutes,
 };
 
 export default RouteApi;

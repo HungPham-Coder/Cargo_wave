@@ -65,4 +65,11 @@ export class RoutesController {
     async getStatistics(): Promise<RouteStatisticsDto> {
         return await this.routeService.getRouteStatistics();
     }
+
+    @HttpCode(HttpStatus.OK)
+    @Get('getTotalRoutes')
+    async getTotalRoutes() {
+        const totalRoutes = await this.routeService.getTotalRoutes();
+        return { totalRoutes };
+    }
 }

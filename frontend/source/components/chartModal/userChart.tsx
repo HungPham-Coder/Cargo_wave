@@ -41,19 +41,19 @@ const UserChart: React.FC = () => {
     if (myChart.current) {
       const option: EChartsOption = {
         title: {
-          text: "Users chart", // Set your chart title here
+          text: "Users chart",
           left: "center",
-          top: "85%", // Adjust this value based on your layout
+          top: "87%", 
           textStyle: {
-            fontSize: 18, // You can customize the font size and style
+            fontSize: 18, 
           },
         },
         tooltip: {
-          trigger: "item",
+          trigger: 'item'
         },
         legend: {
-          top: "5%",
-          left: "center",
+          top: '5%',
+          left: 'center'
         },
         series: [
           {
@@ -64,7 +64,6 @@ const UserChart: React.FC = () => {
             itemStyle: {
               borderRadius: 10,
               borderColor: "#fff",
-              borderWidth: 2,
             },
             data: usersByRole.map(({ role, total }) => ({
               name: role,
@@ -95,7 +94,7 @@ const UserChart: React.FC = () => {
 
   return (
     <div>
-      <div ref={chartRef} style={{ width: "30%", height: "400px" }} />
+      <div ref={chartRef} style={{ width: "100%", height: "400px" }} />
     </div>
   );
 };

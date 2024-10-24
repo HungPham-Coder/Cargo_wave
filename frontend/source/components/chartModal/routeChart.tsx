@@ -55,7 +55,7 @@ const RouteChart: React.FC = () => {
         title: {
           text: "Routes chart", // Set your chart title here
           left: "center",
-          top: "85%", // Adjust this value based on your layout
+          top: "87%", // Adjust this value based on your layout
           textStyle: {
             fontSize: 18, // You can customize the font size and style
           },
@@ -113,7 +113,7 @@ const RouteChart: React.FC = () => {
 
   return (
     <div>
-      <div ref={chartRef} style={{ width: "30%", height: "400px" }} />
+      <div ref={chartRef} style={{ width: "100%", height: "400px" }} />
     </div>
   );
 };
