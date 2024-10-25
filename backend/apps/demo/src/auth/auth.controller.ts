@@ -43,7 +43,7 @@ export class AuthController {
 
     @Post('register')
     // @MessagePattern('hero.auth.register')
-    signUp(@Body(ValidationPipe) signUpDto: CreateUserDTO) {
+    signUp(@Body() signUpDto: CreateUserDTO) {
         return this.authService.signUp(signUpDto)
     }
 

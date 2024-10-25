@@ -68,9 +68,10 @@ const forgotPassword = async (to: string): Promise<any | undefined> => {
   }
 
 }
-const loginGoogle = async (): Promise<any> => {
+const loginGoogle = async () => {
   try {
-    const response = await BaseApi.get("auth/google");
+    const response = await BaseApi.get(`/${resource}/google`);
+    console.log("response", response)
     console.log("Data from google: ", response.data);
     if (response.status === 200) {
       return response.data.accessToken;

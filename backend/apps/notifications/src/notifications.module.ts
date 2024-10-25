@@ -6,7 +6,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'apps/demo/src/entities/user.entity';
 import { Role } from 'apps/demo/src/entities/role.entity';
 import { Permission } from 'apps/demo/src/entities/permission.entity';
-import { RefreshToken } from 'apps/demo/src/entities/refreshToken.entity';
 import { Route } from 'apps/demo/src/entities/routes.entity';
 import { ShippingType } from 'apps/demo/src/entities/shippingType.entity';
 import { Transport } from 'apps/demo/src/entities/transport.entity';
@@ -24,7 +23,6 @@ import { Location } from 'apps/demo/src/entities/location.entity';
       database: 'postgres',
       entities: [
         User,
-        RefreshToken,
         Role,
         Permission,
         Route,

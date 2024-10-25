@@ -1,13 +1,10 @@
 "use client";
 import UserApi from "@/source/apis/users";
-import withPermission from "@/source/hook/withPermission";
 import { UserContext } from "@/source/contexts/UserContext";
 import routes from "@/source/router/routes";
 import {
   CameraOutlined,
   HomeOutlined,
-  MailOutlined,
-  PhoneOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import {
@@ -21,17 +18,11 @@ import {
   message,
   Radio,
   RadioChangeEvent,
-  Select,
-  SelectProps,
-  Tag,
   Typography,
-  Upload,
 } from "antd";
-import { RcFile, UploadChangeParam } from "antd/es/upload";
 import dayjs from "dayjs";
 import { jwtDecode } from "jwt-decode";
 import {
-  CldImage,
   CldUploadWidget,
   CloudinaryUploadWidgetInfo,
 } from "next-cloudinary";
@@ -39,18 +30,6 @@ import Link from "next/link";
 import { useContext, useEffect, useState } from "react";
 
 const { Title } = Typography;
-
-interface Users {
-  id: string;
-  name: string;
-  email: string;
-  phone_number: string;
-  gender: number;
-  dob: Date;
-  image: string;
-  status: number;
-  description: string;
-}
 
 const ProfilePage: React.FC = () => {
   const [form] = Form.useForm();
@@ -62,10 +41,6 @@ const ProfilePage: React.FC = () => {
   >(undefined);
   const { userData } = useContext(UserContext);
 
-  const jwtData = localStorage.getItem("jwt");
-  const decodedJwt = jwtDecode<{ sub: string }>(jwtData!);
-  const id = decodedJwt.sub;
-
   const handleUpdateUserProfile = async (values: any) => {
     setLoading(true);
     try {
@@ -74,7 +49,7 @@ const ProfilePage: React.FC = () => {
         image: avatarUrl, // Include the image URL in the payload
       };
 
-      const body = await UserApi.updateUser(id, updatedValues);
+      const body = await UserApi.updateUser(userData!.id, updatedValues);
 
       if (body) {
         message.success(`Profile updated successfully`);
@@ -335,4 +310,5 @@ const ProfilePage: React.FC = () => {
   );
 };
 
-export default withPermission(ProfilePage, "user_update");
+// export default withPermission(ProfilePage, "user_update");
+export default ProfilePage;

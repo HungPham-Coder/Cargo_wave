@@ -50,6 +50,7 @@ const LoginPage: React.FC = () => {
   const handleGoogle = async () => {
     setLoading(true);
     const success = await AuthApi.loginGoogle();
+    console.log("success", success)
     setLoading(false);
     if (success) {
       message.success(`Login by Google successful!`);
